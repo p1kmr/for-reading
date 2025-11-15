@@ -2515,34 +2515,522 @@ interface Calculator {
 
 ---
 
+### 🎭 Functional Interfaces (Complete Guide for Beginners)
+
+**What is a Functional Interface?**
+An interface with **exactly ONE abstract method**. It can have multiple default or static methods, but only ONE abstract method.
+
+**Why do we need them?**
+- Required for Lambda expressions to work
+- Makes code more concise and readable
+- Enables functional programming in Java
+- Used heavily in Streams API
+
+**For Beginners:**
+Think of a Functional Interface as a "contract" that says "I need a function that does THIS specific thing". Lambda expressions are a short way to provide that function.
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│           FUNCTIONAL INTERFACE = 1 Abstract Method             │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  @FunctionalInterface  ← Optional annotation (recommended)    │
+│  interface MyFunction {                                        │
+│      void doSomething();  ← This is the ONE abstract method    │
+│                                                                │
+│      // Can have default methods (optional)                   │
+│      default void helper() { ... }                            │
+│                                                                │
+│      // Can have static methods (optional)                    │
+│      static void utility() { ... }                            │
+│  }                                                             │
+│                                                                │
+│  WHY ONLY ONE?                                                 │
+│  Because lambda needs to know which method to implement!       │
+│  If there were 2+ methods, lambda wouldn't know which one.    │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 📦 Built-in Functional Interfaces (Java 8+)
+
+Java provides many ready-to-use functional interfaces in `java.util.function` package.
+
+```
+╔════════════════════════════════════════════════════════════════════╗
+║           COMMON FUNCTIONAL INTERFACES CHEAT SHEET                 ║
+╠════════════════════════════════════════════════════════════════════╣
+║                                                                    ║
+║ 1️⃣  Predicate<T>      - Tests a condition, returns boolean       ║
+║     Method: boolean test(T t)                                     ║
+║     Use: Filtering, checking conditions                           ║
+║     Example: n -> n > 10  (is number greater than 10?)           ║
+║                                                                    ║
+║ 2️⃣  Function<T, R>    - Takes input, returns output              ║
+║     Method: R apply(T t)                                          ║
+║     Use: Transforming data                                        ║
+║     Example: s -> s.length()  (convert String to its length)     ║
+║                                                                    ║
+║ 3️⃣  Consumer<T>       - Takes input, returns nothing             ║
+║     Method: void accept(T t)                                      ║
+║     Use: Performing actions (printing, saving, etc.)              ║
+║     Example: s -> System.out.println(s)  (print the string)      ║
+║                                                                    ║
+║ 4️⃣  Supplier<T>       - Takes nothing, returns output            ║
+║     Method: T get()                                               ║
+║     Use: Providing/generating values                              ║
+║     Example: () -> Math.random()  (generate random number)       ║
+║                                                                    ║
+║ 5️⃣  BiFunction<T,U,R> - Takes 2 inputs, returns output           ║
+║     Method: R apply(T t, U u)                                     ║
+║     Use: Combining two values                                     ║
+║     Example: (a, b) -> a + b  (add two numbers)                  ║
+║                                                                    ║
+║ 6️⃣  UnaryOperator<T>  - Takes T, returns T (same type)           ║
+║     Method: T apply(T t)                                          ║
+║     Use: Modifying values of same type                            ║
+║     Example: n -> n * 2  (double a number)                       ║
+║                                                                    ║
+║ 7️⃣  BinaryOperator<T> - Takes 2 T's, returns T                   ║
+║     Method: T apply(T t1, T t2)                                   ║
+║     Use: Combining two values of same type                        ║
+║     Example: (a, b) -> a + b  (sum two numbers)                  ║
+║                                                                    ║
+╚════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
+### 💡 Functional Interfaces Examples (For Beginners)
+
+```java
+import java.util.*;
+import java.util.function.*;
+
+public class FunctionalInterfacesDemo {
+    public static void main(String[] args) {
+
+        // ═══════════════════════════════════════════════════════
+        // 1️⃣  PREDICATE - Test a condition (returns boolean)
+        // ═══════════════════════════════════════════════════════
+        // BEGINNER NOTE: Predicate is like asking a yes/no question
+
+        Predicate<Integer> isEven = n -> n % 2 == 0;
+        Predicate<Integer> isPositive = n -> n > 0;
+        Predicate<String> isLongString = s -> s.length() > 5;
+
+        System.out.println("=== PREDICATE Examples ===");
+        System.out.println("Is 4 even? " + isEven.test(4));        // true
+        System.out.println("Is 5 even? " + isEven.test(5));        // false
+        System.out.println("Is 10 positive? " + isPositive.test(10)); // true
+        System.out.println("Is 'Hello' long? " + isLongString.test("Hello")); // false
+
+        // Combining predicates
+        Predicate<Integer> isEvenAndPositive = isEven.and(isPositive);
+        System.out.println("Is 4 even AND positive? " + isEvenAndPositive.test(4)); // true
+        System.out.println("Is -4 even AND positive? " + isEvenAndPositive.test(-4)); // false
+
+        // Real-world use: Filtering a list
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        List<Integer> evenNumbers = new ArrayList<>();
+        for (Integer num : numbers) {
+            if (isEven.test(num)) {
+                evenNumbers.add(num);
+            }
+        }
+        System.out.println("Even numbers: " + evenNumbers);
+        // Output: Even numbers: [2, 4, 6, 8, 10]
+
+
+        // ═══════════════════════════════════════════════════════
+        // 2️⃣  FUNCTION - Transform input to output
+        // ═══════════════════════════════════════════════════════
+        // BEGINNER NOTE: Function takes something and converts it to something else
+
+        System.out.println("\n=== FUNCTION Examples ===");
+
+        Function<String, Integer> stringLength = s -> s.length();
+        Function<Integer, Integer> square = n -> n * n;
+        Function<String, String> toUpperCase = s -> s.toUpperCase();
+
+        System.out.println("Length of 'Hello': " + stringLength.apply("Hello")); // 5
+        System.out.println("Square of 5: " + square.apply(5)); // 25
+        System.out.println("Uppercase: " + toUpperCase.apply("hello")); // HELLO
+
+        // Chaining functions
+        Function<Integer, Integer> addTen = n -> n + 10;
+        Function<Integer, Integer> multiplyByTwo = n -> n * 2;
+
+        // addTen then multiplyByTwo: (5 + 10) * 2 = 30
+        Function<Integer, Integer> addThenMultiply = addTen.andThen(multiplyByTwo);
+        System.out.println("Add 10, then multiply by 2: " + addThenMultiply.apply(5)); // 30
+
+        // compose: multiplyByTwo first, then addTen: (5 * 2) + 10 = 20
+        Function<Integer, Integer> multiplyThenAdd = addTen.compose(multiplyByTwo);
+        System.out.println("Multiply by 2, then add 10: " + multiplyThenAdd.apply(5)); // 20
+
+
+        // ═══════════════════════════════════════════════════════
+        // 3️⃣  CONSUMER - Takes input, performs action (no return)
+        // ═══════════════════════════════════════════════════════
+        // BEGINNER NOTE: Consumer uses/consumes a value without returning anything
+
+        System.out.println("\n=== CONSUMER Examples ===");
+
+        Consumer<String> printUpperCase = s -> System.out.println(s.toUpperCase());
+        Consumer<Integer> printSquare = n -> System.out.println("Square: " + (n * n));
+        Consumer<String> saveToDatabase = s -> System.out.println("Saving to DB: " + s);
+
+        printUpperCase.accept("hello");  // Output: HELLO
+        printSquare.accept(5);           // Output: Square: 25
+
+        // Chaining consumers
+        Consumer<String> printAndSave = printUpperCase.andThen(saveToDatabase);
+        printAndSave.accept("important data");
+        /* Output:
+         * IMPORTANT DATA
+         * Saving to DB: important data
+         */
+
+        // Real-world use: Process each element
+        List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
+        names.forEach(name -> System.out.println("Hello, " + name));
+        /* Output:
+         * Hello, Alice
+         * Hello, Bob
+         * Hello, Charlie
+         */
+
+
+        // ═══════════════════════════════════════════════════════
+        // 4️⃣  SUPPLIER - Provides/generates a value (no input)
+        // ═══════════════════════════════════════════════════════
+        // BEGINNER NOTE: Supplier supplies a value, like a factory or generator
+
+        System.out.println("\n=== SUPPLIER Examples ===");
+
+        Supplier<Double> randomNumber = () -> Math.random();
+        Supplier<String> getCurrentTime = () -> new Date().toString();
+        Supplier<Integer> getConstant = () -> 42;
+
+        System.out.println("Random: " + randomNumber.get());
+        System.out.println("Current time: " + getCurrentTime.get());
+        System.out.println("Constant: " + getConstant.get());
+
+        // Real-world use: Lazy initialization
+        // The supplier is only called when needed
+        Supplier<List<String>> createList = () -> {
+            System.out.println("Creating new list...");
+            return new ArrayList<>();
+        };
+
+        // List is not created yet
+        System.out.println("Supplier created, but list not created yet");
+
+        // Now list is created
+        List<String> myList = createList.get();  // Output: Creating new list...
+        myList.add("Item 1");
+
+
+        // ═══════════════════════════════════════════════════════
+        // 5️⃣  BIFUNCTION - Takes 2 inputs, returns 1 output
+        // ═══════════════════════════════════════════════════════
+        // BEGINNER NOTE: BiFunction combines two values to produce a result
+
+        System.out.println("\n=== BIFUNCTION Examples ===");
+
+        BiFunction<Integer, Integer, Integer> add = (a, b) -> a + b;
+        BiFunction<Integer, Integer, Integer> multiply = (a, b) -> a * b;
+        BiFunction<String, String, String> concat = (s1, s2) -> s1 + " " + s2;
+        BiFunction<Integer, Integer, Double> divide = (a, b) -> (double) a / b;
+
+        System.out.println("5 + 3 = " + add.apply(5, 3));           // 8
+        System.out.println("5 * 3 = " + multiply.apply(5, 3));      // 15
+        System.out.println("Concat: " + concat.apply("Hello", "World")); // Hello World
+        System.out.println("10 / 3 = " + divide.apply(10, 3));      // 3.333...
+
+
+        // ═══════════════════════════════════════════════════════
+        // 6️⃣  UNARYOPERATOR - Takes T, returns T (same type)
+        // ═══════════════════════════════════════════════════════
+        // BEGINNER NOTE: UnaryOperator modifies a value but keeps the same type
+
+        System.out.println("\n=== UNARYOPERATOR Examples ===");
+
+        UnaryOperator<Integer> doubleIt = n -> n * 2;
+        UnaryOperator<String> addExclamation = s -> s + "!";
+        UnaryOperator<Integer> negate = n -> -n;
+
+        System.out.println("Double 5: " + doubleIt.apply(5));              // 10
+        System.out.println("Add !: " + addExclamation.apply("Hello"));     // Hello!
+        System.out.println("Negate 10: " + negate.apply(10));              // -10
+
+
+        // ═══════════════════════════════════════════════════════
+        // 7️⃣  BINARYOPERATOR - Takes 2 T's, returns T
+        // ═══════════════════════════════════════════════════════
+        // BEGINNER NOTE: BinaryOperator combines two values of same type
+
+        System.out.println("\n=== BINARYOPERATOR Examples ===");
+
+        BinaryOperator<Integer> sum = (a, b) -> a + b;
+        BinaryOperator<Integer> max = (a, b) -> a > b ? a : b;
+        BinaryOperator<String> joinStrings = (s1, s2) -> s1 + ", " + s2;
+
+        System.out.println("Sum: " + sum.apply(10, 20));           // 30
+        System.out.println("Max: " + max.apply(10, 20));           // 20
+        System.out.println("Join: " + joinStrings.apply("A", "B")); // A, B
+
+        // Real-world use: Reduce operation
+        List<Integer> numList = Arrays.asList(1, 2, 3, 4, 5);
+        int total = numList.stream().reduce(0, sum);
+        System.out.println("Total sum: " + total);  // 15
+    }
+}
+```
+
+---
+
+### 🎯 When to Use Which Functional Interface?
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                  DECISION GUIDE FOR BEGINNERS                  │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  QUESTION: What do you need to do?                            │
+│                                                                │
+│  📍 Testing a condition (yes/no)?                             │
+│     → Use Predicate<T>                                        │
+│     Example: Check if number is even, if string is empty     │
+│                                                                │
+│  📍 Transforming one type to another?                         │
+│     → Use Function<T, R>                                      │
+│     Example: String to Integer, Person to String             │
+│                                                                │
+│  📍 Performing an action (no return value)?                   │
+│     → Use Consumer<T>                                         │
+│     Example: Print, save to database, send email             │
+│                                                                │
+│  📍 Generating/providing a value (no input)?                  │
+│     → Use Supplier<T>                                         │
+│     Example: Get random number, get current time             │
+│                                                                │
+│  📍 Combining two values?                                     │
+│     → Use BiFunction<T, U, R> (different types)               │
+│     → Use BinaryOperator<T> (same type)                       │
+│     Example: Add two numbers, concatenate strings            │
+│                                                                │
+│  📍 Modifying a value (input and output same type)?           │
+│     → Use UnaryOperator<T>                                    │
+│     Example: Double a number, uppercase a string             │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 🔗 How Functional Interfaces Work with Streams
+
+```java
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
+
+public class FunctionalInterfacesWithStreams {
+    public static void main(String[] args) {
+
+        List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "David", "Eve");
+
+        // Predicate - used in filter()
+        Predicate<String> startsWithC = name -> name.startsWith("C");
+        List<String> cNames = names.stream()
+            .filter(startsWithC)  // ← Predicate here
+            .collect(Collectors.toList());
+        System.out.println("Names starting with C: " + cNames);
+        // Output: [Charlie]
+
+        // Function - used in map()
+        Function<String, Integer> nameLength = String::length;
+        List<Integer> lengths = names.stream()
+            .map(nameLength)  // ← Function here
+            .collect(Collectors.toList());
+        System.out.println("Name lengths: " + lengths);
+        // Output: [5, 3, 7, 5, 3]
+
+        // Consumer - used in forEach()
+        Consumer<String> printUpperCase = name -> System.out.println(name.toUpperCase());
+        System.out.println("\nUppercase names:");
+        names.stream()
+            .forEach(printUpperCase);  // ← Consumer here
+        /* Output:
+         * ALICE
+         * BOB
+         * CHARLIE
+         * DAVID
+         * EVE
+         */
+
+        // BinaryOperator - used in reduce()
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+        BinaryOperator<Integer> sum = (a, b) -> a + b;
+        int total = numbers.stream()
+            .reduce(0, sum);  // ← BinaryOperator here
+        System.out.println("\nSum: " + total);
+        // Output: Sum: 15
+    }
+}
+```
+
+---
+
+### 📝 Creating Custom Functional Interfaces
+
+```java
+// You can create your own functional interfaces!
+
+@FunctionalInterface
+interface StringProcessor {
+    String process(String input);
+}
+
+@FunctionalInterface
+interface TriFunction<T, U, V, R> {
+    R apply(T t, U u, V v);
+}
+
+@FunctionalInterface
+interface Validator<T> {
+    boolean validate(T value);
+
+    // Can have default methods
+    default boolean validateNotNull(T value) {
+        return value != null && validate(value);
+    }
+}
+
+public class CustomFunctionalInterfaceDemo {
+    public static void main(String[] args) {
+
+        // Using StringProcessor
+        StringProcessor reverseString = s -> new StringBuilder(s).reverse().toString();
+        StringProcessor addPrefix = s -> "Mr. " + s;
+
+        System.out.println(reverseString.process("Hello"));  // olleH
+        System.out.println(addPrefix.process("Smith"));      // Mr. Smith
+
+        // Using TriFunction (takes 3 inputs)
+        TriFunction<Integer, Integer, Integer, Integer> sumThree =
+            (a, b, c) -> a + b + c;
+
+        System.out.println("Sum of 1, 2, 3: " + sumThree.apply(1, 2, 3));  // 6
+
+        // Using Validator
+        Validator<String> emailValidator =
+            email -> email != null && email.contains("@") && email.contains(".");
+
+        System.out.println("Valid email? " + emailValidator.validate("user@example.com"));  // true
+        System.out.println("Valid email? " + emailValidator.validate("invalid"));           // false
+    }
+}
+```
+
+---
+
 ### 🌊 Streams API
 
 **What:** Sequence of elements supporting sequential and parallel operations.
 
-**Why:**
-- Declarative code
-- Easy parallelization
-- Lazy evaluation
-- Functional operations
+**Think of it like:** An assembly line in a factory where:
+- **Source** = Raw materials entering the line
+- **Intermediate Operations** = Different stations transforming the materials
+- **Terminal Operation** = Final packaged product
 
-```mermaid
-graph LR
-    A[Source] --> B[Intermediate Operations]
-    B --> C[Terminal Operation]
-    
-    B --> B1[filter]
-    B --> B2[map]
-    B --> B3[sorted]
-    B --> B4[distinct]
-    
-    C --> C1[collect]
-    C --> C2[forEach]
-    C --> C3[reduce]
-    C --> C4[count]
-    
-    style A fill:#9f9,stroke:#333
-    style B fill:#99f,stroke:#333
-    style C fill:#f99,stroke:#333
+**Why:**
+- Declarative code (tell WHAT you want, not HOW to do it)
+- Easy parallelization (process multiple items simultaneously)
+- Lazy evaluation (operations only execute when needed - saves resources)
+- Functional operations (clean, readable code)
+
+**For Beginners:**
+Stream is like a pipeline that processes data. You take a source (like a list), apply transformations (filter, map, etc.), and get a result.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    🌊 STREAM API FLOW (For Beginners)               │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────┐         │
+│  │  SOURCE  │ ──>  │ INTERMEDIATE │ ──>  │   TERMINAL   │         │
+│  │          │      │  OPERATIONS  │      │  OPERATION   │         │
+│  │ (Start)  │      │  (Process)   │      │   (Result)   │         │
+│  └──────────┘      └──────────────┘      └──────────────┘         │
+│       │                   │                      │                 │
+│   Where data           Transform/            Produce final         │
+│   comes from           filter data            result               │
+│                                                                     │
+│   Examples:            Examples:             Examples:             │
+│   • List               • filter()            • collect()           │
+│   • Set                  (keep some)          (to List/Set)        │
+│   • Array              • map()               • forEach()           │
+│   • Stream.of()          (transform)          (do action)          │
+│   • Files.lines()      • sorted()            • reduce()            │
+│                          (arrange)            (combine)            │
+│                        • distinct()          • count()             │
+│                          (unique)             (how many)           │
+│                        • limit()             • findFirst()         │
+│                          (take first N)       (get first)          │
+│                        • skip()              • anyMatch()          │
+│                          (skip first N)       (check any)          │
+│                        • peek()              • min()/max()         │
+│                          (inspect)            (smallest/largest)   │
+│                        • flatMap()           • toArray()           │
+│                          (flatten)            (to array)           │
+│                                                                     │
+│  📚 IMPORTANT CONCEPTS (Must Understand):                          │
+│  ─────────────────────────────────────────────────────────────────│
+│  1. Source: Where data comes from (⚠️ Stream can be used ONLY ONCE)│
+│  2. Intermediate: Transform/filter data                            │
+│     • LAZY - Not executed immediately!                             │
+│     • Only executes when terminal operation is called              │
+│     • Can chain multiple intermediate operations                   │
+│     • Returns a Stream (so you can chain more)                     │
+│  3. Terminal: Produces result                                      │
+│     • Triggers execution of all intermediate operations            │
+│     • Only ONE terminal operation per stream                       │
+│     • Returns non-Stream result (List, int, boolean, etc.)         │
+│  4. After terminal operation, stream is closed (cannot reuse)      │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+EXAMPLE FLOW (Step by Step for Beginners):
+═══════════════════════════════════════════
+Suppose you have: List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6);
+
+GOAL: Get squares of even numbers
+
+numbers.stream()              ← SOURCE: Creates stream [1, 2, 3, 4, 5, 6]
+    .filter(n -> n % 2 == 0)  ← INTERMEDIATE: Keeps only [2, 4, 6]
+    .map(n -> n * n)          ← INTERMEDIATE: Squares each → [4, 16, 36]
+    .collect(Collectors.toList()); ← TERMINAL: Converts to List [4, 16, 36]
+
+Result: [4, 16, 36]
+
+WHAT HAPPENS INTERNALLY:
+────────────────────────
+• .stream() - Creates a pipeline (nothing processed yet)
+• .filter() - Adds a filter rule to pipeline (still nothing processed)
+• .map() - Adds a transformation rule (still nothing processed)
+• .collect() - TRIGGERS execution! Now all operations run
+
+WHY THIS MATTERS (For Beginners):
+═════════════════════════════════
+✓ Intermediate operations are LAZY (not executed immediately)
+✓ Nothing happens until you call a terminal operation
+✓ Stream can only be used ONCE (after terminal operation, it's closed)
+✓ More efficient than traditional loops for large datasets
 ```
 
 ---
@@ -2672,8 +3160,214 @@ public class StreamOperations {
         Optional<Integer> max = numbers.stream().max(Integer::compareTo);
         System.out.println("Min: " + min.orElse(-1) + ", Max: " + max.orElse(-1));
         // Output: Min: 1, Max: 10
+
+        // 17. peek() - Inspect elements (for debugging)
+        // BEGINNER NOTE: peek() lets you see what's happening at each step
+        // It's like adding a console.log in JavaScript - doesn't change data, just lets you see it
+        System.out.println("\n=== Using peek() for debugging ===");
+        List<Integer> debugResult = numbers.stream()
+            .filter(n -> n % 2 == 0)
+            .peek(n -> System.out.println("Filtered: " + n))  // See what passed filter
+            .map(n -> n * n)
+            .peek(n -> System.out.println("Squared: " + n))   // See after squaring
+            .collect(Collectors.toList());
+        System.out.println("Final result: " + debugResult);
+        /* Output:
+         * Filtered: 2
+         * Squared: 4
+         * Filtered: 4
+         * Squared: 16
+         * Filtered: 6
+         * Squared: 36
+         * Filtered: 8
+         * Squared: 64
+         * Filtered: 10
+         * Squared: 100
+         * Final result: [4, 16, 36, 64, 100]
+         */
+
+        // 18. flatMap() - Flatten nested structures
+        // BEGINNER NOTE: flatMap() is used when each element can become multiple elements
+        // Example: Each word becomes multiple characters, or each order has multiple items
+        System.out.println("\n=== Using flatMap() ===");
+
+        List<List<Integer>> nestedNumbers = Arrays.asList(
+            Arrays.asList(1, 2, 3),
+            Arrays.asList(4, 5, 6),
+            Arrays.asList(7, 8, 9)
+        );
+
+        // Without flatMap - you get Stream<List<Integer>>
+        // With flatMap - you get Stream<Integer>
+        List<Integer> flattened = nestedNumbers.stream()
+            .flatMap(list -> list.stream())  // Flattens [[1,2,3], [4,5,6]] to [1,2,3,4,5,6]
+            .collect(Collectors.toList());
+        System.out.println("Flattened: " + flattened);
+        // Output: Flattened: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        // Real-world example: Split sentences into words
+        List<String> sentences = Arrays.asList("Hello World", "Java Streams", "Are Powerful");
+        List<String> words = sentences.stream()
+            .flatMap(sentence -> Arrays.stream(sentence.split(" ")))
+            .collect(Collectors.toList());
+        System.out.println("All words: " + words);
+        // Output: All words: [Hello, World, Java, Streams, Are, Powerful]
+
+        // 19. takeWhile() - Take elements while condition is true (Java 9+)
+        // BEGINNER NOTE: Like limit(), but stops when condition becomes false
+        // Difference: limit(3) takes first 3, takeWhile() takes until condition fails
+        System.out.println("\n=== Using takeWhile() (Java 9+) ===");
+        List<Integer> sortedNumbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+        // Take while less than 6
+        List<Integer> takeTillSix = sortedNumbers.stream()
+            .takeWhile(n -> n < 6)
+            .collect(Collectors.toList());
+        System.out.println("takeWhile(n < 6): " + takeTillSix);
+        // Output: takeWhile(n < 6): [1, 2, 3, 4, 5]
+
+        // Compare with filter (filter checks all elements)
+        List<Integer> filterLessThanSix = sortedNumbers.stream()
+            .filter(n -> n < 6)
+            .collect(Collectors.toList());
+        System.out.println("filter(n < 6): " + filterLessThanSix);
+        // Output: filter(n < 6): [1, 2, 3, 4, 5]
+
+        // 20. dropWhile() - Skip elements while condition is true (Java 9+)
+        // BEGINNER NOTE: Opposite of takeWhile() - skips until condition becomes false
+        System.out.println("\n=== Using dropWhile() (Java 9+) ===");
+
+        List<Integer> dropTillSix = sortedNumbers.stream()
+            .dropWhile(n -> n < 6)
+            .collect(Collectors.toList());
+        System.out.println("dropWhile(n < 6): " + dropTillSix);
+        // Output: dropWhile(n < 6): [6, 7, 8, 9, 10]
+
+        // 21. toArray() - Convert stream to array
+        // BEGINNER NOTE: Sometimes you need an array instead of a List
+        System.out.println("\n=== Using toArray() ===");
+        Integer[] evenArray = numbers.stream()
+            .filter(n -> n % 2 == 0)
+            .toArray(Integer[]::new);
+        System.out.println("Even numbers array: " + Arrays.toString(evenArray));
+        // Output: Even numbers array: [2, 4, 6, 8, 10]
+
+        // 22. sum(), average() - For numeric streams
+        // BEGINNER NOTE: Special methods available for IntStream, DoubleStream, LongStream
+        System.out.println("\n=== Using sum() and average() ===");
+
+        int total = numbers.stream()
+            .mapToInt(n -> n)  // Convert to IntStream
+            .sum();
+        System.out.println("Sum: " + total);
+        // Output: Sum: 55
+
+        double average = numbers.stream()
+            .mapToInt(n -> n)
+            .average()
+            .orElse(0.0);
+        System.out.println("Average: " + average);
+        // Output: Average: 5.5
     }
 }
+```
+
+---
+
+### 📖 Stream Operations Cheat Sheet (For Beginners)
+
+```
+╔════════════════════════════════════════════════════════════════════╗
+║                STREAM OPERATIONS QUICK REFERENCE                   ║
+╠════════════════════════════════════════════════════════════════════╣
+║                                                                    ║
+║ 🔵 INTERMEDIATE OPERATIONS (Return Stream - Can chain more)       ║
+║ ─────────────────────────────────────────────────────────────────║
+║                                                                    ║
+║ FILTERING & SELECTING:                                            ║
+║ ┌──────────────────────────────────────────────────────────────┐ ║
+║ │ filter(predicate)  → Keep elements matching condition       │ ║
+║ │ Example: .filter(n -> n > 5)  // Keep numbers > 5           │ ║
+║ │                                                              │ ║
+║ │ distinct()         → Remove duplicates                       │ ║
+║ │ Example: .distinct()  // [1,2,2,3] becomes [1,2,3]          │ ║
+║ │                                                              │ ║
+║ │ limit(n)          → Take first N elements                    │ ║
+║ │ Example: .limit(5)  // Take first 5                          │ ║
+║ │                                                              │ ║
+║ │ skip(n)           → Skip first N elements                    │ ║
+║ │ Example: .skip(3)  // Skip first 3                           │ ║
+║ │                                                              │ ║
+║ │ takeWhile(pred)   → Take until condition false (Java 9+)     │ ║
+║ │ Example: .takeWhile(n -> n < 10)  // Take while < 10        │ ║
+║ │                                                              │ ║
+║ │ dropWhile(pred)   → Skip until condition false (Java 9+)     │ ║
+║ │ Example: .dropWhile(n -> n < 5)  // Skip until >= 5         │ ║
+║ └──────────────────────────────────────────────────────────────┘ ║
+║                                                                    ║
+║ TRANSFORMING:                                                      ║
+║ ┌──────────────────────────────────────────────────────────────┐ ║
+║ │ map(function)     → Transform each element                   │ ║
+║ │ Example: .map(n -> n * 2)  // Double each number            │ ║
+║ │                                                              │ ║
+║ │ flatMap(function) → Transform and flatten                    │ ║
+║ │ Example: .flatMap(list -> list.stream())  // Flatten nested │ ║
+║ │                                                              │ ║
+║ │ mapToInt/Long/Double → Convert to primitive stream          │ ║
+║ │ Example: .mapToInt(n -> n)  // For sum(), average()         │ ║
+║ └──────────────────────────────────────────────────────────────┘ ║
+║                                                                    ║
+║ SORTING & PEEKING:                                                 ║
+║ ┌──────────────────────────────────────────────────────────────┐ ║
+║ │ sorted()          → Sort elements (natural order)            │ ║
+║ │ Example: .sorted()  // Ascending order                       │ ║
+║ │                                                              │ ║
+║ │ sorted(comparator)→ Sort with custom order                   │ ║
+║ │ Example: .sorted((a,b) -> b - a)  // Descending             │ ║
+║ │                                                              │ ║
+║ │ peek(action)      → Inspect/debug (doesn't modify)           │ ║
+║ │ Example: .peek(n -> System.out.println(n))  // Debug        │ ║
+║ └──────────────────────────────────────────────────────────────┘ ║
+║                                                                    ║
+║ 🔴 TERMINAL OPERATIONS (End stream - Produce result)              ║
+║ ─────────────────────────────────────────────────────────────────║
+║                                                                    ║
+║ COLLECTING:                                                        ║
+║ ┌──────────────────────────────────────────────────────────────┐ ║
+║ │ collect(toList()) → Convert to List                          │ ║
+║ │ collect(toSet())  → Convert to Set                           │ ║
+║ │ collect(toMap())  → Convert to Map                           │ ║
+║ │ collect(joining())→ Join strings                             │ ║
+║ │ collect(groupingBy()) → Group elements                       │ ║
+║ │ toArray()         → Convert to array                         │ ║
+║ └──────────────────────────────────────────────────────────────┘ ║
+║                                                                    ║
+║ MATCHING & FINDING:                                                ║
+║ ┌──────────────────────────────────────────────────────────────┐ ║
+║ │ anyMatch(pred)    → Check if any element matches             │ ║
+║ │ allMatch(pred)    → Check if all elements match              │ ║
+║ │ noneMatch(pred)   → Check if no elements match               │ ║
+║ │ findFirst()       → Get first element (Optional)             │ ║
+║ │ findAny()         → Get any element (Optional)               │ ║
+║ └──────────────────────────────────────────────────────────────┘ ║
+║                                                                    ║
+║ REDUCING & AGGREGATING:                                            ║
+║ ┌──────────────────────────────────────────────────────────────┐ ║
+║ │ reduce(identity, accumulator) → Combine elements             │ ║
+║ │ count()           → Count elements                           │ ║
+║ │ min(comparator)   → Find minimum                             │ ║
+║ │ max(comparator)   → Find maximum                             │ ║
+║ │ sum()             → Sum (IntStream/DoubleStream)             │ ║
+║ │ average()         → Average (IntStream/DoubleStream)         │ ║
+║ └──────────────────────────────────────────────────────────────┘ ║
+║                                                                    ║
+║ ITERATING:                                                         ║
+║ ┌──────────────────────────────────────────────────────────────┐ ║
+║ │ forEach(action)   → Perform action on each element           │ ║
+║ │ Example: .forEach(System.out::println)  // Print all        │ ║
+║ └──────────────────────────────────────────────────────────────┘ ║
+║                                                                    ║
+╚════════════════════════════════════════════════════════════════════╝
 ```
 
 ---

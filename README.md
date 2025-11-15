@@ -3879,6 +3879,209 @@ for (int i = 0; i < 1000; i++) {
 
 **Answer:**
 
+### 📁 Exception Handling - Complete Project Structure (For Beginners)
+
+Let's understand how exception handling is organized and how it works with APIs:
+
+```
+📦 spring-boot-exception-handling
+├── 📂 src/main/java/com/example/app
+│   ├── 📂 exception
+│   │   ├── GlobalExceptionHandler.java      ← Catches ALL exceptions globally
+│   │   ├── ResourceNotFoundException.java   ← Thrown when resource not found (404)
+│   │   ├── BadRequestException.java         ← Thrown for invalid input (400)
+│   │   ├── DuplicateResourceException.java  ← Thrown for duplicates (409)
+│   │   ├── UnauthorizedException.java       ← Thrown for auth failures (401)
+│   │   └── ApiException.java                ← Generic custom exception
+│   │
+│   ├── 📂 dto
+│   │   └── ErrorResponse.java               ← Standardized error response format
+│   │
+│   ├── 📂 controller
+│   │   ├── UserController.java              ← May throw exceptions
+│   │   └── ProductController.java           ← May throw exceptions
+│   │
+│   └── 📂 service
+│       ├── UserService.java                 ← Business logic (throws exceptions)
+│       └── ProductService.java              ← Business logic (throws exceptions)
+│
+└── 📂 src/main/resources
+    └── application.properties
+
+
+🔄 EXCEPTION FLOW EXPLANATION (How It All Works Together)
+══════════════════════════════════════════════════════════
+
+SCENARIO 1: User Not Found (ResourceNotFoundException)
+───────────────────────────────────────────────────────
+1. Client calls API: GET /api/users/999
+       ↓
+2. UserController.getUserById(999)
+   - Calls UserService.findById(999)
+       ↓
+3. UserService.findById(999)
+   - Checks database
+   - User with ID 999 not found
+   - Throws: throw new ResourceNotFoundException("User", "id", 999)
+       ↓
+4. GlobalExceptionHandler catches it
+   - @ExceptionHandler(ResourceNotFoundException.class)
+   - Creates ErrorResponse with 404 status
+   - Returns: { "status": 404, "error": "Not Found", "message": "User not found with id: 999" }
+       ↓
+5. Client receives 404 with error details
+
+FILES INVOLVED:
+• UserController.java - Endpoint that triggers the flow
+• UserService.java - Throws ResourceNotFoundException
+• ResourceNotFoundException.java - Custom exception class
+• GlobalExceptionHandler.java - Catches and handles exception
+• ErrorResponse.java - Formats error response
+
+
+SCENARIO 2: Invalid Input (Validation Error)
+─────────────────────────────────────────────
+1. Client calls API: POST /api/users
+   Body: { "email": "invalid", "age": -5 }
+       ↓
+2. UserController.createUser(@Valid UserRequest request)
+   - @Valid triggers validation
+       ↓
+3. Spring Validation
+   - Checks @Email, @Min, @NotNull annotations
+   - Finds violations: "email invalid", "age must be positive"
+   - Throws: MethodArgumentNotValidException
+       ↓
+4. GlobalExceptionHandler catches it
+   - @ExceptionHandler(MethodArgumentNotValidException.class)
+   - Extracts all validation errors
+   - Returns: { "status": 400, "errors": ["email: must be valid", "age: must be positive"] }
+       ↓
+5. Client receives 400 with all validation errors
+
+FILES INVOLVED:
+• UserController.java - Has @Valid annotation
+• UserRequest.java - DTO with validation annotations
+• GlobalExceptionHandler.java - Catches MethodArgumentNotValidException
+• ErrorResponse.java - Contains list of errors
+
+
+SCENARIO 3: Duplicate User (DuplicateResourceException)
+────────────────────────────────────────────────────────
+1. Client calls API: POST /api/users
+   Body: { "email": "existing@example.com" }
+       ↓
+2. UserController.createUser(request)
+   - Calls UserService.create(request)
+       ↓
+3. UserService.create(request)
+   - Checks if email exists
+   - Email already in database
+   - Throws: throw new DuplicateResourceException("User with email already exists")
+       ↓
+4. GlobalExceptionHandler catches it
+   - @ExceptionHandler(DuplicateResourceException.class)
+   - Returns: { "status": 409, "error": "Conflict", "message": "User with email already exists" }
+       ↓
+5. Client receives 409 Conflict
+
+FILES INVOLVED:
+• UserController.java - Calls service
+• UserService.java - Throws DuplicateResourceException
+• DuplicateResourceException.java - Custom exception
+• GlobalExceptionHandler.java - Catches exception
+
+
+SCENARIO 4: Unauthorized Access (UnauthorizedException)
+────────────────────────────────────────────────────────
+1. Client calls API: DELETE /api/users/5
+   (User trying to delete another user's account)
+       ↓
+2. UserController.deleteUser(5)
+   - Calls UserService.delete(5, currentUser)
+       ↓
+3. UserService.delete(5, currentUser)
+   - Checks if currentUser owns this account
+   - currentUser.id != 5
+   - Throws: throw new UnauthorizedException("Cannot delete another user's account")
+       ↓
+4. GlobalExceptionHandler catches it
+   - @ExceptionHandler(UnauthorizedException.class)
+   - Returns: { "status": 401, "error": "Unauthorized", "message": "Cannot delete..." }
+       ↓
+5. Client receives 401 Unauthorized
+
+FILES INVOLVED:
+• UserController.java - Calls service
+• UserService.java - Throws UnauthorizedException
+• UnauthorizedException.java - Custom exception
+• GlobalExceptionHandler.java - Catches exception
+
+
+🎯 WHICH FILE DOES WHAT? (Quick Reference for Beginners)
+═════════════════════════════════════════════════════════
+
+GlobalExceptionHandler.java
+→ "Catch ALL exceptions in one place"
+→ Annotated with @RestControllerAdvice
+→ Has multiple @ExceptionHandler methods for different exceptions
+→ Returns consistent ErrorResponse for all errors
+
+ErrorResponse.java
+→ "Standardized error format for ALL APIs"
+→ Contains: status, error, message, timestamp, path
+→ Makes frontend error handling easier
+
+ResourceNotFoundException.java
+→ "Throw when something not found (404)"
+→ Example: User not found, Product not found
+→ Caught by GlobalExceptionHandler
+
+BadRequestException.java
+→ "Throw when input is invalid (400)"
+→ Example: Invalid date format, missing required field
+→ Caught by GlobalExceptionHandler
+
+DuplicateResourceException.java
+→ "Throw when creating duplicate (409)"
+→ Example: Email already exists, Username taken
+→ Caught by GlobalExceptionHandler
+
+UnauthorizedException.java
+→ "Throw when user not authorized (401)"
+→ Example: Wrong password, Accessing other user's data
+→ Caught by GlobalExceptionHandler
+
+
+📊 HTTP Status Codes Used:
+═══════════════════════════
+200 OK - Success
+400 Bad Request - Invalid input (validation errors)
+401 Unauthorized - Authentication failed
+403 Forbidden - No permission
+404 Not Found - Resource not found
+409 Conflict - Duplicate resource
+500 Internal Server Error - Server error
+
+
+💡 WHY GLOBAL EXCEPTION HANDLER?
+═════════════════════════════════
+WITHOUT Global Handler:
+• Write try-catch in EVERY controller method
+• Inconsistent error responses
+• Duplicate code everywhere
+• Hard to maintain
+
+WITH Global Handler:
+✓ Write exception logic ONCE
+✓ Consistent error format
+✓ Clean controller code
+✓ Easy to add new exception types
+✓ Centralized logging
+```
+
+---
+
 **Complete Exception Handling Architecture:**
 
 ```java
@@ -4250,6 +4453,222 @@ public ResponseEntity<ErrorResponse> handleException(Exception ex) {
 ### Q27: Implement JWT authentication in Spring Boot
 
 **Answer:**
+
+### 📁 JWT Authentication - Complete Project Structure (For Beginners)
+
+Before diving into code, let's understand the complete file/folder structure and how each file works together:
+
+```
+📦 spring-boot-jwt-auth
+├── 📂 src/main/java/com/example/jwtauth
+│   ├── 📂 config
+│   │   ├── SecurityConfig.java           ← Configures Spring Security, defines which URLs are protected
+│   │   └── CorsConfig.java                ← Handles Cross-Origin requests (for frontend)
+│   │
+│   ├── 📂 security
+│   │   ├── JwtTokenProvider.java          ← Creates and validates JWT tokens
+│   │   ├── JwtAuthenticationFilter.java   ← Intercepts requests, validates tokens
+│   │   └── JwtAuthenticationEntryPoint.java ← Handles authentication errors
+│   │
+│   ├── 📂 model
+│   │   ├── User.java                      ← User entity (database table)
+│   │   ├── Role.java                      ← Role entity (ADMIN, USER, etc.)
+│   │   └── RefreshToken.java              ← Refresh token entity
+│   │
+│   ├── 📂 dto (Data Transfer Objects)
+│   │   ├── LoginRequest.java              ← Request: { username, password }
+│   │   ├── SignupRequest.java             ← Request: { username, email, password }
+│   │   ├── JwtResponse.java               ← Response: { token, type, username, roles }
+│   │   └── MessageResponse.java           ← Response: { message }
+│   │
+│   ├── 📂 repository
+│   │   ├── UserRepository.java            ← Database operations for User
+│   │   └── RoleRepository.java            ← Database operations for Role
+│   │
+│   ├── 📂 service
+│   │   ├── UserDetailsServiceImpl.java    ← Loads user data for authentication
+│   │   ├── UserService.java               ← Business logic for user operations
+│   │   └── RefreshTokenService.java       ← Handles refresh token logic
+│   │
+│   └── 📂 controller
+│       ├── AuthController.java            ← Handles /login, /signup, /refresh APIs
+│       └── UserController.java            ← Protected APIs: /api/user/profile
+│
+├── 📂 src/main/resources
+│   ├── application.properties             ← Configuration: JWT secret, expiration, database
+│   └── data.sql                           ← Initial data (optional)
+│
+└── 📄 pom.xml                             ← Maven dependencies
+
+
+🔄 API FLOW EXPLANATION (How Files Work Together)
+══════════════════════════════════════════════════
+
+FLOW 1: USER SIGNUP (/api/auth/signup)
+────────────────────────────────────────
+Client (Postman) → AuthController → UserService → UserRepository → Database
+                                                                      ↓
+                                                              User created!
+
+FILES INVOLVED:
+• AuthController.java - Receives signup request
+• SignupRequest.java - Validates input data
+• UserService.java - Checks if user exists, encrypts password
+• UserRepository.java - Saves user to database
+• User.java - Entity mapped to 'users' table
+• MessageResponse.java - Returns success/error message
+
+
+FLOW 2: USER LOGIN (/api/auth/login) - MOST IMPORTANT!
+────────────────────────────────────────────────────────
+Client sends: { "username": "john", "password": "pass123" }
+       ↓
+1. AuthController.java
+   - Receives login request via LoginRequest.java
+   - Calls Spring Security's authenticate()
+       ↓
+2. UserDetailsServiceImpl.java
+   - Loads user from database via UserRepository.java
+   - Checks if user exists
+       ↓
+3. Spring Security
+   - Compares provided password with stored hash
+   - If match → Authentication successful
+       ↓
+4. JwtTokenProvider.java
+   - Generates JWT token with username and expiration
+   - Token example: "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJqb2huIi..."
+       ↓
+5. AuthController.java
+   - Returns JwtResponse.java with token
+   - Response: { "token": "eyJ...", "type": "Bearer", "username": "john" }
+       ↓
+Client stores token (usually in localStorage or cookie)
+
+FILES INVOLVED:
+• AuthController.java - Handles /login endpoint
+• LoginRequest.java - Contains username/password
+• UserDetailsServiceImpl.java - Loads user details
+• UserRepository.java - Fetches user from DB
+• JwtTokenProvider.java - Creates JWT token
+• JwtResponse.java - Returns token to client
+
+
+FLOW 3: ACCESSING PROTECTED API (/api/user/profile)
+────────────────────────────────────────────────────
+Client sends request WITH token in header:
+Header: Authorization: Bearer eyJhbGciOiJIUzUxMiJ9...
+       ↓
+1. JwtAuthenticationFilter.java
+   - Intercepts EVERY request
+   - Extracts token from "Authorization" header
+   - Calls JwtTokenProvider.validateToken()
+       ↓
+2. JwtTokenProvider.java
+   - Validates token signature
+   - Checks if token expired
+   - Extracts username from token
+       ↓
+3. JwtAuthenticationFilter.java
+   - If valid → Sets user in SecurityContext
+   - If invalid → Returns 401 Unauthorized
+       ↓
+4. UserController.java
+   - Method executes only if token valid
+   - Can access authenticated user info
+       ↓
+Returns user profile data
+
+FILES INVOLVED:
+• JwtAuthenticationFilter.java - Validates every request
+• JwtTokenProvider.java - Validates token
+• SecurityConfig.java - Configures which URLs need authentication
+• UserController.java - Protected endpoint
+• JwtAuthenticationEntryPoint.java - Handles auth errors
+
+
+FLOW 4: TOKEN EXPIRED - REFRESH TOKEN (/api/auth/refresh)
+──────────────────────────────────────────────────────────
+Client's access token expired (e.g., after 1 hour)
+       ↓
+1. Client sends refresh token
+   - POST /api/auth/refresh
+   - Body: { "refreshToken": "abc123..." }
+       ↓
+2. AuthController.java
+   - Receives refresh request
+       ↓
+3. RefreshTokenService.java
+   - Validates refresh token
+   - Checks if not expired (e.g., 7 days validity)
+   - Finds associated user
+       ↓
+4. JwtTokenProvider.java
+   - Generates NEW access token
+       ↓
+5. Returns new token to client
+
+FILES INVOLVED:
+• AuthController.java - Handles /refresh endpoint
+• RefreshTokenService.java - Validates refresh token
+• RefreshToken.java - Entity for refresh tokens
+• JwtTokenProvider.java - Creates new access token
+
+
+🎯 WHICH FILE DOES WHAT? (Quick Reference for Beginners)
+═════════════════════════════════════════════════════════
+
+SecurityConfig.java
+→ "Which URLs need login? Which are public?"
+→ Defines: /api/auth/** is public, /api/user/** needs authentication
+
+JwtTokenProvider.java
+→ "Create and validate JWT tokens"
+→ Like a stamp maker and stamp validator
+
+JwtAuthenticationFilter.java
+→ "Check every request for valid token"
+→ Like a security guard checking ID cards at entrance
+
+JwtAuthenticationEntryPoint.java
+→ "What to do when authentication fails?"
+→ Returns 401 error with message
+
+UserDetailsServiceImpl.java
+→ "Load user data when someone tries to login"
+→ Connects Spring Security to your database
+
+AuthController.java
+→ "Handle login, signup, and refresh requests"
+→ Public APIs that don't need authentication
+
+UserController.java
+→ "Handle user-specific operations"
+→ Protected APIs that need authentication
+
+User.java & Role.java
+→ "Database tables structure"
+→ Store user credentials and permissions
+
+LoginRequest.java, SignupRequest.java, JwtResponse.java
+→ "API request/response formats"
+→ Define JSON structure for APIs
+
+
+📝 application.properties - Configuration
+══════════════════════════════════════════
+jwt.secret=mySecretKeyForJWT12345678901234567890
+jwt.expiration=3600000          # 1 hour in milliseconds
+jwt.refresh.expiration=604800000  # 7 days in milliseconds
+
+spring.datasource.url=jdbc:mysql://localhost:3306/jwtdb
+spring.datasource.username=root
+spring.datasource.password=root
+
+spring.jpa.hibernate.ddl-auto=update
+```
+
+---
 
 **Complete JWT Authentication Implementation:**
 
@@ -4864,6 +5283,305 @@ public class UserSecurityService {
 ### Q28: How to implement role-based access control (RBAC)?
 
 **Answer:**
+
+### 📁 RBAC - Complete Project Structure (For Beginners)
+
+RBAC (Role-Based Access Control) controls WHO can do WHAT. Let's understand the structure:
+
+```
+📦 spring-boot-rbac
+├── 📂 src/main/java/com/example/rbac
+│   ├── 📂 model
+│   │   ├── User.java                  ← User entity (has many roles)
+│   │   ├── Role.java                  ← Role entity (USER, ADMIN, MANAGER)
+│   │   └── Permission.java            ← Permission entity (READ, WRITE, DELETE)
+│   │
+│   ├── 📂 repository
+│   │   ├── UserRepository.java        ← Database operations for User
+│   │   ├── RoleRepository.java        ← Database operations for Role
+│   │   └── PermissionRepository.java  ← Database operations for Permission
+│   │
+│   ├── 📂 service
+│   │   ├── UserService.java           ← User business logic
+│   │   ├── RoleService.java           ← Role management
+│   │   └── CustomUserDetailsService.java ← Loads user with roles for authentication
+│   │
+│   ├── 📂 config
+│   │   ├── SecurityConfig.java        ← Configure role-based access rules
+│   │   └── DataInitializer.java       ← Create initial roles/permissions
+│   │
+│   ├── 📂 security
+│   │   ├── UserPrincipal.java         ← User with roles for security context
+│   │   └── CurrentUser.java           ← Annotation to get current user
+│   │
+│   └── 📂 controller
+│       ├── UserController.java        ← User APIs (different access for different roles)
+│       ├── AdminController.java       ← Admin-only APIs
+│       └── PublicController.java      ← Public APIs (no auth needed)
+│
+└── 📂 src/main/resources
+    ├── application.properties         ← Database and security configuration
+    └── data.sql                       ← Insert default roles/permissions
+
+
+🔄 RBAC FLOW EXPLANATION (How Roles & Permissions Work)
+════════════════════════════════════════════════════════
+
+DATABASE RELATIONSHIPS:
+───────────────────────
+User ──< user_roles >── Role ──< role_permissions >── Permission
+
+Example Data:
+• User: John (id=1)
+• Roles: [USER, MANAGER]
+• Permissions: [READ_USER, WRITE_USER, READ_REPORT]
+
+
+SCENARIO 1: Normal User Accessing Public API
+─────────────────────────────────────────────
+API: GET /api/public/products
+Required Role: None (public)
+
+1. Client calls API (no token needed)
+       ↓
+2. SecurityConfig.java
+   - /api/public/** configured as permitAll()
+   - Request passes through
+       ↓
+3. PublicController.java
+   - getProducts() executes
+   - Returns data to everyone
+
+FILES INVOLVED:
+• PublicController.java - Public endpoint
+• SecurityConfig.java - Marks /api/public/** as public
+
+
+SCENARIO 2: Authenticated User Accessing Protected API
+───────────────────────────────────────────────────────
+API: GET /api/user/profile
+Required Role: Any authenticated user
+User: John (ROLE_USER)
+
+1. Client sends request with JWT token
+   Header: Authorization: Bearer <token>
+       ↓
+2. JwtAuthenticationFilter validates token
+   - Extracts username from token
+       ↓
+3. CustomUserDetailsService.loadUserByUsername("john")
+   - Fetches John from database
+   - Loads John's roles: [ROLE_USER]
+   - Creates UserPrincipal with roles
+       ↓
+4. SecurityConfig.java checks rules
+   - /api/user/** requires authentication
+   - John is authenticated ✓
+       ↓
+5. UserController.getProfile() executes
+   - @PreAuthorize("isAuthenticated()") passes
+   - Returns John's profile
+
+FILES INVOLVED:
+• UserController.java - Has @PreAuthorize("isAuthenticated()")
+• CustomUserDetailsService.java - Loads user with roles
+• SecurityConfig.java - Configures /api/user/** needs auth
+• UserPrincipal.java - Contains user + roles
+
+
+SCENARIO 3: Admin-Only API (Role-Based Access)
+───────────────────────────────────────────────
+API: DELETE /api/admin/users/5
+Required Role: ROLE_ADMIN
+User: John (ROLE_USER) - tries to access
+
+1. Client sends request with JWT token
+       ↓
+2. JwtAuthenticationFilter validates token
+   - John is authenticated
+   - Roles: [ROLE_USER]
+       ↓
+3. AdminController.deleteUser(5)
+   - @PreAuthorize("hasRole('ADMIN')") annotation present
+       ↓
+4. Spring Security checks roles
+   - Required: ROLE_ADMIN
+   - John has: ROLE_USER
+   - ❌ Access Denied!
+       ↓
+5. Returns 403 Forbidden
+   - Message: "Access is denied"
+
+Now, if ADMIN tries:
+User: Sarah (ROLE_ADMIN)
+
+1. Same flow
+       ↓
+4. Spring Security checks roles
+   - Required: ROLE_ADMIN
+   - Sarah has: ROLE_ADMIN
+   - ✓ Access Granted!
+       ↓
+5. deleteUser(5) executes
+   - User deleted successfully
+
+FILES INVOLVED:
+• AdminController.java - Has @PreAuthorize("hasRole('ADMIN')")
+• SecurityConfig.java - Enables method-level security
+• CustomUserDetailsService.java - Loads user's roles
+• Role.java - Defines available roles
+
+
+SCENARIO 4: Multiple Roles (OR condition)
+──────────────────────────────────────────
+API: GET /api/reports/sales
+Required Role: ROLE_ADMIN OR ROLE_MANAGER
+User: John (ROLE_MANAGER)
+
+@GetMapping("/sales")
+@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+public Report getSalesReport() { ... }
+
+1. Request with John's token
+       ↓
+2. Authentication successful
+   - John's roles: [ROLE_MANAGER]
+       ↓
+3. Check @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+   - John has ROLE_MANAGER ✓
+   - Access granted
+       ↓
+4. getSalesReport() executes
+
+FILES INVOLVED:
+• ReportController.java - Has @PreAuthorize with hasAnyRole()
+
+
+SCENARIO 5: Permission-Based Access (Fine-Grained)
+───────────────────────────────────────────────────
+API: PUT /api/user/update
+Required Permission: USER_WRITE
+User: John (Role: MANAGER, Permissions: [USER_READ, USER_WRITE])
+
+@PutMapping("/update")
+@PreAuthorize("hasAuthority('USER_WRITE')")
+public User updateUser(@RequestBody User user) { ... }
+
+1. Request with John's token
+       ↓
+2. CustomUserDetailsService loads John
+   - Roles: [ROLE_MANAGER]
+   - Permissions: [USER_READ, USER_WRITE] (from role_permissions table)
+       ↓
+3. Check @PreAuthorize("hasAuthority('USER_WRITE')")
+   - John has USER_WRITE permission ✓
+   - Access granted
+       ↓
+4. updateUser() executes
+
+FILES INVOLVED:
+• UserController.java - Has @PreAuthorize with hasAuthority()
+• CustomUserDetailsService.java - Loads permissions
+• Permission.java - Defines permissions
+• Role.java - Links to permissions via role_permissions
+
+
+🎯 WHICH FILE DOES WHAT? (Quick Reference for Beginners)
+═════════════════════════════════════════════════════════
+
+User.java
+→ "User entity with roles relationship"
+→ @ManyToMany with Role
+→ One user can have multiple roles
+
+Role.java
+→ "Role entity (ADMIN, USER, MANAGER)"
+→ @ManyToMany with User and Permission
+→ One role can have multiple permissions
+
+Permission.java
+→ "Permission entity (READ, WRITE, DELETE)"
+→ Fine-grained access control
+→ Assigned to roles
+
+SecurityConfig.java
+→ "Configure access rules"
+→ URL-based: /api/public/** = public, /api/admin/** = ADMIN only
+→ Enable method-level security: @EnableMethodSecurity
+
+CustomUserDetailsService.java
+→ "Load user with roles and permissions"
+→ Called during authentication
+→ Returns UserDetails with authorities
+
+UserPrincipal.java
+→ "Wrapper for User with security details"
+→ Implements UserDetails
+→ Contains roles as GrantedAuthorities
+
+AdminController.java
+→ "Admin-only endpoints"
+→ All methods have @PreAuthorize("hasRole('ADMIN')")
+
+UserController.java
+→ "User endpoints with various access levels"
+→ Some methods for all authenticated, some for specific roles
+
+DataInitializer.java
+→ "Create default roles and permissions on startup"
+→ Runs once when application starts
+→ Creates: ROLE_USER, ROLE_ADMIN, ROLE_MANAGER
+
+
+📊 Common @PreAuthorize Expressions:
+═════════════════════════════════════
+
+1. @PreAuthorize("isAuthenticated()")
+   → Any logged-in user
+
+2. @PreAuthorize("hasRole('ADMIN')")
+   → User must have ROLE_ADMIN
+
+3. @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+   → User must have ADMIN OR MANAGER role
+
+4. @PreAuthorize("hasAuthority('USER_WRITE')")
+   → User must have USER_WRITE permission
+
+5. @PreAuthorize("hasRole('ADMIN') and #id == authentication.principal.id")
+   → ADMIN role AND modifying own record
+
+6. @PreAuthorize("@userService.isOwner(authentication.principal.id, #id)")
+   → Custom method check (useful for complex logic)
+
+
+💡 ROLE vs PERMISSION:
+══════════════════════
+ROLE: High-level (ADMIN, USER, MANAGER)
+→ Use when: Simple access control
+→ Example: Only admins can delete users
+
+PERMISSION: Fine-grained (USER_READ, USER_WRITE, ORDER_DELETE)
+→ Use when: Complex access control
+→ Example: Manager can read reports but not delete them
+
+
+🔐 Access Control Hierarchy:
+════════════════════════════
+Level 1: URL-Based (in SecurityConfig)
+→ /api/public/** → Everyone
+→ /api/admin/** → ADMIN only
+
+Level 2: Method-Based (using @PreAuthorize)
+→ More flexible than URL-based
+→ Can check roles, permissions, custom logic
+
+Level 3: Programmatic (in code)
+→ if (user.hasRole("ADMIN")) { ... }
+→ Most flexible, use for complex logic
+```
+
+---
 
 **Complete RBAC Implementation:**
 
