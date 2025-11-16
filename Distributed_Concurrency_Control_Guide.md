@@ -80,19 +80,52 @@ graph LR
 
 #### ❌ What Doesn't Work: Single Server + Threading
 
+**📌 Beginner Explanation:**
+This code works perfectly on a SINGLE server because `synchronized` prevents multiple threads within the same JVM from accessing the method simultaneously. But when you have MULTIPLE servers, each server has its own JVM and memory - they can't see each other's locks!
+
 ```java
-// On Single Server - Works fine with synchronized
+/**
+ * This code is SAFE on a single server
+ * But UNSAFE when deployed on multiple servers!
+ */
 public class InventoryService {
+    // Each server has its OWN copy of this variable in its OWN memory
+    // Server 1 has stock=100 in its memory
+    // Server 2 has stock=100 in its memory (separate copy!)
     private int stock = 100;
 
+    /**
+     * synchronized works for threads on THIS server only
+     *
+     * What happens with ONE server:
+     * Thread 1 calls purchase() -> synchronized blocks Thread 2
+     * Thread 1 decrements stock to 99
+     * Thread 1 releases lock
+     * Thread 2 acquires lock and sees stock=99
+     * ✅ WORKS CORRECTLY
+     *
+     * What happens with TWO servers:
+     * Server 1, Thread 1: stock=100, decrements to 99
+     * Server 2, Thread 1: stock=100 (different memory!), decrements to 99
+     * ❌ BOTH think there's stock, BOTH sell the item!
+     * ❌ We oversold! (sold 2 items when we only had 1)
+     */
     public synchronized boolean purchase(String userId) {
+        // Check stock in THIS server's memory
         if (stock > 0) {
+            // Decrement in THIS server's memory only
+            // Other servers don't see this change!
             stock--;
+
             System.out.println(userId + " purchased. Remaining: " + stock);
             return true;
         }
         return false;
     }
+
+    // Key Problem: 'synchronized' only synchronizes threads within ONE JVM
+    // It does NOT synchronize across multiple servers/JVMs
+    // For distributed systems, we need DISTRIBUTED LOCKS (Redis, ZooKeeper, etc.)
 }
 ```
 
@@ -456,30 +489,98 @@ WHERE product_id = 123
 ```
 
 ```java
-// Java code for optimistic locking
+/**
+ * OPTIMISTIC LOCKING Implementation
+ *
+ * Philosophy: "Assume conflicts are rare, don't lock upfront"
+ * Process:
+ * 1. Read data without locking
+ * 2. Make changes locally
+ * 3. Before committing, check if anyone else modified the data
+ * 4. If modified, retry. If not, commit changes.
+ *
+ * Best for: Low contention scenarios (few concurrent updates)
+ */
 public boolean purchaseProduct(int productId) {
+    // Maximum number of retry attempts
+    // Why retry? Because conflicts might be temporary
     int maxRetries = 3;
-    for (int i = 0; i < maxRetries; i++) {
-        // Read current state
-        Product product = db.findById(productId);
 
+    // Retry loop
+    for (int i = 0; i < maxRetries; i++) {
+        /**
+         * Step 1: Read current state WITHOUT locking
+         * Multiple threads can read simultaneously (no blocking)
+         * This is fast but creates possibility of conflicts
+         */
+        Product product = db.findById(productId);
+        // Example: product.quantity=10, product.version=5
+
+        // Step 2: Check business logic
         if (product.quantity <= 0) {
-            return false;
+            return false; // Out of stock, no point retrying
         }
 
-        // Try to update with version check
+        /**
+         * Step 3: Try to update with version check
+         * This is the KEY to optimistic locking!
+         *
+         * The WHERE clause has TWO conditions:
+         * 1. product_id = ? (find the right product)
+         * 2. version = ?    (ensure version hasn't changed since we read it)
+         *
+         * What happens:
+         * - If version is STILL 5: Update succeeds, version becomes 6
+         * - If version is NOW 6: Someone else updated it! Update fails (0 rows affected)
+         */
         int rowsAffected = db.executeUpdate(
-            "UPDATE inventory SET quantity = quantity - 1, version = version + 1 " +
-            "WHERE product_id = ? AND version = ?",
-            productId, product.version
+            "UPDATE inventory " +
+            "SET quantity = quantity - 1, " +  // Decrement quantity
+            "    version = version + 1 " +      // Increment version (prevent future conflicts)
+            "WHERE product_id = ? " +            // Find this product
+            "  AND version = ?",                 // Version must match what we read
+            productId,
+            product.version // The version we read earlier
         );
 
+        /**
+         * Step 4: Check if update succeeded
+         * rowsAffected = 1: Success! We got the item
+         * rowsAffected = 0: Conflict! Someone else updated between our read and write
+         */
         if (rowsAffected > 0) {
-            return true; // Success!
+            return true; // Successfully purchased!
         }
-        // Else: someone else updated, retry
+
+        // If we reach here: Conflict detected (version mismatch)
+        // Another thread/server updated the product after we read it
+        // Solution: Retry the entire process (read again, check again, update again)
+        System.out.println("Conflict detected, retrying... (attempt " + (i + 1) + ")");
+
+        // Optional: Add a small delay before retry to reduce contention
+        // Thread.sleep(100);
     }
-    return false; // Failed after retries
+
+    // Failed after all retries
+    // This happens when there's very high contention
+    // Many threads competing for the same resource
+    return false;
+
+    /**
+     * Comparison with Pessimistic Locking:
+     *
+     * Pessimistic (SELECT FOR UPDATE):
+     * - Lock FIRST, update LATER
+     * - Blocks other threads immediately
+     * - Slower but guaranteed to succeed (no retries)
+     * - Good for HIGH contention
+     *
+     * Optimistic (version check):
+     * - Read FIRST, check LATER
+     * - Doesn't block anyone
+     * - Faster but may need retries
+     * - Good for LOW contention
+     */
 }
 ```
 
@@ -588,42 +689,136 @@ graph TD
 
 ### Basic Redis Lock (SETNX)
 
+**📌 Beginner Explanation:**
+Redis distributed locks work because Redis is a SINGLE server that ALL your application servers talk to. When Server 1 acquires a lock in Redis, Server 2 can see it and must wait. This solves the "no shared memory" problem of distributed systems.
+
 ```java
 import redis.clients.jedis.Jedis;
+import java.util.Collections;
+import java.util.UUID;
 
+/**
+ * Redis Distributed Lock Implementation
+ *
+ * How it solves the distributed problem:
+ * ❌ Problem: Server 1 and Server 2 have separate memory, can't share locks
+ * ✅ Solution: Both servers connect to the SAME Redis instance
+ *             Redis becomes the "shared memory" for locks
+ */
 public class RedisLock {
-    private Jedis redis;
-    private static final int LOCK_TIMEOUT = 10000; // 10 seconds
+    private Jedis redis; // Redis client connection
 
+    // Lock automatically expires after 10 seconds
+    // This prevents deadlock if a server crashes while holding lock
+    private static final int LOCK_TIMEOUT = 10000; // 10 seconds in milliseconds
+
+    /**
+     * Try to acquire a distributed lock
+     *
+     * @param lockKey - The name of the lock (e.g., "lock:product:123")
+     * @param uniqueValue - Unique identifier for THIS lock holder (use UUID)
+     * @return true if lock acquired, false if already locked by someone else
+     */
     public boolean acquireLock(String lockKey, String uniqueValue) {
-        // SET if Not eXists with expiration
+        /**
+         * Redis SET command with special options:
+         *
+         * SET key value NX PX milliseconds
+         *
+         * Breakdown:
+         * - key: lockKey (e.g., "lock:product:123")
+         * - value: uniqueValue (UUID to identify who owns this lock)
+         * - NX: "Not eXists" - only set if key doesn't exist
+         *       (If lock already exists, this operation fails)
+         * - PX: Expiration in milliseconds
+         * - LOCK_TIMEOUT: Auto-delete lock after 10 seconds
+         *
+         * Why these options matter:
+         * 1. NX ensures atomicity - only ONE server can acquire lock
+         * 2. PX prevents deadlock - lock auto-releases if server crashes
+         * 3. uniqueValue prevents one server from releasing another's lock
+         */
         String result = redis.set(
-            lockKey,
-            uniqueValue,
-            "NX",  // Only set if not exists
-            "PX",  // Expiration in milliseconds
-            LOCK_TIMEOUT
+            lockKey,        // Name of the lock
+            uniqueValue,    // Who owns it (UUID for this attempt)
+            "NX",           // Only set if NOT exists (atomic check-and-set)
+            "PX",           // Expiration type: milliseconds
+            LOCK_TIMEOUT    // Expire after 10 seconds
         );
 
+        /**
+         * Return value interpretation:
+         * "OK" = Lock acquired successfully (we are the first!)
+         * null = Lock already exists (someone else has it)
+         */
         return "OK".equals(result);
     }
 
+    /**
+     * Release a distributed lock SAFELY
+     *
+     * @param lockKey - The lock to release
+     * @param uniqueValue - Our unique identifier (must match what we set)
+     * @return true if released, false if we don't own the lock
+     */
     public boolean releaseLock(String lockKey, String uniqueValue) {
-        // Lua script to ensure atomicity
+        /**
+         * We use a Lua script for atomicity
+         *
+         * Why Lua script? To avoid this race condition:
+         * 1. Server 1 checks: "Is this my lock?" -> Yes
+         * 2. [Lock expires here due to timeout!]
+         * 3. Server 2 acquires the lock
+         * 4. Server 1 deletes the lock -> DELETES SERVER 2's LOCK!
+         *
+         * Lua script runs ATOMICALLY in Redis (no interruption)
+         * So steps 1-2 can't be separated
+         */
         String script =
+            // Get the current value of the lock
             "if redis.call('get', KEYS[1]) == ARGV[1] then " +
+            // If it matches our uniqueValue, we own it -> delete it
             "    return redis.call('del', KEYS[1]) " +
             "else " +
+            // Otherwise, we don't own it -> don't delete
             "    return 0 " +
             "end";
 
-        Object result = redis.eval(script,
-            Collections.singletonList(lockKey),
-            Collections.singletonList(uniqueValue)
+        /**
+         * Execute Lua script
+         * KEYS[1] = lockKey
+         * ARGV[1] = uniqueValue
+         *
+         * Returns:
+         * 1 = Lock deleted (we owned it)
+         * 0 = Lock NOT deleted (we don't own it, or it doesn't exist)
+         */
+        Object result = redis.eval(
+            script,
+            Collections.singletonList(lockKey),    // KEYS[1]
+            Collections.singletonList(uniqueValue) // ARGV[1]
         );
 
+        // Return true only if we successfully deleted our lock
         return Long.valueOf(1).equals(result);
     }
+
+    /**
+     * Complete usage example:
+     *
+     * String uniqueId = UUID.randomUUID().toString();
+     * if (acquireLock("lock:product:123", uniqueId)) {
+     *     try {
+     *         // Critical section - only one server executes this
+     *         updateProduct(123);
+     *     } finally {
+     *         releaseLock("lock:product:123", uniqueId);
+     *     }
+     * } else {
+     *     // Could not acquire lock - someone else has it
+     *     return "Try again later";
+     * }
+     */
 }
 ```
 

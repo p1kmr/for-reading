@@ -97,17 +97,39 @@ graph TD
 
 ### Method 1: Extending Thread Class
 
+**📌 Beginner Explanation:**
+When you extend `Thread` class, you're creating a custom thread type. The `run()` method contains the code that will execute in a separate thread.
+
 ```java
-// Simple thread that prints numbers
+/**
+ * Step 1: Create a custom thread class by extending Thread
+ * This is the simplest way to create threads, but not recommended for production
+ * because Java doesn't support multiple inheritance
+ */
 class MyThread extends Thread {
+
+    /**
+     * The run() method is where you put the code that should execute in this thread
+     * Think of it as the "main()" method for this specific thread
+     */
     @Override
     public void run() {
-        // This code runs in a separate thread
+        // This entire block runs in a SEPARATE thread, not the main thread
+
+        // Loop 5 times to print numbers
         for (int i = 1; i <= 5; i++) {
+            // Thread.currentThread() - Gets reference to the current running thread
+            // getName() - Returns the name we set for this thread
             System.out.println(Thread.currentThread().getName() + ": " + i);
+
             try {
-                Thread.sleep(1000); // Sleep for 1 second
+                // Thread.sleep(1000) - Pauses THIS thread for 1 second (1000 milliseconds)
+                // This doesn't pause the entire program, only THIS thread!
+                // Other threads continue running
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
+                // InterruptedException is thrown when another thread interrupts this sleeping thread
+                // Always handle this exception when using sleep()
                 e.printStackTrace();
             }
         }
@@ -116,16 +138,31 @@ class MyThread extends Thread {
 
 public class ThreadExample1 {
     public static void main(String[] args) {
+        // Step 2: Create instances of your custom thread
+        // At this point, threads are created but NOT running yet (NEW state)
         MyThread t1 = new MyThread();
         MyThread t2 = new MyThread();
 
+        // Step 3: Give meaningful names to threads (optional but helpful for debugging)
+        // Without this, threads get default names like "Thread-0", "Thread-1"
         t1.setName("Worker-1");
         t2.setName("Worker-2");
 
-        t1.start(); // Starts thread execution
-        t2.start(); // Starts another thread
+        // Step 4: Call start() to begin thread execution
+        // IMPORTANT: Call start(), NOT run()!
+        // start() creates a new thread and calls run() in that new thread
+        // If you call run() directly, it executes in the MAIN thread (no parallelism!)
+        t1.start(); // Worker-1 starts executing in background
+        t2.start(); // Worker-2 starts executing in background
 
+        // This line executes immediately, without waiting for t1 or t2 to finish
+        // This proves that main thread continues independently
         System.out.println("Main thread continues...");
+
+        // At this point, THREE threads are running simultaneously:
+        // 1. Main thread (this method)
+        // 2. Worker-1 thread (t1)
+        // 3. Worker-2 thread (t2)
     }
 }
 ```
@@ -142,22 +179,51 @@ Worker-2: 2
 
 ### Method 2: Implementing Runnable Interface (PREFERRED ✅)
 
+**📌 Beginner Explanation:**
+`Runnable` is an interface that represents a task to be executed. This approach is preferred because:
+1. Your class can extend another class (Java allows one parent class + multiple interfaces)
+2. Better separation of task logic from thread management
+3. Can reuse the same Runnable with multiple threads
+
 ```java
-// Using Runnable - More flexible approach
+/**
+ * Step 1: Create a task class that implements Runnable interface
+ * Runnable is better than extending Thread because:
+ * - Your class can extend another class if needed
+ * - Separates the task (what to do) from the thread (who does it)
+ * - More object-oriented design
+ */
 class MyTask implements Runnable {
+    // Instance variable to store task-specific data
+    // Each MyTask object can have different taskName
     private String taskName;
 
+    /**
+     * Constructor to initialize the task with a name
+     * This allows us to create multiple tasks with different names
+     */
     public MyTask(String name) {
         this.taskName = name;
     }
 
+    /**
+     * The run() method contains the task logic
+     * This will be executed when the thread starts
+     */
     @Override
     public void run() {
+        // Loop to print 5 messages
         for (int i = 1; i <= 5; i++) {
+            // Print task name with counter
+            // taskName is an instance variable, so each task prints its own name
             System.out.println(taskName + ": " + i);
+
             try {
+                // Pause for 1 second between iterations
+                // This simulates some work being done
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
+                // Handle interruption
                 e.printStackTrace();
             }
         }
@@ -166,36 +232,78 @@ class MyTask implements Runnable {
 
 public class RunnableExample {
     public static void main(String[] args) {
+        // Step 2: Create task objects (Runnable instances)
+        // These are just tasks, not threads yet!
+        // Think of these as "instruction manuals" for what to do
         MyTask task1 = new MyTask("Task-A");
         MyTask task2 = new MyTask("Task-B");
 
-        Thread t1 = new Thread(task1);
-        Thread t2 = new Thread(task2);
+        // Step 3: Create Thread objects and give them tasks
+        // Thread is like a "worker" who will follow the instructions
+        // We pass the Runnable (task) to the Thread constructor
+        Thread t1 = new Thread(task1); // Thread t1 will execute task1
+        Thread t2 = new Thread(task2); // Thread t2 will execute task2
 
-        t1.start();
-        t2.start();
+        // Step 4: Start the threads
+        // Both threads will execute their tasks simultaneously
+        t1.start(); // Starts executing task1 in a new thread
+        t2.start(); // Starts executing task2 in another new thread
+
+        // Key Point: We could create MORE threads using the SAME tasks
+        // Thread t3 = new Thread(task1); // Reusing task1
+        // This is why Runnable is more flexible!
     }
 }
 ```
 
 ### Method 3: Lambda Expression (Modern Java ⚡)
 
+**📌 Beginner Explanation:**
+Lambda expressions (available since Java 8) provide a concise way to create threads without creating a separate class. The `() -> { }` syntax is shorthand for implementing the `Runnable` interface.
+
 ```java
 public class LambdaThreadExample {
     public static void main(String[] args) {
-        // Inline thread creation
+        /**
+         * Lambda Expression Syntax: () -> { code }
+         * () - no parameters (Runnable.run() takes no arguments)
+         * -> - lambda operator (means "goes to" or "becomes")
+         * { } - code block to execute
+         *
+         * This is equivalent to:
+         * new Thread(new Runnable() {
+         *     public void run() {
+         *         // code here
+         *     }
+         * });
+         */
+
+        // Create a thread with lambda expression
         Thread t1 = new Thread(() -> {
+            // Everything inside these braces is the run() method implementation
+
+            // Loop 5 times
             for (int i = 1; i <= 5; i++) {
+                // Print message from lambda thread
                 System.out.println("Lambda Thread: " + i);
+
                 try {
+                    // Sleep for 1 second
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-        });
+        }); // Note: Lambda replaces the Runnable object
 
+        // Start the thread (same as before)
         t1.start();
+
+        // Benefits of Lambda:
+        // 1. Less boilerplate code (no need for separate class)
+        // 2. More readable for simple tasks
+        // 3. Perfect for one-time-use tasks
+        // 4. Modern Java style
     }
 }
 ```
@@ -274,13 +382,32 @@ public class ThreadLifecycleExample {
 
 ### The Problem: Race Condition 🐛
 
+**📌 Beginner Explanation:**
+A race condition occurs when multiple threads access shared data simultaneously, and the outcome depends on the timing of their execution. The `count++` operation looks atomic but actually involves THREE steps: read, increment, write.
+
 ```java
-// PROBLEMATIC CODE - Don't use this!
+/**
+ * PROBLEMATIC CODE - Don't use this!
+ * This demonstrates a race condition - a common concurrency bug
+ */
 class Counter {
+    // Shared variable accessible by all threads
     private int count = 0;
 
+    /**
+     * increment() is NOT thread-safe!
+     * Why? Because count++ is actually THREE operations:
+     * 1. Read current value of count
+     * 2. Add 1 to it
+     * 3. Write new value back to count
+     *
+     * If two threads do this simultaneously:
+     * Thread 1: Read (5) -> Add 1 (6) -> Write (6)
+     * Thread 2: Read (5) -> Add 1 (6) -> Write (6)
+     * Expected: 7, Got: 6 (one increment was lost!)
+     */
     public void increment() {
-        count++; // NOT thread-safe!
+        count++; // NOT atomic! This is the problem!
     }
 
     public int getCount() {
@@ -290,26 +417,45 @@ class Counter {
 
 public class RaceConditionDemo {
     public static void main(String[] args) throws InterruptedException {
+        // Create ONE counter object shared by all threads
         Counter counter = new Counter();
 
-        // 1000 threads incrementing
+        // Create array to hold 1000 thread references
         Thread[] threads = new Thread[1000];
+
+        // Create and start 1000 threads
         for (int i = 0; i < 1000; i++) {
+            // Each thread will increment the counter 1000 times
             threads[i] = new Thread(() -> {
+                // Each thread runs this loop
                 for (int j = 0; j < 1000; j++) {
+                    // All threads call increment() on the SAME counter object
+                    // This is where the race condition happens!
                     counter.increment();
                 }
             });
+
+            // Start this thread immediately
             threads[i].start();
         }
 
-        // Wait for all threads
+        // Wait for ALL threads to finish before checking the count
+        // join() makes the main thread wait for each thread to complete
         for (Thread t : threads) {
-            t.join();
+            t.join(); // Main thread blocks here until thread 't' finishes
         }
 
+        // If everything worked correctly:
+        // 1000 threads * 1000 increments = 1,000,000
         System.out.println("Expected: 1000000");
-        System.out.println("Actual: " + counter.getCount()); // Usually less!
+
+        // But due to race condition, the actual count is usually less!
+        // You might see: 994573, 998234, etc. (different each time)
+        System.out.println("Actual: " + counter.getCount());
+
+        // Why is it less?
+        // Many increment operations were lost due to concurrent access!
+        // This proves we need synchronization!
     }
 }
 ```
@@ -334,15 +480,40 @@ sequenceDiagram
 
 ### Solution 1: Synchronized Method
 
+**📌 Beginner Explanation:**
+The `synchronized` keyword is Java's built-in mechanism to prevent race conditions. When a method is marked `synchronized`, only ONE thread can execute it at a time on the same object. Other threads must wait their turn.
+
 ```java
 class SynchronizedCounter {
     private int count = 0;
 
-    // Only one thread can execute this at a time
+    /**
+     * The 'synchronized' keyword makes this method thread-safe
+     *
+     * How it works:
+     * 1. When a thread calls this method, it first acquires a LOCK on this object
+     * 2. While holding the lock, it executes the method
+     * 3. After completion, it releases the lock
+     * 4. Other waiting threads can now acquire the lock and execute
+     *
+     * Think of it like a bathroom:
+     * - Only one person can use it at a time (lock the door)
+     * - Others wait outside until it's free
+     * - When done, unlock the door for the next person
+     */
     public synchronized void increment() {
+        // Only ONE thread can execute this line at any given moment
+        // Even though count++ involves multiple operations,
+        // the synchronized keyword ensures no other thread can interfere
         count++;
+
+        // The lock is automatically released when method returns
     }
 
+    /**
+     * Also synchronized to prevent reading while another thread is writing
+     * This ensures we always read a consistent value
+     */
     public synchronized int getCount() {
         return count;
     }
@@ -350,23 +521,37 @@ class SynchronizedCounter {
 
 public class SynchronizedDemo {
     public static void main(String[] args) throws InterruptedException {
+        // Create shared counter (same as before)
         SynchronizedCounter counter = new SynchronizedCounter();
 
+        // Create 1000 threads
         Thread[] threads = new Thread[1000];
+
         for (int i = 0; i < 1000; i++) {
             threads[i] = new Thread(() -> {
+                // Each thread increments 1000 times
                 for (int j = 0; j < 1000; j++) {
+                    // This call is now SAFE because increment() is synchronized
+                    // Thread will wait if another thread is currently in increment()
                     counter.increment();
                 }
             });
             threads[i].start();
         }
 
+        // Wait for all threads to complete
         for (Thread t : threads) {
             t.join();
         }
 
+        // Now we get the CORRECT count: 1,000,000!
+        // No increments are lost because synchronized prevents race conditions
         System.out.println("Count: " + counter.getCount()); // Always 1000000!
+
+        // Key takeaway:
+        // synchronized ensures mutual exclusion - only one thread at a time
+        // This prevents race conditions but may slow down execution
+        // (threads wait for each other instead of running truly parallel)
     }
 }
 ```
@@ -422,32 +607,82 @@ Synchronized keyword limitations:
 
 ### ReentrantLock (Advanced Synchronized)
 
+**📌 Beginner Explanation:**
+`ReentrantLock` is a more flexible alternative to `synchronized`. It provides the same mutual exclusion but with additional features like try-lock, timeouts, and fair/unfair modes. You must manually lock and unlock, unlike `synchronized` which does it automatically.
+
 ```java
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 class BankAccount {
-    private double balance = 1000;
+    private double balance = 1000; // Account balance shared by all threads
+
+    /**
+     * Create a ReentrantLock object
+     * "Reentrant" means the same thread can acquire the lock multiple times
+     * (useful for recursive methods)
+     */
     private Lock lock = new ReentrantLock();
 
+    /**
+     * Withdraw money from account - thread-safe using ReentrantLock
+     *
+     * Why ReentrantLock instead of synchronized?
+     * - More flexible (can try without blocking)
+     * - Can timeout while waiting
+     * - Can be interrupted while waiting
+     * - Fair locking option (threads acquire lock in order they requested it)
+     */
     public void withdraw(double amount) {
-        lock.lock(); // Acquire lock
+        /**
+         * Step 1: Acquire the lock
+         * If another thread holds the lock, this thread WAITS here
+         * Think: "Lock the door before using the bathroom"
+         */
+        lock.lock();
+
+        /**
+         * CRITICAL: Use try-finally pattern!
+         * The finally block ensures lock is ALWAYS released,
+         * even if an exception occurs in the try block
+         */
         try {
+            // Now we're inside the "locked room" - only this thread can execute here
+
+            // Check if sufficient balance
             if (balance >= amount) {
                 System.out.println(Thread.currentThread().getName() +
                                    " is withdrawing " + amount);
-                Thread.sleep(100); // Simulate processing
+
+                // Simulate processing time (network delay, database write, etc.)
+                Thread.sleep(100);
+
+                // Deduct amount from balance
+                // This is safe because only ONE thread can be here at a time
                 balance -= amount;
+
                 System.out.println(Thread.currentThread().getName() +
                                    " completed. Balance: " + balance);
             } else {
                 System.out.println(Thread.currentThread().getName() +
                                    " insufficient funds");
             }
+
         } catch (InterruptedException e) {
+            // Handle exception if thread is interrupted during sleep
             e.printStackTrace();
+
         } finally {
-            lock.unlock(); // ALWAYS unlock in finally!
+            /**
+             * Step 2: ALWAYS unlock in finally block!
+             * This is CRUCIAL - forgetting to unlock causes deadlock
+             * (other threads wait forever)
+             *
+             * Think: "Always unlock the bathroom door when done!"
+             */
+            lock.unlock();
+
+            // After unlock(), another waiting thread can acquire the lock
         }
     }
 
