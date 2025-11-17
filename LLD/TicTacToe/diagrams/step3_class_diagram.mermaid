@@ -1,0 +1,127 @@
+classDiagram
+    class Game {
+        -Board board
+        -Player player1
+        -Player player2
+        -Player currentPlayer
+        -GameStatus status
+        -MoveValidator validator
+        -WinChecker winChecker
+        +Game(player1, player2)
+        +start() void
+        +makeMove(row, col) boolean
+        +switchPlayer() void
+        +getCurrentPlayer() Player
+        +getStatus() GameStatus
+        +getWinner() Player
+    }
+
+    class Board {
+        -Cell[][] cells
+        -int size
+        +Board(size)
+        +getCell(row, col) Cell
+        +placeSymbol(row, col, symbol) boolean
+        +isFull() boolean
+        +display() void
+        +reset() void
+        +getAllCells() Cell[][]
+    }
+
+    class Cell {
+        -int row
+        -int column
+        -CellState state
+        +Cell(row, column)
+        +getState() CellState
+        +setState(state) void
+        +isEmpty() boolean
+        +getRow() int
+        +getColumn() int
+    }
+
+    class Player {
+        -String name
+        -Symbol symbol
+        -int wins
+        +Player(name, symbol)
+        +getName() String
+        +getSymbol() Symbol
+        +getWins() int
+        +incrementWins() void
+    }
+
+    class MoveValidator {
+        -Board board
+        +MoveValidator(board)
+        +isValidMove(row, col) boolean
+        +getValidationError(row, col) String
+        -isInBounds(row, col) boolean
+        -isCellEmpty(row, col) boolean
+    }
+
+    class WinChecker {
+        -Board board
+        -int winLength
+        +WinChecker(board)
+        +checkWin(symbol) boolean
+        +checkDraw() boolean
+        -checkRows(symbol) boolean
+        -checkColumns(symbol) boolean
+        -checkDiagonals(symbol) boolean
+    }
+
+    class GameStatus {
+        <<enumeration>>
+        NOT_STARTED
+        IN_PROGRESS
+        PLAYER_X_WON
+        PLAYER_O_WON
+        DRAW
+        +isGameOver() boolean
+    }
+
+    class CellState {
+        <<enumeration>>
+        EMPTY
+        X
+        O
+        +getDisplay() String
+    }
+
+    class Symbol {
+        <<enumeration>>
+        X
+        O
+        +toCellState() CellState
+    }
+
+    Game "1" *-- "1" Board : manages
+    Game "1" o-- "2" Player : has players
+    Game --> MoveValidator : uses
+    Game --> WinChecker : uses
+    Game --> GameStatus : tracks state
+
+    Board "1" *-- "9" Cell : contains
+    Cell --> CellState : has state
+    Player --> Symbol : has symbol
+
+    MoveValidator --> Board : validates on
+    WinChecker --> Board : checks on
+
+    note for Game "ORCHESTRATOR: Coordinates the entire game flow.
+    Manages board, players, validators.
+    Enforces rules and game state transitions.
+    Think of it as the 'conductor' of an orchestra!"
+
+    note for MoveValidator "SINGLE RESPONSIBILITY: Only validates moves.
+    Checks: in bounds? cell empty?
+    Separates validation logic from game logic"
+
+    note for WinChecker "SINGLE RESPONSIBILITY: Only checks win/draw.
+    Checks: rows, columns, diagonals
+    Algorithm is independent of game flow"
+
+    note for GameStatus "Represents the current state of the game.
+    Makes game state explicit and type-safe.
+    Easy to query if game is over"

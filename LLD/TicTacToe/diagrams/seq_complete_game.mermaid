@@ -1,0 +1,40 @@
+sequenceDiagram
+    participant Session as GameSession
+    participant G as Game
+    participant GR as GameResult
+    participant SB as ScoreBoard
+    participant GS as GameService
+    participant Repo as ScoreBoardRepository
+
+    G->>G: Game ends (WIN or DRAW)
+    Session->>G: getGameResult()
+    G->>G: determineWinner()
+    G->>GR: new GameResult(status, winner, moveCount)
+    GR->>GR: timestamp = now()
+    G-->>Session: GameResult
+
+    Session->>SB: recordResult(result)
+    SB->>GR: isDraw()
+    GR-->>SB: true/false
+
+    alt Is Draw
+        SB->>SB: draws++
+        SB->>SB: totalGames++
+    else Has Winner
+        SB->>GR: getWinner()
+        GR-->>SB: Player
+        SB->>SB: wins.put(player, currentWins + 1)
+        SB->>SB: totalGames++
+    end
+
+    Session->>SB: display()
+    SB-->>Session: Scoreboard output
+
+    alt User wants to save
+        Session->>GS: saveScoreBoard(session)
+        GS->>GS: generateKey(p1, p2)
+        GS->>Repo: save(scoreBoard, key)
+        Repo->>Repo: persist to storage
+        Repo-->>GS: success
+        GS-->>Session: Saved
+    end

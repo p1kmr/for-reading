@@ -1,0 +1,69 @@
+classDiagram
+    class Cell {
+        -int row
+        -int column
+        -CellState state
+        +Cell(row, column)
+        +getState() CellState
+        +setState(state) void
+        +isEmpty() boolean
+        +getRow() int
+        +getColumn() int
+    }
+
+    class Board {
+        -Cell[][] cells
+        -int size
+        +Board(size)
+        +getCell(row, col) Cell
+        +placeSymbol(row, col, symbol) boolean
+        +isFull() boolean
+        +display() void
+        +reset() void
+    }
+
+    class Player {
+        -String name
+        -Symbol symbol
+        -int wins
+        +Player(name, symbol)
+        +getName() String
+        +getSymbol() Symbol
+        +getWins() int
+        +incrementWins() void
+    }
+
+    class CellState {
+        <<enumeration>>
+        EMPTY
+        X
+        O
+        +toString() String
+        +getDisplay() String
+    }
+
+    class Symbol {
+        <<enumeration>>
+        X
+        O
+        +toString() String
+        +getCellState() CellState
+    }
+
+    Board "1" *-- "9" Cell : contains
+    Cell --> CellState : has state
+    Player --> Symbol : has symbol
+
+    note for CellState "Type-safe representation of cell contents.
+    Prevents invalid values like 'A' or 'x'.
+    EMPTY, X, or O are the only options"
+
+    note for Symbol "Type-safe representation of player symbols.
+    Only X or O allowed.
+    Maps to CellState for board placement"
+
+    note for Cell "NOW: Uses CellState enum instead of String.
+    CHANGE: Type safety - can't set invalid values!"
+
+    note for Player "ADDED: wins counter for scoreboard.
+    CHANGED: symbol is now type-safe enum"
