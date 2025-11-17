@@ -1,0 +1,37 @@
+%% ========================================
+%% STEP 1: IDENTIFY CORE DOMAIN ENTITIES
+%% ========================================
+%% WHERE TO START? Always start with NOUNS from requirements
+%% These are the "things" in our system
+%% ========================================
+
+classDiagram
+    %% Core Entities - Just the boxes, no details yet
+    class User {
+        <<Entity>>
+    }
+
+    class Group {
+        <<Entity>>
+    }
+
+    class Expense {
+        <<Entity>>
+    }
+
+    class Transaction {
+        <<Entity>>
+    }
+
+    %% Notes explaining why we chose these
+    note for User "👤 NOUN: Person who uses the system\n────────────────\nWhy: Every requirement mentions 'users'\nExample: Alice, Bob, Charlie"
+
+    note for Group "👥 NOUN: Collection of users\n────────────────\nWhy: Requirements mention 'groups'\nExample: 'Goa Trip 2025'"
+
+    note for Expense "💰 NOUN: Money spent by someone\n────────────────\nWhy: Core feature is tracking expenses\nExample: 'Dinner ₹3000'"
+
+    note for Transaction "💸 NOUN: Payment from one user to another\n────────────────\nWhy: Users settle balances by paying\nExample: 'Bob paid Alice ₹500'"
+
+%% ========================================
+%% NO RELATIONSHIPS YET - Just identifying entities
+%% ========================================

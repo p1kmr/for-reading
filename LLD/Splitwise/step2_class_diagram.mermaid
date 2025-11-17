@@ -1,0 +1,63 @@
+%% ========================================
+%% STEP 2: ADD BASIC RELATIONSHIPS
+%% ========================================
+%% WHAT WE ADDED: Relationships (arrows) between entities
+%% WHY: Entities don't exist in isolation - they connect!
+%% ========================================
+
+classDiagram
+    %% Core Entities (from Step 1)
+    class User {
+        <<Entity>>
+    }
+
+    class Group {
+        <<Entity>>
+    }
+
+    class Expense {
+        <<Entity>>
+    }
+
+    class Transaction {
+        <<Entity>>
+    }
+
+    %% ========== NEW: RELATIONSHIPS ==========
+
+    %% User to Group: Many-to-Many
+    %% A user can be in many groups, a group has many users
+    User "member *" -- "*" Group : belongs to >
+
+    %% Group to Expense: One-to-Many
+    %% A group has many expenses, an expense belongs to one group
+    Group "1" -- "0..*" Expense : contains >
+
+    %% User to Expense: One-to-Many (who paid)
+    %% A user can pay for many expenses, an expense is paid by one user
+    User "paidBy 1" -- "0..*" Expense : paid by >
+
+    %% Expense to User: Many-to-Many (who owes)
+    %% An expense is split among many users, a user is involved in many expenses
+    Expense "*" -- "participants *" User : split among >
+
+    %% User to Transaction: Two relationships (payer and payee)
+    %% A user can be payer in many transactions
+    User "payer 1" -- "0..*" Transaction : pays >
+    %% A user can be payee in many transactions
+    User "payee 1" -- "0..*" Transaction : receives >
+
+    %% Notes explaining the relationships
+    note for User "👤 USER RELATIONSHIPS\n────────────────\n• Belongs to many Groups (Member)\n• Pays for many Expenses\n• Participates in many Expenses (owes money)\n• Sends many Transactions (as payer)\n• Receives many Transactions (as payee)"
+
+    note for Group "👥 GROUP RELATIONSHIPS\n────────────────\n• Has many Users (Members)\n• Contains many Expenses\n────────────────\nExample: 'Goa Trip' has\n- 3 members (Alice, Bob, Charlie)\n- 10 expenses (hotel, food, etc.)"
+
+    note for Expense "💰 EXPENSE RELATIONSHIPS\n────────────────\n• Belongs to one Group\n• Paid by one User\n• Split among many Users\n────────────────\nExample: 'Dinner ₹3000'\n- In group 'Goa Trip'\n- Paid by Alice\n- Split among Alice, Bob, Charlie"
+
+    note for Transaction "💸 TRANSACTION RELATIONSHIPS\n────────────────\n• Has one Payer (who gives money)\n• Has one Payee (who receives)\n────────────────\nExample: 'Bob → Alice ₹500'\n- Payer: Bob\n- Payee: Alice"
+
+%% ========================================
+%% KEY CONCEPTS:
+%% 1-to-Many: One group has many expenses
+%% Many-to-Many: Users ↔ Groups (needs join table)
+%% ========================================

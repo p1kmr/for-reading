@@ -1,0 +1,193 @@
+%% ========================================
+%% STEP 5: ADD REPOSITORY LAYER
+%% ========================================
+%% WHAT WE ADDED: Repository interfaces for data access
+%% WHY: Separate business logic from database operations
+%% ========================================
+
+classDiagram
+    %% ========== SERVICES (from Step 4) ==========
+    class UserService {
+        <<Service>>
+        -UserRepository userRepository
+        +registerUser(UserDTO) User
+        +getUserById(userId) User
+    }
+
+    class GroupService {
+        <<Service>>
+        -GroupRepository groupRepository
+        +createGroup(...) Group
+        +getGroupById(groupId) Group
+    }
+
+    class ExpenseService {
+        <<Service>>
+        -ExpenseRepository expenseRepository
+        +addExpense(ExpenseDTO) Expense
+        +getExpensesByGroup(groupId) List
+    }
+
+    class TransactionService {
+        <<Service>>
+        -TransactionRepository transactionRepository
+        +recordPayment(...) Transaction
+    }
+
+    %% ========== REPOSITORY INTERFACES ==========
+
+    class UserRepository {
+        <<Interface>>
+        +save(User) void
+        +findById(userId) Optional~User~
+        +findByEmail(email) Optional~User~
+        +existsByEmail(email) boolean
+        +update(User) void
+        +delete(userId) void
+        +findAll() List~User~
+    }
+
+    class GroupRepository {
+        <<Interface>>
+        +save(Group) void
+        +findById(groupId) Optional~Group~
+        +findByUserId(userId) List~Group~
+        +update(Group) void
+        +delete(groupId) void
+        +addMemberToGroup(groupId, userId) void
+        +removeMemberFromGroup(groupId, userId) void
+        +getMembersByGroup(groupId) List~User~
+        +isUserMember(groupId, userId) boolean
+    }
+
+    class ExpenseRepository {
+        <<Interface>>
+        +save(Expense) void
+        +findById(expenseId) Optional~Expense~
+        +findByGroupId(groupId) List~Expense~
+        +findByUserId(userId) List~Expense~
+        +findByParticipant(userId) List~Expense~
+        +findByDateRange(start, end) List~Expense~
+        +update(Expense) void
+        +delete(expenseId) void
+    }
+
+    class TransactionRepository {
+        <<Interface>>
+        +save(Transaction) void
+        +findById(transactionId) Optional~Transaction~
+        +findByUserId(userId) List~Transaction~
+        +findByGroupId(groupId) List~Transaction~
+        +findByPayerId(payerId) List~Transaction~
+        +findByPayeeId(payeeId) List~Transaction~
+        +findByDateRange(start, end) List~Transaction~
+        +update(Transaction) void
+        +delete(transactionId) void
+    }
+
+    %% ========== JPA IMPLEMENTATIONS ==========
+
+    class JpaUserRepository {
+        <<Implementation>>
+        +save(User) void
+        +findById(userId) Optional~User~
+        +findByEmail(email) Optional~User~
+        +existsByEmail(email) boolean
+        +update(User) void
+        +delete(userId) void
+        +findAll() List~User~
+    }
+
+    class JpaGroupRepository {
+        <<Implementation>>
+        +save(Group) void
+        +findById(groupId) Optional~Group~
+        +addMemberToGroup(...) void
+        +getMembersByGroup(...) List~User~
+    }
+
+    class JpaExpenseRepository {
+        <<Implementation>>
+        +save(Expense) void
+        +findById(expenseId) Optional~Expense~
+        +findByGroupId(groupId) List~Expense~
+    }
+
+    class JpaTransactionRepository {
+        <<Implementation>>
+        +save(Transaction) void
+        +findById(transactionId) Optional~Transaction~
+    }
+
+    %% ========== IN-MEMORY IMPLEMENTATIONS (for testing) ==========
+
+    class InMemoryUserRepository {
+        <<Implementation>>
+        -Map~String, User~ users
+        +save(User) void
+        +findById(userId) Optional~User~
+    }
+
+    class InMemoryGroupRepository {
+        <<Implementation>>
+        -Map~String, Group~ groups
+        -Map~String, Set~String~~ groupMembers
+        +save(Group) void
+        +addMemberToGroup(...) void
+    }
+
+    %% ========== DATABASE ==========
+    class MySQLDatabase {
+        <<Database>>
+        Tables:
+        - users
+        - groups
+        - user_groups (join table)
+        - expenses
+        - expense_participants (join table)
+        - transactions
+    }
+
+    %% ========== RELATIONSHIPS ==========
+
+    %% Services use Repository Interfaces
+    UserService --> UserRepository : uses
+    GroupService --> GroupRepository : uses
+    ExpenseService --> ExpenseRepository : uses
+    TransactionService --> TransactionRepository : uses
+
+    %% Interfaces implemented by JPA classes
+    UserRepository <|.. JpaUserRepository : implements
+    GroupRepository <|.. JpaGroupRepository : implements
+    ExpenseRepository <|.. JpaExpenseRepository : implements
+    TransactionRepository <|.. JpaTransactionRepository : implements
+
+    %% Interfaces implemented by In-Memory classes
+    UserRepository <|.. InMemoryUserRepository : implements
+    GroupRepository <|.. InMemoryGroupRepository : implements
+
+    %% JPA implementations connect to database
+    JpaUserRepository --> MySQLDatabase : queries
+    JpaGroupRepository --> MySQLDatabase : queries
+    JpaExpenseRepository --> MySQLDatabase : queries
+    JpaTransactionRepository --> MySQLDatabase : queries
+
+    %% ========== NOTES ==========
+
+    note for UserRepository "📚 REPOSITORY PATTERN\n────────────────\n✅ Interface defines contract\n✅ Services depend on interface\n✅ Not on implementation\n────────────────\n🎯 Dependency Inversion Principle\n────────────────\nWHY?\n• Easy to swap implementations\n• Test with in-memory version\n• Production uses JPA/MySQL"
+
+    note for JpaUserRepository "💾 JPA IMPLEMENTATION\n────────────────\nUses Spring Data JPA:\n@Repository\ninterface UserRepo\n  extends JpaRepository<User, String>\n────────────────\nAuto-generates SQL:\n• save() → INSERT\n• findById() → SELECT WHERE\n• delete() → DELETE\n────────────────\nNo manual SQL needed!"
+
+    note for InMemoryUserRepository "🧪 IN-MEMORY FOR TESTING\n────────────────\nUses HashMap:\nprivate Map<String, User> users\n────────────────\nBENEFITS:\n✅ Fast (no database)\n✅ Isolated tests\n✅ No setup needed\n✅ Same interface as JPA\n────────────────\nTests don't know the difference!"
+
+    note for MySQLDatabase "🗄️ DATABASE SCHEMA\n────────────────\nTABLES:\n• users (id, name, email, ...)\n• groups (id, name, created_by, ...)\n• user_groups (user_id, group_id)\n• expenses (id, amount, paid_by, ...)\n• expense_participants (expense_id, user_id, amount)\n• transactions (id, payer, payee, ...)\n────────────────\nINDEXES:\n• idx_user_email (for login)\n• idx_expense_group (for queries)\n• idx_transaction_user"
+
+    note for GroupRepository "🔗 MANY-TO-MANY HANDLING\n────────────────\nGroup ↔ User is Many-to-Many\n────────────────\nMethods:\n• addMemberToGroup()\n  → INSERT INTO user_groups\n• removeMemberFromGroup()\n  → DELETE FROM user_groups\n• getMembersByGroup()\n  → JOIN users & user_groups\n────────────────\nHides join table complexity!"
+
+%% ========================================
+%% KEY CONCEPTS:
+%% 1. Repository Pattern - interface for data access
+%% 2. Dependency Inversion - services depend on interface
+%% 3. Multiple implementations - JPA for prod, In-Memory for test
+%% 4. Separation of Concerns - data access separate from logic
+%% ========================================
