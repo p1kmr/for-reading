@@ -22,7 +22,7 @@ graph TB
         User1[😈 Malicious User] -->|10,000 requests/sec| API1[API Server]
         API1 -->|💥 Overloaded| Crash[Server Crashes]
 
-        Note1[❌ Legitimate users<br/>can't access service]
+        Note1[❌ Legitimate users | can't access service]
     end
 
     subgraph "With Rate Limiting"
@@ -31,7 +31,7 @@ graph TB
         RateLimiter -->|100 requests/sec| API2[API Server]
         API2 -->|✅ Healthy| Working[Server Healthy]
 
-        Note2[✅ Legitimate users<br/>can access service]
+        Note2[✅ Legitimate users | can access service]
     end
 ```
 
@@ -56,17 +56,17 @@ graph TB
 graph TB
     RateLimiting[⚖️ Rate Limiting]
 
-    RateLimiting --> Benefit1[🛡️ DDoS Protection<br/>Prevent service overload]
-    RateLimiting --> Benefit2[💰 Cost Control<br/>Reduce infrastructure costs]
-    RateLimiting --> Benefit3[⚖️ Fair Usage<br/>Equal access for all users]
-    RateLimiting --> Benefit4[🔒 Security<br/>Prevent brute force attacks]
-    RateLimiting --> Benefit5[📊 Resource Management<br/>Optimize server capacity]
+    RateLimiting --> Benefit1[🛡️ DDoS Protection | Prevent service overload]
+    RateLimiting --> Benefit2[💰 Cost Control | Reduce infrastructure costs]
+    RateLimiting --> Benefit3[⚖️ Fair Usage | Equal access for all users]
+    RateLimiting --> Benefit4[🔒 Security | Prevent brute force attacks]
+    RateLimiting --> Benefit5[📊 Resource Management | Optimize server capacity]
 
-    Benefit1 --> Ex1[Block 1M requests<br/>from single IP]
-    Benefit2 --> Ex2[Save $10K/month<br/>on AWS costs]
-    Benefit3 --> Ex3[Prevent one user<br/>hogging resources]
-    Benefit4 --> Ex4[Block password<br/>guessing attempts]
-    Benefit5 --> Ex5[Handle 10K concurrent<br/>users smoothly]
+    Benefit1 --> Ex1[Block 1M requests | from single IP]
+    Benefit2 --> Ex2[Save $10K/month | on AWS costs]
+    Benefit3 --> Ex3[Prevent one user | hogging resources]
+    Benefit4 --> Ex4[Block password | guessing attempts]
+    Benefit5 --> Ex5[Handle 10K concurrent | users smoothly]
 ```
 
 ### Without Rate Limiting - Attack Scenario
@@ -87,7 +87,7 @@ sequenceDiagram
         Server-->>Attacker: Response
     end
 
-    Note over Server,DB: Server resources exhausted!<br/>CPU: 100%<br/>Memory: 100%<br/>DB connections: Maxed out
+    Note over Server,DB: Server resources exhausted! | CPU: 100% | Memory: 100% | DB connections: Maxed out
 
     LegitUser->>Server: Normal request
     Server--xLegitUser: ❌ Timeout (server overloaded)
@@ -112,9 +112,9 @@ sequenceDiagram
     RateLimiter-->>Attacker: Response
 
     Attacker->>RateLimiter: Request 101-10,000
-    RateLimiter-->>Attacker: ❌ 429 Too Many Requests<br/>Retry-After: 60 seconds
+    RateLimiter-->>Attacker: ❌ 429 Too Many Requests | Retry-After: 60 seconds
 
-    Note over Server: Server healthy! ✅<br/>CPU: 30%<br/>Memory: 40%
+    Note over Server: Server healthy! ✅ | CPU: 30% | Memory: 40%
 
     LegitUser->>RateLimiter: Normal request
     RateLimiter->>Server: Forward
@@ -132,13 +132,13 @@ sequenceDiagram
 ```mermaid
 graph TB
     subgraph "Token Bucket (Capacity: 10, Refill: 1/sec)"
-        Bucket[🪣 Token Bucket<br/>Current: 7 tokens]
+        Bucket[🪣 Token Bucket | Current: 7 tokens]
 
-        Time1[⏰ t=0s<br/>Tokens: 10]
-        Time2[⏰ t=1s<br/>Request comes<br/>Tokens: 10-1=9]
-        Time3[⏰ t=2s<br/>Request comes<br/>Tokens: 9+1-1=9]
-        Time4[⏰ t=10s<br/>5 requests<br/>Tokens: 10-5=5]
-        Time5[⏰ t=15s<br/>Refilled<br/>Tokens: 5+5=10]
+        Time1[⏰ t=0s | Tokens: 10]
+        Time2[⏰ t=1s | Request comes | Tokens: 10-1=9]
+        Time3[⏰ t=2s | Request comes | Tokens: 9+1-1=9]
+        Time4[⏰ t=10s | 5 requests | Tokens: 10-5=5]
+        Time5[⏰ t=15s | Refilled | Tokens: 5+5=10]
     end
 
     Time1 --> Time2
@@ -146,7 +146,7 @@ graph TB
     Time3 --> Time4
     Time4 --> Time5
 
-    Note1[✅ Allows bursts<br/>❌ Can be complex]
+    Note1[✅ Allows bursts | ❌ Can be complex]
 ```
 
 **How it works:**
@@ -216,18 +216,18 @@ t=10s: 0 + (10 * 10) = 100 tokens
 
 ```mermaid
 graph TB
-    Requests[📥 Incoming Requests<br/>Variable rate]
+    Requests[📥 Incoming Requests | Variable rate]
 
     subgraph "Leaky Bucket (Capacity: 100)"
-        Queue[📬 Queue<br/>──────<br/>Request 1<br/>Request 2<br/>Request 3<br/>...<br/>Request N]
+        Queue[📬 Queue | ────── | Request 1 | Request 2 | Request 3 | ... | Request N]
 
-        Leak[💧 Leak Rate<br/>10 requests/sec<br/>constant]
+        Leak[💧 Leak Rate | 10 requests/sec | constant]
     end
 
-    Output[📤 Processed Requests<br/>Constant rate: 10/sec]
+    Output[📤 Processed Requests | Constant rate: 10/sec]
 
     Requests -->|Add to queue| Queue
-    Queue -->|Process at<br/>fixed rate| Leak
+    Queue -->|Process at | fixed rate| Leak
     Leak --> Output
 
     Overflow{Queue full?}
@@ -297,15 +297,15 @@ if (await bucket.addRequest(requestData)) {
 ```mermaid
 graph TB
     subgraph "Fixed Window (1 minute windows, Limit: 100)"
-        Window1[⏰ Window 1<br/>00:00-01:00<br/>Count: 80]
-        Window2[⏰ Window 2<br/>01:00-02:00<br/>Count: 95]
-        Window3[⏰ Window 3<br/>02:00-03:00<br/>Count: 120 ❌<br/>20 requests rejected]
+        Window1[⏰ Window 1 | 00:00-01:00 | Count: 80]
+        Window2[⏰ Window 2 | 01:00-02:00 | Count: 95]
+        Window3[⏰ Window 3 | 02:00-03:00 | Count: 120 ❌ | 20 requests rejected]
     end
 
     Window1 --> Window2
     Window2 --> Window3
 
-    Problem[⚠️ Edge Case Problem:<br/>00:30-01:30 could see 200 requests!<br/>(100 at end of window 1 +<br/>100 at start of window 2)]
+    Problem[⚠️ Edge Case Problem: | 00:30-01:30 could see 200 requests! | (100 at end of window 1 + | 100 at start of window 2)]
 ```
 
 **Code:**
@@ -372,11 +372,11 @@ graph TB
     subgraph "Sliding Window Log (1 minute window, Limit: 100)"
         Now[⏰ Current Time: 01:30:00]
 
-        Log[📝 Request Log<br/>──────────<br/>01:29:05<br/>01:29:10<br/>01:29:15<br/>...<br/>01:30:00]
+        Log[📝 Request Log | ────────── | 01:29:05 | 01:29:10 | 01:29:15 | ... | 01:30:00]
 
-        Window[🪟 Sliding Window<br/>Last 60 seconds<br/>01:29:00 - 01:30:00]
+        Window[🪟 Sliding Window | Last 60 seconds | 01:29:00 - 01:30:00]
 
-        Count[Count requests<br/>in window: 95]
+        Count[Count requests | in window: 95]
 
         Decision{< 100?}
     end
@@ -385,7 +385,7 @@ graph TB
     Log --> Window
     Window --> Count
     Count --> Decision
-    Decision -->|Yes| Allow[✅ Allow request<br/>Add to log]
+    Decision -->|Yes| Allow[✅ Allow request | Add to log]
     Decision -->|No| Reject[❌ Reject request]
 ```
 
@@ -441,13 +441,13 @@ if (await limiter.allowRequest(userId)) {
 ```mermaid
 graph TB
     subgraph "Sliding Window Counter (Limit: 100/min)"
-        PrevWindow[⏰ Previous Window<br/>00:00-01:00<br/>Count: 80]
+        PrevWindow[⏰ Previous Window | 00:00-01:00 | Count: 80]
 
-        CurrWindow[⏰ Current Window<br/>01:00-02:00<br/>Count: 30]
+        CurrWindow[⏰ Current Window | 01:00-02:00 | Count: 30]
 
-        Now[Current Time:<br/>01:30 (50% into window)]
+        Now[Current Time: | 01:30 (50% into window)]
 
-        Formula[Weighted Count =<br/>Prev × (1 - 0.5) + Curr<br/>= 80 × 0.5 + 30<br/>= 40 + 30 = 70]
+        Formula[Weighted Count = | Prev × (1 - 0.5) + Curr | = 80 × 0.5 + 30 | = 40 + 30 = 70]
 
         Decision{70 < 100?}
     end
@@ -597,7 +597,7 @@ graph TB
     Client[👤 Client]
 
     subgraph "API Gateway (Kong/AWS API Gateway)"
-        RateLimit[⚖️ Rate Limiter<br/>Plugin]
+        RateLimit[⚖️ Rate Limiter | Plugin]
         Routes[🚪 Routes]
     end
 
@@ -615,7 +615,7 @@ graph TB
     Routes --> Service2
     Routes --> Service3
 
-    Note1[✅ Centralized<br/>✅ Protects all services<br/>✅ No code changes]
+    Note1[✅ Centralized | ✅ Protects all services | ✅ No code changes]
 ```
 
 **Kong Configuration:**
@@ -657,11 +657,11 @@ graph TB
     LB[⚖️ Load Balancer]
 
     subgraph "Without Distributed Rate Limiting"
-        S1[🖥️ Server 1<br/>Local limit: 100]
-        S2[🖥️ Server 2<br/>Local limit: 100]
-        S3[🖥️ Server 3<br/>Local limit: 100]
+        S1[🖥️ Server 1 | Local limit: 100]
+        S2[🖥️ Server 2 | Local limit: 100]
+        S3[🖥️ Server 3 | Local limit: 100]
 
-        Problem[❌ Problem:<br/>User can make<br/>300 requests!<br/>(100 per server)]
+        Problem[❌ Problem: | User can make | 300 requests! | (100 per server)]
     end
 
     User --> LB
@@ -683,7 +683,7 @@ graph TB
         S3[🖥️ Server 3]
     end
 
-    Redis[(📦 Redis Cluster<br/>Shared Counter)]
+    Redis[(📦 Redis Cluster | Shared Counter)]
 
     User --> LB
     LB --> S1
@@ -694,7 +694,7 @@ graph TB
     S2 -->|Check/increment| Redis
     S3 -->|Check/increment| Redis
 
-    Note1[✅ Solution:<br/>Global limit: 100<br/>across all servers]
+    Note1[✅ Solution: | Global limit: 100 | across all servers]
 ```
 
 **Implementation:**
@@ -792,13 +792,13 @@ HTTP/2 403
 ```mermaid
 graph TB
     subgraph "Twitter API Rate Limits"
-        Free[🆓 Free Tier<br/>──────<br/>500 tweets/month<br/>1 app]
+        Free[🆓 Free Tier | ────── | 500 tweets/month | 1 app]
 
-        Basic[💵 Basic ($100/month)<br/>──────<br/>10,000 tweets/month<br/>2 apps]
+        Basic[💵 Basic ($100/month) | ────── | 10,000 tweets/month | 2 apps]
 
-        Pro[⭐ Pro ($5,000/month)<br/>──────<br/>1M tweets/month<br/>Unlimited apps]
+        Pro[⭐ Pro ($5,000/month) | ────── | 1M tweets/month | Unlimited apps]
 
-        Enterprise[🏢 Enterprise (Custom)<br/>──────<br/>Custom limits<br/>Dedicated support]
+        Enterprise[🏢 Enterprise (Custom) | ────── | Custom limits | Dedicated support]
     end
 
     Free --> Basic
@@ -1180,10 +1180,10 @@ app.use(async (req, res, next) => {
 graph TB
     Request[📥 Incoming Request]
 
-    Check1{IP Limit?<br/>1000/min}
-    Check2{User Limit?<br/>100/min}
-    Check3{Endpoint Limit?<br/>30/min}
-    Check4{Tier Limit?<br/>1000/day}
+    Check1{IP Limit? | 1000/min}
+    Check2{User Limit? | 100/min}
+    Check3{Endpoint Limit? | 30/min}
+    Check4{Tier Limit? | 1000/day}
 
     Request --> Check1
     Check1 -->|✅ Pass| Check2

@@ -20,7 +20,7 @@
 ```mermaid
 graph TB
     subgraph "Monolith (One big application)"
-        Mono[🏢 Single Application<br/>──────────<br/>User Management<br/>+ Order Processing<br/>+ Payment<br/>+ Inventory<br/>+ Notifications<br/>──────────<br/>All coupled together]
+        Mono[🏢 Single Application | ────────── | User Management | + Order Processing | + Payment | + Inventory | + Notifications | ────────── | All coupled together]
     end
 
     subgraph "Microservices (Independent services)"
@@ -36,8 +36,8 @@ graph TB
         MS2 -.->|Event| MS5
     end
 
-    Note1[One deployment<br/>One database<br/>One codebase]
-    Note2[Independent deployment<br/>Independent databases<br/>Independent codebases]
+    Note1[One deployment | One database | One codebase]
+    Note2[Independent deployment | Independent databases | Independent codebases]
 
     Mono -.-> Note1
     MS2 -.-> Note2
@@ -65,29 +65,29 @@ graph TB
     subgraph "Monolithic Architecture"
         User1[👤 User] --> LB1[⚖️ Load Balancer]
 
-        LB1 --> App1[🏢 App Instance 1<br/>All features]
-        LB1 --> App2[🏢 App Instance 2<br/>All features]
-        LB1 --> App3[🏢 App Instance 3<br/>All features]
+        LB1 --> App1[🏢 App Instance 1 | All features]
+        LB1 --> App2[🏢 App Instance 2 | All features]
+        LB1 --> App3[🏢 App Instance 3 | All features]
 
-        App1 --> DB1[(🗄️ Single Database<br/>All tables)]
+        App1 --> DB1[(🗄️ Single Database | All tables)]
         App2 --> DB1
         App3 --> DB1
 
-        Note_M[❌ Scale entire app<br/>even if only one<br/>feature needs scaling]
+        Note_M[❌ Scale entire app | even if only one | feature needs scaling]
     end
 
     subgraph "Microservices Architecture"
         User2[👤 User] --> Gateway[🚪 API Gateway]
 
-        Gateway --> UserMS[👤 User Service<br/>2 instances]
-        Gateway --> OrderMS[🛒 Order Service<br/>10 instances ⚡]
-        Gateway --> PaymentMS[💳 Payment Service<br/>3 instances]
+        Gateway --> UserMS[👤 User Service | 2 instances]
+        Gateway --> OrderMS[🛒 Order Service | 10 instances ⚡]
+        Gateway --> PaymentMS[💳 Payment Service | 3 instances]
 
         UserMS --> UserDB[(👤 User DB)]
         OrderMS --> OrderDB[(🛒 Order DB)]
         PaymentMS --> PaymentDB[(💳 Payment DB)]
 
-        Note_MS[✅ Scale only<br/>what needs scaling]
+        Note_MS[✅ Scale only | what needs scaling]
     end
 ```
 
@@ -116,10 +116,10 @@ graph TD
 
     Q1 -->|< 10 people| Mono1[Consider Monolith]
     Q1 -->|> 50 people| Micro1[Consider Microservices]
-    Q1 -->|10-50 people| Q2{Different scaling<br/>needs per feature?}
+    Q1 -->|10-50 people| Q2{Different scaling | needs per feature?}
 
     Q2 -->|Yes| Micro2[Microservices]
-    Q2 -->|No| Q3{Need independent<br/>deployments?}
+    Q2 -->|No| Q3{Need independent | deployments?}
 
     Q3 -->|Yes| Micro3[Microservices]
     Q3 -->|No| Mono2[Monolith]
@@ -127,7 +127,7 @@ graph TD
     Micro1 --> Done1[✅ Microservices]
     Micro2 --> Done1
     Micro3 --> Done1
-    Mono1 --> Done2[✅ Monolith<br/>or Modular Monolith]
+    Mono1 --> Done2[✅ Monolith | or Modular Monolith]
     Mono2 --> Done2
 ```
 
@@ -144,14 +144,14 @@ graph TB
     Desktop[🖥️ Desktop App]
 
     subgraph "API Gateway Layer"
-        Gateway[🚪 API Gateway<br/>──────────<br/>• Authentication<br/>• Rate Limiting<br/>• Request Routing<br/>• Response Aggregation<br/>• Protocol Translation]
+        Gateway[🚪 API Gateway | ────────── | • Authentication | • Rate Limiting | • Request Routing | • Response Aggregation | • Protocol Translation]
     end
 
     subgraph "Microservices"
-        User[👤 User Service<br/>:3001]
-        Order[🛒 Order Service<br/>:3002]
-        Product[📦 Product Service<br/>:3003]
-        Payment[💳 Payment Service<br/>:3004]
+        User[👤 User Service | :3001]
+        Order[🛒 Order Service | :3002]
+        Product[📦 Product Service | :3003]
+        Payment[💳 Payment Service | :3004]
     end
 
     Mobile --> Gateway
@@ -229,12 +229,12 @@ app.listen(3000);
 ```mermaid
 sequenceDiagram
     participant Order as 🛒 Order Service
-    participant Registry as 📋 Service Registry<br/>(Consul/Eureka)
+    participant Registry as 📋 Service Registry | (Consul/Eureka)
     participant User as 👤 User Service
 
     Note over User: Service starts up
 
-    User->>Registry: Register:<br/>user-service @ 192.168.1.5:3001
+    User->>Registry: Register: | user-service @ 192.168.1.5:3001
     Registry-->>User: Registered ✅
 
     User->>Registry: Heartbeat (every 10s)
@@ -298,11 +298,11 @@ async function callUserService(userId) {
 stateDiagram-v2
     [*] --> Closed: Initial state
 
-    Closed --> Open: Failure threshold<br/>exceeded<br/>(e.g., 5 failures in 10s)
+    Closed --> Open: Failure threshold | exceeded | (e.g., 5 failures in 10s)
 
-    Open --> HalfOpen: Timeout elapsed<br/>(e.g., after 30s)
+    Open --> HalfOpen: Timeout elapsed | (e.g., after 30s)
 
-    HalfOpen --> Closed: Success threshold<br/>reached<br/>(e.g., 3 successes)
+    HalfOpen --> Closed: Success threshold | reached | (e.g., 3 successes)
 
     HalfOpen --> Open: Failure detected
 
@@ -533,7 +533,7 @@ graph TB
         Sync_Service -->|Wait...| Sync_Client
         Sync_Service -->|Response| Sync_Client
 
-        Note_Sync[⏱️ Client waits<br/>for response<br/>Tight coupling]
+        Note_Sync[⏱️ Client waits | for response | Tight coupling]
     end
 
     subgraph "Asynchronous (Message Queue, Events)"
@@ -546,7 +546,7 @@ graph TB
         Async_Queue -->|Subscribe| Async_Service
         Async_Service -->|Process later| Async_Service
 
-        Note_Async[⚡ Client doesn't wait<br/>Loose coupling]
+        Note_Async[⚡ Client doesn't wait | Loose coupling]
     end
 ```
 
@@ -572,12 +572,12 @@ sequenceDiagram
     Note over Client,Queue: REST (Request-Response)
 
     Client->>REST: GET /users/123
-    REST-->>Client: {id: 123, name: "Alice"}<br/>⏱️ 50ms
+    REST-->>Client: {id: 123, name: "Alice"} | ⏱️ 50ms
 
     Note over Client,Queue: gRPC (High Performance)
 
     Client->>gRPC: GetUser(123)
-    gRPC-->>Client: User{id=123, name="Alice"}<br/>⏱️ 10ms (faster!)
+    gRPC-->>Client: User{id=123, name="Alice"} | ⏱️ 10ms (faster!)
 
     Note over Client,Queue: Events (Fire and Forget)
 
@@ -600,18 +600,18 @@ graph TB
         Service2[Order Service] --> SharedDB
         Service3[Payment Service] --> SharedDB
 
-        Note1[Problem:<br/>• Tight coupling<br/>• Schema changes affect all<br/>• Single point of failure]
+        Note1[Problem: | • Tight coupling | • Schema changes affect all | • Single point of failure]
     end
 
     subgraph "✅ Database per Service"
-        Service4[User Service] --> DB1[(User DB<br/>PostgreSQL)]
-        Service5[Order Service] --> DB2[(Order DB<br/>MongoDB)]
-        Service6[Payment Service] --> DB3[(Payment DB<br/>PostgreSQL)]
+        Service4[User Service] --> DB1[(User DB | PostgreSQL)]
+        Service5[Order Service] --> DB2[(Order DB | MongoDB)]
+        Service6[Payment Service] --> DB3[(Payment DB | PostgreSQL)]
 
         Service5 -.->|API call| Service4
         Service5 -.->|API call| Service6
 
-        Note2[Benefits:<br/>• Loose coupling<br/>• Independent scaling<br/>• Technology choice]
+        Note2[Benefits: | • Loose coupling | • Independent scaling | • Technology choice]
     end
 ```
 
@@ -650,14 +650,14 @@ graph TB
     subgraph "Write Side (Commands)"
         Command[✍️ Create Order]
         OrderService[Order Service]
-        OrderDB[(Order DB<br/>Write)]
+        OrderDB[(Order DB | Write)]
         EventBus[📡 Event Bus]
     end
 
     subgraph "Read Side (Queries)"
         Query[📖 Get Order Details]
         ReadService[Read Model Service]
-        ReadDB[(Read DB<br/>Denormalized)]
+        ReadDB[(Read DB | Denormalized)]
     end
 
     Client -->|Write| Command
@@ -670,8 +670,8 @@ graph TB
     Query --> ReadService
     ReadService --> ReadDB
 
-    Note1[Write: Normalized,<br/>consistent]
-    Note2[Read: Denormalized,<br/>optimized for queries]
+    Note1[Write: Normalized, | consistent]
+    Note2[Read: Denormalized, | optimized for queries]
 ```
 
 #### 3. Event Sourcing
@@ -753,17 +753,17 @@ function rebuildOrderState(orderId) {
 graph TB
     Challenges[Microservices Challenges]
 
-    Challenges --> C1[🌐 Distributed System<br/>Complexity]
-    Challenges --> C2[📊 Monitoring<br/>& Debugging]
+    Challenges --> C1[🌐 Distributed System | Complexity]
+    Challenges --> C2[📊 Monitoring | & Debugging]
     Challenges --> C3[🔒 Security]
     Challenges --> C4[⚡ Performance]
     Challenges --> C5[💾 Data Consistency]
 
-    C1 --> S1[✅ Service mesh<br/>Istio, Linkerd]
-    C2 --> S2[✅ Distributed tracing<br/>Jaeger, Zipkin]
-    C3 --> S3[✅ API Gateway<br/>OAuth 2.0, JWT]
-    C4 --> S4[✅ Caching, gRPC<br/>Async patterns]
-    C5 --> S5[✅ Saga pattern<br/>Event sourcing]
+    C1 --> S1[✅ Service mesh | Istio, Linkerd]
+    C2 --> S2[✅ Distributed tracing | Jaeger, Zipkin]
+    C3 --> S3[✅ API Gateway | OAuth 2.0, JWT]
+    C4 --> S4[✅ Caching, gRPC | Async patterns]
+    C5 --> S5[✅ Saga pattern | Event sourcing]
 ```
 
 ### Distributed Tracing
@@ -777,31 +777,31 @@ sequenceDiagram
     participant Product as Product Service
     participant Tracer as Jaeger/Zipkin
 
-    Client->>Gateway: GET /order-details/123<br/>trace-id: ABC123
+    Client->>Gateway: GET /order-details/123 | trace-id: ABC123
 
     Gateway->>Tracer: Span: gateway (started)
-    Gateway->>Order: GET /orders/123<br/>trace-id: ABC123
+    Gateway->>Order: GET /orders/123 | trace-id: ABC123
     Order->>Tracer: Span: order-service (started)
 
     par Parallel Calls
-        Order->>User: GET /users/456<br/>trace-id: ABC123
+        Order->>User: GET /users/456 | trace-id: ABC123
         User->>Tracer: Span: user-service (started)
-        User-->>Order: User data<br/>⏱️ 20ms
+        User-->>Order: User data | ⏱️ 20ms
         User->>Tracer: Span: user-service (completed, 20ms)
 
-        Order->>Product: GET /products/789<br/>trace-id: ABC123
+        Order->>Product: GET /products/789 | trace-id: ABC123
         Product->>Tracer: Span: product-service (started)
-        Product-->>Order: Product data<br/>⏱️ 50ms
+        Product-->>Order: Product data | ⏱️ 50ms
         Product->>Tracer: Span: product-service (completed, 50ms)
     end
 
-    Order-->>Gateway: Order details<br/>⏱️ 70ms
+    Order-->>Gateway: Order details | ⏱️ 70ms
     Order->>Tracer: Span: order-service (completed, 70ms)
 
-    Gateway-->>Client: Response<br/>⏱️ 75ms
+    Gateway-->>Client: Response | ⏱️ 75ms
     Gateway->>Tracer: Span: gateway (completed, 75ms)
 
-    Note over Tracer: Trace visualization shows<br/>entire request flow
+    Note over Tracer: Trace visualization shows | entire request flow
 ```
 
 **Implementation:**
@@ -856,7 +856,7 @@ graph TB
 
     subgraph "Netflix Microservices (500+ services)"
         User_Service[👤 User Service]
-        Recommendation[🎬 Recommendation<br/>Service]
+        Recommendation[🎬 Recommendation | Service]
         Video[📹 Video Service]
         Playback[▶️ Playback Service]
         Billing[💳 Billing Service]
@@ -870,9 +870,9 @@ graph TB
     Zuul --> Playback
     Zuul --> Billing
 
-    Recommendation -.->|Hystrix<br/>Circuit Breaker| Video
+    Recommendation -.->|Hystrix | Circuit Breaker| Video
 
-    Note1[🔧 Tools Used:<br/>• Zuul (API Gateway)<br/>• Eureka (Service Discovery)<br/>• Hystrix (Circuit Breaker)<br/>• Ribbon (Load Balancing)]
+    Note1[🔧 Tools Used: | • Zuul (API Gateway) | • Eureka (Service Discovery) | • Hystrix (Circuit Breaker) | • Ribbon (Load Balancing)]
 ```
 
 **Netflix Numbers:**
@@ -911,7 +911,7 @@ graph TB
     Kafka -->|Subscribe| Pricing
     Kafka -->|Subscribe| Payment
 
-    Note1[Event-driven architecture<br/>using Kafka for<br/>asynchronous communication]
+    Note1[Event-driven architecture | using Kafka for | asynchronous communication]
 ```
 
 ---

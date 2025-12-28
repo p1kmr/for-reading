@@ -20,13 +20,13 @@
 ```mermaid
 graph TB
     subgraph "Regular Hashing Problem"
-        RH[Hash Function:<br/>server = hash(key) % N]
-        RH_Problem[❌ Add/remove server<br/>→ N changes<br/>→ Most keys remapped!]
+        RH[Hash Function: | server = hash(key) % N]
+        RH_Problem[❌ Add/remove server | → N changes | → Most keys remapped!]
     end
 
     subgraph "Consistent Hashing Solution"
         CH[Hash Ring]
-        CH_Solution[✅ Add/remove server<br/>→ Only 1/N keys remapped<br/>→ Minimal disruption!]
+        CH_Solution[✅ Add/remove server | → Only 1/N keys remapped | → Minimal disruption!]
     end
 
     RH --> RH_Problem
@@ -72,7 +72,7 @@ sequenceDiagram
     Client->>Cache1: Where is "user:123"?
     Cache1-->>Client: Not found (was at index 0, now expects 3)
 
-    Note over Client,Cache3: 💥 Cache MISS for most keys!<br/>Performance degradation!
+    Note over Client,Cache3: 💥 Cache MISS for most keys! | Performance degradation!
 ```
 
 **Problem visualization:**
@@ -128,20 +128,20 @@ graph TB
         Ring((Hash Ring))
 
         subgraph "Servers (hashed positions)"
-            S1[🖥️ Server 1<br/>hash=100]
-            S2[🖥️ Server 2<br/>hash=800]
-            S3[🖥️ Server 3<br/>hash=1500]
+            S1[🖥️ Server 1 | hash=100]
+            S2[🖥️ Server 2 | hash=800]
+            S3[🖥️ Server 3 | hash=1500]
         end
 
         subgraph "Keys (hashed positions)"
-            K1[🔑 key1<br/>hash=50]
-            K2[🔑 key2<br/>hash=300]
-            K3[🔑 key3<br/>hash=1200]
-            K4[🔑 key4<br/>hash=1800]
+            K1[🔑 key1 | hash=50]
+            K2[🔑 key2 | hash=300]
+            K3[🔑 key3 | hash=1200]
+            K4[🔑 key4 | hash=1800]
         end
     end
 
-    Mapping[Mapping:<br/>──────────<br/>key1 (50) → Server 1 (100)<br/>key2 (300) → Server 2 (800)<br/>key3 (1200) → Server 3 (1500)<br/>key4 (1800) → Server 1 (100)<br/>──────────<br/>Rule: Clockwise to next server]
+    Mapping[Mapping: | ────────── | key1 (50) → Server 1 (100) | key2 (300) → Server 2 (800) | key3 (1200) → Server 3 (1500) | key4 (1800) → Server 1 (100) | ────────── | Rule: Clockwise to next server]
 ```
 
 ### Visual Representation
@@ -152,14 +152,14 @@ graph LR
         direction TB
 
         H0[0] -->|Clockwise| H1
-        H1[Server 1<br/>hash=100] -->|Clockwise| H2
-        H2[key2<br/>hash=300] -->|Clockwise| H3
-        H3[Server 2<br/>hash=800] -->|Clockwise| H4
-        H4[key3<br/>hash=1200] -->|Clockwise| H5
-        H5[Server 3<br/>hash=1500] -->|Clockwise| H6
-        H6[key4<br/>hash=1800] -->|Clockwise| H0
+        H1[Server 1 | hash=100] -->|Clockwise| H2
+        H2[key2 | hash=300] -->|Clockwise| H3
+        H3[Server 2 | hash=800] -->|Clockwise| H4
+        H4[key3 | hash=1200] -->|Clockwise| H5
+        H5[Server 3 | hash=1500] -->|Clockwise| H6
+        H6[key4 | hash=1800] -->|Clockwise| H0
 
-        Note1[key1 (50) → next server clockwise = Server 1 (100)<br/>key2 (300) → next server clockwise = Server 2 (800)<br/>key3 (1200) → next server clockwise = Server 3 (1500)<br/>key4 (1800) → wraps around → Server 1 (100)]
+        Note1[key1 (50) → next server clockwise = Server 1 (100) | key2 (300) → next server clockwise = Server 2 (800) | key3 (1200) → next server clockwise = Server 3 (1500) | key4 (1800) → wraps around → Server 1 (100)]
     end
 ```
 
@@ -168,14 +168,14 @@ graph LR
 ```mermaid
 sequenceDiagram
     participant Ring as Hash Ring
-    participant S1 as Server 1<br/>(100)
-    participant S2 as Server 2<br/>(800)
-    participant S3 as Server 3<br/>(1500)
-    participant S4 as Server 4<br/>(NEW: 1300)
+    participant S1 as Server 1 | (100)
+    participant S2 as Server 2 | (800)
+    participant S3 as Server 3 | (1500)
+    participant S4 as Server 4 | (NEW: 1300)
 
     Note over Ring,S3: Before: 3 servers
 
-    Note over Ring: Keys distributed:<br/>key1 (50) → S1<br/>key2 (300) → S2<br/>key3 (1200) → S3<br/>key4 (1800) → S1
+    Note over Ring: Keys distributed: | key1 (50) → S1 | key2 (300) → S2 | key3 (1200) → S3 | key4 (1800) → S1
 
     Note over Ring,S4: Add Server 4 at position 1300
 
@@ -183,7 +183,7 @@ sequenceDiagram
 
     Note over Ring,S4: Only key3 affected!
 
-    Note over Ring: New distribution:<br/>key1 (50) → S1 (no change)<br/>key2 (300) → S2 (no change)<br/>key3 (1200) → S4 (moved!) ❌<br/>key4 (1800) → S1 (no change)
+    Note over Ring: New distribution: | key1 (50) → S1 (no change) | key2 (300) → S2 (no change) | key3 (1200) → S4 (moved!) ❌ | key4 (1800) → S1 (no change)
 
     Note over Ring,S4: Result: Only 1 out of 4 keys remapped (25%)
 ```
@@ -192,16 +192,16 @@ sequenceDiagram
 
 ```mermaid
 graph TB
-    Before[Before: 3 servers<br/>──────────<br/>S1 (100)<br/>S2 (800)<br/>S3 (1500)<br/>──────────<br/>key1 (50) → S1<br/>key2 (300) → S2<br/>key3 (1200) → S3<br/>key4 (1800) → S1]
+    Before[Before: 3 servers | ────────── | S1 (100) | S2 (800) | S3 (1500) | ────────── | key1 (50) → S1 | key2 (300) → S2 | key3 (1200) → S3 | key4 (1800) → S1]
 
-    Remove[Remove Server 2<br/>hash=800]
+    Remove[Remove Server 2 | hash=800]
 
-    After[After: 2 servers<br/>──────────<br/>S1 (100)<br/>S3 (1500)<br/>──────────<br/>key1 (50) → S1 ✅<br/>key2 (300) → S3 ❌ (moved!)<br/>key3 (1200) → S3 ✅<br/>key4 (1800) → S1 ✅]
+    After[After: 2 servers | ────────── | S1 (100) | S3 (1500) | ────────── | key1 (50) → S1 ✅ | key2 (300) → S3 ❌ (moved!) | key3 (1200) → S3 ✅ | key4 (1800) → S1 ✅]
 
     Before --> Remove
     Remove --> After
 
-    Impact[Impact:<br/>Only key2 affected (was on S2)<br/>Moved to next server clockwise (S3)<br/>25% of keys remapped]
+    Impact[Impact: | Only key2 affected (was on S2) | Moved to next server clockwise (S3) | 25% of keys remapped]
 ```
 
 ---
@@ -215,12 +215,12 @@ graph TB
 ```mermaid
 graph TB
     subgraph "3 Real Servers (Uneven Distribution)"
-        Ring1[Hash Ring<br/>──────────<br/>S1 at 100<br/>S2 at 150<br/>S3 at 1000]
+        Ring1[Hash Ring | ────────── | S1 at 100 | S2 at 150 | S3 at 1000]
 
-        Load1[Load Distribution:<br/>──────────<br/>S1: 50 keys (5%)<br/>S2: 850 keys (85%) ❌<br/>S3: 100 keys (10%)]
+        Load1[Load Distribution: | ────────── | S1: 50 keys (5%) | S2: 850 keys (85%) ❌ | S3: 100 keys (10%)]
     end
 
-    Problem[S2 overloaded because<br/>large gap (150 → 1000)]
+    Problem[S2 overloaded because | large gap (150 → 1000)]
 ```
 
 ### Solution: Virtual Nodes
@@ -234,22 +234,22 @@ graph LR
         Physical2[🖥️ Server 2]
         Physical3[🖥️ Server 3]
 
-        Virtual1[Virtual nodes:<br/>S1-v1, S1-v2, ... S1-v100]
-        Virtual2[Virtual nodes:<br/>S2-v1, S2-v2, ... S2-v100]
-        Virtual3[Virtual nodes:<br/>S3-v1, S3-v2, ... S3-v100]
+        Virtual1[Virtual nodes: | S1-v1, S1-v2, ... S1-v100]
+        Virtual2[Virtual nodes: | S2-v1, S2-v2, ... S2-v100]
+        Virtual3[Virtual nodes: | S3-v1, S3-v2, ... S3-v100]
 
         Physical1 -.->|Represents| Virtual1
         Physical2 -.->|Represents| Virtual2
         Physical3 -.->|Represents| Virtual3
     end
 
-    Ring[Hash Ring with 300 positions<br/>Evenly distributed]
+    Ring[Hash Ring with 300 positions | Evenly distributed]
 
     Virtual1 --> Ring
     Virtual2 --> Ring
     Virtual3 --> Ring
 
-    Result[Result:<br/>Load balanced ~33% each ✅]
+    Result[Result: | Load balanced ~33% each ✅]
 ```
 
 **Example:**
@@ -301,7 +301,7 @@ graph TB
     VN8 -->|Clockwise| VN9
     VN9 -->|Clockwise| VN1
 
-    Note[Virtual nodes from different servers<br/>interleaved for even distribution]
+    Note[Virtual nodes from different servers | interleaved for even distribution]
 ```
 
 ---
@@ -317,9 +317,9 @@ graph TB
     subgraph "Redis Cluster (Consistent Hashing)"
         CH[Consistent Hash Ring]
 
-        R1[🖥️ Redis 1<br/>Handles keys:<br/>user:1-1000]
-        R2[🖥️ Redis 2<br/>Handles keys:<br/>user:1001-2000]
-        R3[🖥️ Redis 3<br/>Handles keys:<br/>user:2001-3000]
+        R1[🖥️ Redis 1 | Handles keys: | user:1-1000]
+        R2[🖥️ Redis 2 | Handles keys: | user:1001-2000]
+        R3[🖥️ Redis 3 | Handles keys: | user:2001-3000]
     end
 
     Client -->|hash(key)| CH
@@ -327,7 +327,7 @@ graph TB
     CH -->|key in range| R2
     CH -->|key in range| R3
 
-    Scenario[Scenario: Redis 2 fails<br/>──────────────<br/>Only keys from Redis 2<br/>remapped to Redis 3<br/>Redis 1 unaffected ✅]
+    Scenario[Scenario: Redis 2 fails | ────────────── | Only keys from Redis 2 | remapped to Redis 3 | Redis 1 unaffected ✅]
 ```
 
 **Code:**
@@ -373,22 +373,22 @@ graph TB
     DNS[🌐 DNS]
 
     subgraph "CDN Edge Servers (Consistent Hashing)"
-        Edge1[🏢 Edge NYC<br/>Cached content:<br/>video1, video2]
-        Edge2[🏢 Edge LA<br/>Cached content:<br/>video3, video4]
-        Edge3[🏢 Edge London<br/>Cached content:<br/>video5, video6]
+        Edge1[🏢 Edge NYC | Cached content: | video1, video2]
+        Edge2[🏢 Edge LA | Cached content: | video3, video4]
+        Edge3[🏢 Edge London | Cached content: | video5, video6]
     end
 
     Origin[🖥️ Origin Server]
 
     User -->|Request: video3| DNS
-    DNS -->|Consistent hash<br/>hash(video3) → Edge LA| User
+    DNS -->|Consistent hash | hash(video3) → Edge LA| User
 
     User -->|Fetch video3| Edge2
     Edge2 -.->|Cache MISS| Origin
     Origin -.-> Edge2
     Edge2 --> User
 
-    Note[Benefits:<br/>• Same content always routes to same edge<br/>• Edge failure only affects its cached content<br/>• Adding edge server minimal remapping]
+    Note[Benefits: | • Same content always routes to same edge | • Edge failure only affects its cached content | • Adding edge server minimal remapping]
 ```
 
 ### Use Case 3: Load Balancing (Amazon DynamoDB)
@@ -398,17 +398,17 @@ graph TB
     Client[👤 Application]
 
     subgraph "DynamoDB Partitions"
-        CH[Consistent Hash Ring<br/>Hash on partition key]
+        CH[Consistent Hash Ring | Hash on partition key]
 
-        P1[📦 Partition 1<br/>user_id: 0-999]
-        P2[📦 Partition 2<br/>user_id: 1000-1999]
-        P3[📦 Partition 3<br/>user_id: 2000-2999]
+        P1[📦 Partition 1 | user_id: 0-999]
+        P2[📦 Partition 2 | user_id: 1000-1999]
+        P3[📦 Partition 3 | user_id: 2000-2999]
     end
 
     Client -->|Query: user_id=1234| CH
     CH -->|Routes to| P2
 
-    Split[Hot partition split:<br/>──────────────<br/>P2 → P2a (1000-1499)<br/>    → P2b (1500-1999)<br/>──────────────<br/>Only keys in P2 remapped<br/>Other partitions unaffected]
+    Split[Hot partition split: | ────────────── | P2 → P2a (1000-1499) |     → P2b (1500-1999) | ────────────── | Only keys in P2 remapped | Other partitions unaffected]
 ```
 
 ### Use Case 4: Distributed Databases (Apache Cassandra)
@@ -425,7 +425,7 @@ sequenceDiagram
     Client->>Coordinator: INSERT user_id=123, data=...
 
     Coordinator->>Ring: hash(user_id=123)
-    Ring-->>Coordinator: Primary: Node 2<br/>Replicas: Node 3, Node 1
+    Ring-->>Coordinator: Primary: Node 2 | Replicas: Node 3, Node 1
 
     Coordinator->>N2: Write (primary)
     Coordinator->>N3: Write (replica 1)
@@ -437,7 +437,7 @@ sequenceDiagram
 
     Coordinator-->>Client: Write successful (quorum reached)
 
-    Note over Client,N3: Benefits:<br/>• Consistent hash determines primary node<br/>• Automatic replication to next N nodes<br/>• Node failure: data on next nodes<br/>• Add node: only neighbors affected
+    Note over Client,N3: Benefits: | • Consistent hash determines primary node | • Automatic replication to next N nodes | • Node failure: data on next nodes | • Add node: only neighbors affected
 ```
 
 ### Use Case 5: Partitioned Messaging (Apache Kafka)
@@ -996,13 +996,13 @@ class HealthyConsistentHashRing {
 
 ```mermaid
 graph TB
-    Key[Key: user:123<br/>hash=300]
+    Key[Key: user:123 | hash=300]
 
     Ring[Hash Ring]
 
-    Primary[🖥️ Primary Server<br/>Position: 800]
-    Replica1[🖥️ Replica 1<br/>Position: 1500]
-    Replica2[🖥️ Replica 2<br/>Position: 100]
+    Primary[🖥️ Primary Server | Position: 800]
+    Replica1[🖥️ Replica 1 | Position: 1500]
+    Replica2[🖥️ Replica 2 | Position: 100]
 
     Key --> Ring
     Ring -->|Next clockwise| Primary
@@ -1012,7 +1012,7 @@ graph TB
     Failure[Primary fails ❌]
     Failure -->|Requests route to| Replica1
 
-    Note[Benefits:<br/>• No data loss<br/>• Automatic failover<br/>• Read from any replica]
+    Note[Benefits: | • No data loss | • Automatic failover | • Read from any replica]
 ```
 
 **4. Hinted handoff (write to temporary node)**

@@ -20,21 +20,21 @@ A **Bloom Filter** is a space-efficient probabilistic data structure that tells 
 ```mermaid
 graph TB
     subgraph "Regular Set"
-        Set[Store all elements:<br/>{"alice", "bob", "charlie"}]
-        Note1[Memory: O(n)<br/>Lookup: O(1) or O(log n)<br/>False positives: 0%]
+        Set[Store all elements: | {"alice", "bob", "charlie"}]
+        Note1[Memory: O(n) | Lookup: O(1) or O(log n) | False positives: 0%]
     end
 
     subgraph "Bloom Filter"
-        BF[Store hash bits:<br/>[1,0,1,0,1,1,0,1]]
-        Note2[Memory: O(1) fixed size<br/>Lookup: O(k) hash functions<br/>False positives: ~1-5%]
+        BF[Store hash bits: | [1,0,1,0,1,1,0,1]]
+        Note2[Memory: O(1) fixed size | Lookup: O(k) hash functions | False positives: ~1-5%]
     end
 
     Query[Query: "Is 'alice' in set?"]
     Query --> Set
     Query --> BF
 
-    Set --> Exact[✅ 100% accurate<br/>❌ Uses lots of memory]
-    BF --> Approx[✅ Space efficient<br/>⚠️ Some false positives]
+    Set --> Exact[✅ 100% accurate | ❌ Uses lots of memory]
+    BF --> Approx[✅ Space efficient | ⚠️ Some false positives]
 ```
 
 ### Key Characteristics
@@ -52,17 +52,17 @@ graph TB
 
 ```mermaid
 graph TD
-    Question{Need to check<br/>membership?}
+    Question{Need to check | membership?}
 
-    Question -->|Yes| Q2{Need 100%<br/>accuracy?}
+    Question -->|Yes| Q2{Need 100% | accuracy?}
 
-    Q2 -->|No| Q3{Memory<br/>constrained?}
+    Q2 -->|No| Q3{Memory | constrained?}
     Q2 -->|Yes| UseSet[Use Set/HashMap]
 
     Q3 -->|Yes| UseBloom[✅ Use Bloom Filter]
     Q3 -->|No| UseSet2[Use Set/HashMap]
 
-    UseBloom --> Examples[Examples:<br/>• Check if username taken<br/>• Filter spam URLs<br/>• Cache existence checks]
+    UseBloom --> Examples[Examples: | • Check if username taken | • Filter spam URLs | • Cache existence checks]
 ```
 
 ---
@@ -74,7 +74,7 @@ graph TD
 ```mermaid
 graph TB
     subgraph "Bloom Filter (m=10 bits, k=3 hash functions)"
-        BitArray[Bit Array<br/>[0,0,0,0,0,0,0,0,0,0]]
+        BitArray[Bit Array | [0,0,0,0,0,0,0,0,0,0]]
 
         H1[Hash1]
         H2[Hash2]
@@ -91,7 +91,7 @@ graph TB
     H2 -->|h2("alice") % 10 = 5| BitArray
     H3 -->|h3("alice") % 10 = 7| BitArray
 
-    Result[Bit Array after insert:<br/>[0,0,1,0,0,1,0,1,0,0]<br/>Positions 2, 5, 7 set to 1]
+    Result[Bit Array after insert: | [0,0,1,0,0,1,0,1,0,0] | Positions 2, 5, 7 set to 1]
 ```
 
 ### Adding Elements
@@ -150,7 +150,7 @@ graph TB
     Query --> Hash2[hash2("charlie") = 5]
     Query --> Hash3[hash3("charlie") = 8]
 
-    BitArray[Bit Array:<br/>[0,1,1,0,0,1,1,1]]
+    BitArray[Bit Array: | [0,1,1,0,0,1,1,1]]
 
     Hash1 --> Check1{bits[3] = 1?}
     Hash2 --> Check2{bits[5] = 1?}
@@ -161,7 +161,7 @@ graph TB
     Check3 -.->|YES, bit=1| Maybe
 
     Maybe{All bits = 1?}
-    Maybe -->|Yes| PossiblyInSet[⚠️ Possibly in set<br/>Could be false positive!]
+    Maybe -->|Yes| PossiblyInSet[⚠️ Possibly in set | Could be false positive!]
     Maybe -->|No| NotInSet
 ```
 
@@ -233,7 +233,7 @@ graph TB
     subgraph "Bloom Filter State"
         Bits[Bit Array: [0,1,1,0,1,1,0,1,1,0]]
 
-        Added[Added elements:<br/>• alice (bits: 1,3,5)<br/>• bob (bits: 2,5,8)<br/>• charlie (bits: 3,4,7)]
+        Added[Added elements: | • alice (bits: 1,3,5) | • bob (bits: 2,5,8) | • charlie (bits: 3,4,7)]
     end
 
     subgraph "Query: 'eve' (never added)"
@@ -241,10 +241,10 @@ graph TB
         Hash2[hash2("eve") = 4 ✅ bit=1]
         Hash3[hash3("eve") = 8 ✅ bit=1]
 
-        Result[All bits = 1<br/>→ Returns TRUE ⚠️<br/>False Positive!]
+        Result[All bits = 1 | → Returns TRUE ⚠️ | False Positive!]
     end
 
-    Explanation[Why false positive?<br/>──────────────<br/>Bits 2,4,8 were set by<br/>OTHER elements (bob, charlie)<br/>NOT by "eve"!<br/>──────────────<br/>This is the trade-off<br/>for space efficiency]
+    Explanation[Why false positive? | ────────────── | Bits 2,4,8 were set by | OTHER elements (bob, charlie) | NOT by "eve"! | ────────────── | This is the trade-off | for space efficiency]
 ```
 
 ---
@@ -281,14 +281,14 @@ console.log(`False positive rate: ${(fpr * 100).toFixed(2)}%`);
 ```mermaid
 graph TB
     subgraph "Given: n elements, desired FPR = 1%"
-        Step1[1. Calculate optimal bits:<br/>m = -n * ln(FPR) / ln(2)²<br/>m ≈ 9.6n]
+        Step1[1. Calculate optimal bits: | m = -n * ln(FPR) / ln(2)² | m ≈ 9.6n]
 
-        Step2[2. Calculate optimal hashes:<br/>k = (m/n) * ln(2)<br/>k ≈ 7]
+        Step2[2. Calculate optimal hashes: | k = (m/n) * ln(2) | k ≈ 7]
 
-        Step3[3. Example: n=100,000<br/>m = 960,000 bits = 120 KB<br/>k = 7 hash functions]
+        Step3[3. Example: n=100,000 | m = 960,000 bits = 120 KB | k = 7 hash functions]
     end
 
-    Compare[Compare to HashSet:<br/>──────────────<br/>100K strings × 50 bytes = 5 MB<br/>Bloom Filter: 120 KB<br/>Space savings: 97.6%!]
+    Compare[Compare to HashSet: | ────────────── | 100K strings × 50 bytes = 5 MB | Bloom Filter: 120 KB | Space savings: 97.6%!]
 ```
 
 ### Trade-offs
@@ -332,11 +332,11 @@ graph LR
 ```mermaid
 sequenceDiagram
     participant Crawler as 🕷️ Web Crawler
-    participant BF as Bloom Filter<br/>(Visited URLs)
+    participant BF as Bloom Filter | (Visited URLs)
     participant Queue as URL Queue
     participant Internet as 🌐 Internet
 
-    Crawler->>Queue: Get next URL:<br/>"example.com/page1"
+    Crawler->>Queue: Get next URL: | "example.com/page1"
 
     Crawler->>BF: Check if visited?
     BF-->>Crawler: NO (definitely not visited)
@@ -344,18 +344,18 @@ sequenceDiagram
     Crawler->>Internet: Fetch page
     Internet-->>Crawler: HTML content + links
 
-    Crawler->>BF: Mark as visited:<br/>add("example.com/page1")
+    Crawler->>BF: Mark as visited: | add("example.com/page1")
 
-    Crawler->>Queue: Add new links found:<br/>- example.com/page2<br/>- example.com/page3
+    Crawler->>Queue: Add new links found: | - example.com/page2 | - example.com/page3
 
-    Crawler->>Queue: Get next URL:<br/>"example.com/page2"
+    Crawler->>Queue: Get next URL: | "example.com/page2"
 
     Crawler->>BF: Check if visited?
     BF-->>Crawler: NO
 
     Note over Crawler: Crawl page2...
 
-    Crawler->>Queue: Get next URL:<br/>"example.com/page1"
+    Crawler->>Queue: Get next URL: | "example.com/page1"
 
     Crawler->>BF: Check if visited?
     BF-->>Crawler: YES (skip it!)
@@ -372,25 +372,25 @@ sequenceDiagram
 
 ```mermaid
 graph TB
-    Query[SQL Query:<br/>SELECT * FROM users<br/>WHERE email = 'alice@example.com']
+    Query[SQL Query: | SELECT * FROM users | WHERE email = 'alice@example.com']
 
-    BF[Bloom Filter<br/>(emails in database)]
+    BF[Bloom Filter | (emails in database)]
 
-    Check{BF.contains<br/>("alice@example.com")?}
+    Check{BF.contains | ("alice@example.com")?}
 
     Query --> BF
     BF --> Check
 
-    Check -->|NO| Skip[✅ Skip database query<br/>Definitely not in DB<br/>Saved 10ms!]
+    Check -->|NO| Skip[✅ Skip database query | Definitely not in DB | Saved 10ms!]
 
-    Check -->|YES| DBQuery[Query database<br/>Might be there]
+    Check -->|YES| DBQuery[Query database | Might be there]
 
     DBQuery --> Found{Found?}
 
     Found -->|Yes| Return[Return user]
-    Found -->|No| FP[False positive<br/>Wasted 10ms<br/>~1% of queries]
+    Found -->|No| FP[False positive | Wasted 10ms | ~1% of queries]
 
-    Note1[Trade-off:<br/>Skip 99% of non-existent queries<br/>Waste 1% on false positives]
+    Note1[Trade-off: | Skip 99% of non-existent queries | Waste 1% on false positives]
 ```
 
 **Code:**
@@ -465,18 +465,18 @@ class SpamFilter {
 graph TB
     subgraph "Bitcoin Wallet Sync"
         Wallet[💼 Bitcoin Wallet]
-        BF[Bloom Filter<br/>Your addresses]
+        BF[Bloom Filter | Your addresses]
         Node[🌐 Bitcoin Node]
-        Blockchain[⛓️ Blockchain<br/>500 GB]
+        Blockchain[⛓️ Blockchain | 500 GB]
     end
 
-    Wallet -->|1. Send BF of<br/>your addresses| Node
+    Wallet -->|1. Send BF of | your addresses| Node
 
-    Node -->|2. Filter blocks<br/>Only send matching| Blockchain
+    Node -->|2. Filter blocks | Only send matching| Blockchain
 
-    Blockchain -->|3. Send relevant<br/>transactions only| Wallet
+    Blockchain -->|3. Send relevant | transactions only| Wallet
 
-    Privacy[Privacy benefit:<br/>──────────────<br/>False positives hide<br/>which addresses are yours!<br/>──────────────<br/>Node sees 100 addresses,<br/>only 10 are yours<br/>(90 are false positives)]
+    Privacy[Privacy benefit: | ────────────── | False positives hide | which addresses are yours! | ────────────── | Node sees 100 addresses, | only 10 are yours | (90 are false positives)]
 ```
 
 **Benefits:**
@@ -490,7 +490,7 @@ graph TB
 sequenceDiagram
     participant User as 👤 User
     participant Edge as CDN Edge Server
-    participant BF as Bloom Filter<br/>(Cached files)
+    participant BF as Bloom Filter | (Cached files)
     participant Origin as Origin Server
 
     User->>Edge: Request: /images/photo.jpg
@@ -519,7 +519,7 @@ sequenceDiagram
 
     Edge-->>User: photo.jpg (from cache)
 
-    Note over Edge: Bloom Filter saves disk lookups<br/>for definitely-not-cached files
+    Note over Edge: Bloom Filter saves disk lookups | for definitely-not-cached files
 ```
 
 ---
@@ -535,16 +535,16 @@ sequenceDiagram
 ```mermaid
 graph TB
     subgraph "Regular Bloom Filter"
-        Bits[Bit Array:<br/>[0,0,1,0,1,1,0,1]]
-        Note1[Can't delete!<br/>Setting bit to 0<br/>might affect other elements]
+        Bits[Bit Array: | [0,0,1,0,1,1,0,1]]
+        Note1[Can't delete! | Setting bit to 0 | might affect other elements]
     end
 
     subgraph "Counting Bloom Filter"
-        Counters[Counter Array:<br/>[0,0,2,0,1,3,0,1]]
-        Note2[Can delete!<br/>Decrement counter<br/>When counter = 0, slot free]
+        Counters[Counter Array: | [0,0,2,0,1,3,0,1]]
+        Note2[Can delete! | Decrement counter | When counter = 0, slot free]
     end
 
-    Example[Example:<br/>──────────<br/>Add "alice" → counters[2]++, [5]++, [7]++<br/>Add "bob" → counters[2]++, [5]++, [6]++<br/>Delete "alice" → counters[2]--, [5]--, [7]--<br/>Result: [0,0,1,0,0,2,1,0]]
+    Example[Example: | ────────── | Add "alice" → counters[2]++, [5]++, [7]++ | Add "bob" → counters[2]++, [5]++, [6]++ | Delete "alice" → counters[2]--, [5]--, [7]-- | Result: [0,0,1,0,0,2,1,0]]
 ```
 
 **Trade-off:** Uses more memory (4-8 bits per counter vs 1 bit)
@@ -916,24 +916,24 @@ filter.mightContain("bob");  // Might return true even though "bob" not added
 ```mermaid
 graph TB
     Client[👤 Client]
-    Coordinator[⚙️ Coordinator<br/>Aggregated Bloom Filter]
+    Coordinator[⚙️ Coordinator | Aggregated Bloom Filter]
 
     subgraph "Cache Servers (100 servers)"
-        C1[🖥️ Server 1<br/>Cache + BF]
-        C2[🖥️ Server 2<br/>Cache + BF]
-        C3[🖥️ Server 3<br/>Cache + BF]
-        CN[🖥️ Server 100<br/>Cache + BF]
+        C1[🖥️ Server 1 | Cache + BF]
+        C2[🖥️ Server 2 | Cache + BF]
+        C3[🖥️ Server 3 | Cache + BF]
+        CN[🖥️ Server 100 | Cache + BF]
     end
 
     DB[(🗄️ Database)]
 
     Client -->|1. Check BF| Coordinator
     Coordinator -->|2a. NOT in any BF| DB
-    Coordinator -.->|2b. Might be in<br/>Server 42| C3
+    Coordinator -.->|2b. Might be in | Server 42| C3
 
     C3 -->|3. Check cache| C3
     C3 -.->|4a. Cache HIT| Client
-    C3 -.->|4b. Cache MISS<br/>False positive| DB
+    C3 -.->|4b. Cache MISS | False positive| DB
 ```
 
 **Implementation:**

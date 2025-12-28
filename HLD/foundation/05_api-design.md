@@ -20,21 +20,21 @@
 graph TB
     APIs[API Types]
 
-    APIs --> REST[REST API<br/>Representational State Transfer<br/><br/>Uses: HTTP methods<br/>Format: JSON/XML<br/>Style: Resource-based]
+    APIs --> REST[REST API | Representational State Transfer |  | Uses: HTTP methods | Format: JSON/XML | Style: Resource-based]
 
-    APIs --> GraphQL[GraphQL<br/>Query Language<br/><br/>Uses: POST requests<br/>Format: GraphQL queries<br/>Style: Query what you need]
+    APIs --> GraphQL[GraphQL | Query Language |  | Uses: POST requests | Format: GraphQL queries | Style: Query what you need]
 
-    APIs --> gRPC[gRPC<br/>Remote Procedure Call<br/><br/>Uses: HTTP/2<br/>Format: Protocol Buffers<br/>Style: Function calls]
+    APIs --> gRPC[gRPC | Remote Procedure Call |  | Uses: HTTP/2 | Format: Protocol Buffers | Style: Function calls]
 
-    APIs --> SOAP[SOAP<br/>Simple Object Access Protocol<br/><br/>Uses: XML only<br/>Format: Strict schema<br/>Style: Enterprise/Legacy]
+    APIs --> SOAP[SOAP | Simple Object Access Protocol |  | Uses: XML only | Format: Strict schema | Style: Enterprise/Legacy]
 
-    REST --> RESTUse[Use: Web/Mobile apps<br/>Public APIs<br/>Simple CRUD]
+    REST --> RESTUse[Use: Web/Mobile apps | Public APIs | Simple CRUD]
 
-    GraphQL --> GraphQLUse[Use: Flexible queries<br/>Mobile apps<br/>Multiple data sources]
+    GraphQL --> GraphQLUse[Use: Flexible queries | Mobile apps | Multiple data sources]
 
-    gRPC --> gRPCUse[Use: Microservices<br/>High performance<br/>Real-time streaming]
+    gRPC --> gRPCUse[Use: Microservices | High performance | Real-time streaming]
 
-    SOAP --> SOAPUse[Use: Banking<br/>Legacy systems<br/>Enterprise]
+    SOAP --> SOAPUse[Use: Banking | Legacy systems | Enterprise]
 
     style REST fill:#c8e6c9
     style GraphQL fill:#e3f2fd
@@ -52,13 +52,13 @@ graph TB
 graph LR
     REST[REST API Principles]
 
-    REST --> Stateless[Stateless<br/>No session on server<br/>Each request independent]
+    REST --> Stateless[Stateless | No session on server | Each request independent]
 
-    REST --> Resource[Resource-Based<br/>URLs represent resources<br/>/users/123, /posts/456]
+    REST --> Resource[Resource-Based | URLs represent resources | /users/123, /posts/456]
 
-    REST --> HTTP[HTTP Methods<br/>GET, POST, PUT, DELETE<br/>Standard operations]
+    REST --> HTTP[HTTP Methods | GET, POST, PUT, DELETE | Standard operations]
 
-    REST --> JSON[JSON Format<br/>Lightweight<br/>Human-readable]
+    REST --> JSON[JSON Format | Lightweight | Human-readable]
 
     style REST fill:#c8e6c9,stroke:#4caf50,stroke-width:3px
 ```
@@ -170,7 +170,7 @@ sequenceDiagram
     participant DB2 as Post DB
     participant API as External API
 
-    Client->>GraphQL: POST /graphql<br/>query {<br/>  user(id: 123) {<br/>    name, email,<br/>    posts { title, likes },<br/>    friends { name }<br/>  }<br/>}
+    Client->>GraphQL: POST /graphql | query { |   user(id: 123) { |     name, email, |     posts { title, likes }, |     friends { name } |   } | }
 
     GraphQL->>DB1: Fetch user 123
     DB1-->>GraphQL: User data
@@ -183,9 +183,9 @@ sequenceDiagram
 
     GraphQL->>GraphQL: Combine all data
 
-    GraphQL-->>Client: {<br/>  "user": {<br/>    "name": "John",<br/>    "email": "...",<br/>    "posts": [...],<br/>    "friends": [...]<br/>  }<br/>}
+    GraphQL-->>Client: { |   "user": { |     "name": "John", |     "email": "...", |     "posts": [...], |     "friends": [...] |   } | }
 
-    Note over Client,API: Single request gets<br/>exactly what's needed!
+    Note over Client,API: Single request gets | exactly what's needed!
 ```
 
 ### GraphQL Example
@@ -243,14 +243,14 @@ subscription OnNewPost {
 
 ```mermaid
 graph LR
-    Client[gRPC Client<br/>Any language]
+    Client[gRPC Client | Any language]
 
-    Proto[Protocol Buffers<br/>.proto file<br/>Define service contract]
+    Proto[Protocol Buffers | .proto file | Define service contract]
 
-    Server[gRPC Server<br/>Any language]
+    Server[gRPC Server | Any language]
 
-    Client -->|Binary data<br/>HTTP/2| Server
-    Server -->|Binary response<br/>HTTP/2| Client
+    Client -->|Binary data | HTTP/2| Server
+    Server -->|Binary response | HTTP/2| Client
 
     Proto -.Generate code.-> Client
     Proto -.Generate code.-> Server
@@ -305,19 +305,19 @@ graph TB
         RESTReq2[GET /users/123/posts]
         RESTReq3[GET /posts/789/comments]
 
-        RESTResp[3 separate requests<br/>Over-fetching data<br/>Multiple round trips]
+        RESTResp[3 separate requests | Over-fetching data | Multiple round trips]
     end
 
     subgraph "GraphQL"
-        GraphQLReq[POST /graphql<br/>query {<br/>  user { posts { comments } }<br/>}]
+        GraphQLReq[POST /graphql | query { |   user { posts { comments } } | }]
 
-        GraphQLResp[1 request<br/>Exact data needed<br/>No over/under-fetching]
+        GraphQLResp[1 request | Exact data needed | No over/under-fetching]
     end
 
     subgraph "gRPC"
-        gRPCReq[Binary RPC call<br/>getUserWithPosts(id)]
+        gRPCReq[Binary RPC call | getUserWithPosts(id)]
 
-        gRPCResp[1 request<br/>Binary format<br/>Very fast]
+        gRPCResp[1 request | Binary format | Very fast]
     end
 
     RESTReq1 --> RESTResp
@@ -360,18 +360,18 @@ graph TB
 graph TB
     Versioning[API Versioning Strategies]
 
-    Versioning --> URL[URL Versioning<br/>/api/v1/users<br/>/api/v2/users]
-    Versioning --> Header[Header Versioning<br/>Accept: application/vnd.api+json;version=1]
-    Versioning --> Param[Query Parameter<br/>/api/users?version=1]
+    Versioning --> URL[URL Versioning | /api/v1/users | /api/v2/users]
+    Versioning --> Header[Header Versioning | Accept: application/vnd.api+json;version=1]
+    Versioning --> Param[Query Parameter | /api/users?version=1]
 
-    URL --> URLPros[✅ Pros:<br/>- Clear and visible<br/>- Easy to implement<br/>- Cacheable]
-    URL --> URLCons[❌ Cons:<br/>- URL changes<br/>- Multiple versions in codebase]
+    URL --> URLPros[✅ Pros: | - Clear and visible | - Easy to implement | - Cacheable]
+    URL --> URLCons[❌ Cons: | - URL changes | - Multiple versions in codebase]
 
-    Header --> HeaderPros[✅ Pros:<br/>- Clean URLs<br/>- RESTful]
-    Header --> HeaderCons[❌ Cons:<br/>- Not visible<br/>- Harder to test]
+    Header --> HeaderPros[✅ Pros: | - Clean URLs | - RESTful]
+    Header --> HeaderCons[❌ Cons: | - Not visible | - Harder to test]
 
-    Param --> ParamPros[✅ Pros:<br/>- Simple<br/>- Optional (default version)]
-    Param --> ParamCons[❌ Cons:<br/>- Messy URLs<br/>- Not RESTful]
+    Param --> ParamPros[✅ Pros: | - Simple | - Optional (default version)]
+    Param --> ParamCons[❌ Cons: | - Messy URLs | - Not RESTful]
 
     style URL fill:#c8e6c9
 ```
@@ -386,17 +386,17 @@ graph TB
 graph TB
     Auth[Authentication Methods]
 
-    Auth --> JWT[JWT Tokens<br/>Stateless, self-contained<br/>Best for: REST APIs]
+    Auth --> JWT[JWT Tokens | Stateless, self-contained | Best for: REST APIs]
 
-    Auth --> OAuth[OAuth 2.0<br/>Third-party login<br/>Best for: Social login]
+    Auth --> OAuth[OAuth 2.0 | Third-party login | Best for: Social login]
 
-    Auth --> APIKey[API Keys<br/>Simple token<br/>Best for: Server-to-server]
+    Auth --> APIKey[API Keys | Simple token | Best for: Server-to-server]
 
-    Auth --> Session[Session Cookies<br/>Stateful, server storage<br/>Best for: Web apps]
+    Auth --> Session[Session Cookies | Stateful, server storage | Best for: Web apps]
 
-    JWT --> JWTFlow[Client → Login → Server<br/>Server → JWT → Client<br/>Client → JWT in header → Server]
+    JWT --> JWTFlow[Client → Login → Server | Server → JWT → Client | Client → JWT in header → Server]
 
-    OAuth --> OAuthFlow[Client → Auth provider<br/>Provider → Code → Client<br/>Client → Exchange code → Token]
+    OAuth --> OAuthFlow[Client → Auth provider | Provider → Code → Client | Client → Exchange code → Token]
 
     style JWT fill:#c8e6c9
     style OAuth fill:#e3f2fd
@@ -411,7 +411,7 @@ sequenceDiagram
     participant Auth as Auth Service
     participant DB
 
-    Client->>API: POST /auth/login<br/>{email, password}
+    Client->>API: POST /auth/login | {email, password}
 
     API->>DB: Verify credentials
     DB-->>API: User valid ✅
@@ -423,7 +423,7 @@ sequenceDiagram
 
     Note over Client: Store token
 
-    Client->>API: GET /api/posts<br/>Authorization: Bearer eyJhbGci...
+    Client->>API: GET /api/posts | Authorization: Bearer eyJhbGci...
 
     API->>Auth: Verify JWT signature
     Auth-->>API: Valid ✅, user_id: 123
@@ -442,15 +442,15 @@ sequenceDiagram
 graph TB
     RateLimit[Rate Limiting Algorithms]
 
-    RateLimit --> Fixed[Fixed Window<br/>100 req/hour<br/>Simple, but burst issue]
+    RateLimit --> Fixed[Fixed Window | 100 req/hour | Simple, but burst issue]
 
-    RateLimit --> Sliding[Sliding Window<br/>100 req/rolling hour<br/>More accurate]
+    RateLimit --> Sliding[Sliding Window | 100 req/rolling hour | More accurate]
 
-    RateLimit --> Token[Token Bucket<br/>Refill tokens over time<br/>Best for bursts]
+    RateLimit --> Token[Token Bucket | Refill tokens over time | Best for bursts]
 
-    RateLimit --> Leaky[Leaky Bucket<br/>Process at fixed rate<br/>Smooth traffic]
+    RateLimit --> Leaky[Leaky Bucket | Process at fixed rate | Smooth traffic]
 
-    Token --> TokenDiagram[Bucket capacity: 100<br/>Refill: 10/minute<br/>Can burst up to 100]
+    Token --> TokenDiagram[Bucket capacity: 100 | Refill: 10/minute | Can burst up to 100]
 
     style Token fill:#c8e6c9
 ```

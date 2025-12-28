@@ -23,8 +23,8 @@
 graph TB
     Scalability[Scalability]
 
-    Scalability --> Vertical[⬆️ Vertical Scaling<br/>Scale UP]
-    Scalability --> Horizontal[➡️ Horizontal Scaling<br/>Scale OUT]
+    Scalability --> Vertical[⬆️ Vertical Scaling | Scale UP]
+    Scalability --> Horizontal[➡️ Horizontal Scaling | Scale OUT]
 
     Vertical --> V1[Add more CPU]
     Vertical --> V2[Add more RAM]
@@ -58,21 +58,21 @@ graph TB
 ```mermaid
 graph TB
     subgraph "Vertical Scaling (Scale UP)"
-        V_Start[🖥️ Server<br/>2 CPU, 4GB RAM<br/>Handle: 1000 req/sec]
+        V_Start[🖥️ Server | 2 CPU, 4GB RAM | Handle: 1000 req/sec]
         V_Arrow[⬆️ Upgrade]
-        V_End[🖥️💪 Bigger Server<br/>16 CPU, 64GB RAM<br/>Handle: 8000 req/sec]
+        V_End[🖥️💪 Bigger Server | 16 CPU, 64GB RAM | Handle: 8000 req/sec]
 
         V_Start -.->|Add resources| V_Arrow
         V_Arrow -.-> V_End
     end
 
     subgraph "Horizontal Scaling (Scale OUT)"
-        H_Start[🖥️ Server 1<br/>2 CPU, 4GB RAM<br/>Handle: 1000 req/sec]
+        H_Start[🖥️ Server 1 | 2 CPU, 4GB RAM | Handle: 1000 req/sec]
         H_LB[⚖️ Load Balancer]
-        H_End1[🖥️ Server 1<br/>1000 req/sec]
-        H_End2[🖥️ Server 2<br/>1000 req/sec]
-        H_End3[🖥️ Server 3<br/>1000 req/sec]
-        H_End4[🖥️ Server 4<br/>1000 req/sec]
+        H_End1[🖥️ Server 1 | 1000 req/sec]
+        H_End2[🖥️ Server 2 | 1000 req/sec]
+        H_End3[🖥️ Server 3 | 1000 req/sec]
+        H_End4[🖥️ Server 4 | 1000 req/sec]
 
         H_Start -.->|Add servers| H_LB
         H_LB --> H_End1
@@ -99,20 +99,20 @@ graph TB
 
 ```mermaid
 graph TD
-    Start{Need to<br/>Scale?}
+    Start{Need to | Scale?}
 
-    Start --> Q1{Stateful or<br/>Stateless?}
+    Start --> Q1{Stateful or | Stateless?}
 
-    Q1 -->|Stateful<br/>Database| Q2{Can you<br/>afford downtime?}
-    Q1 -->|Stateless<br/>Web app| Horizontal1[✅ Horizontal Scaling]
+    Q1 -->|Stateful | Database| Q2{Can you | afford downtime?}
+    Q1 -->|Stateless | Web app| Horizontal1[✅ Horizontal Scaling]
 
     Q2 -->|Yes| Q3{Budget?}
-    Q2 -->|No| ReadReplica[✅ Read Replicas<br/>Horizontal]
+    Q2 -->|No| ReadReplica[✅ Read Replicas | Horizontal]
 
     Q3 -->|High| Vertical1[✅ Vertical Scaling]
-    Q3 -->|Low| Sharding[✅ Sharding<br/>Horizontal]
+    Q3 -->|Low| Sharding[✅ Sharding | Horizontal]
 
-    Vertical1 --> Limit{Hit hardware<br/>limit?}
+    Vertical1 --> Limit{Hit hardware | limit?}
     Limit -->|Yes| Sharding
     Limit -->|No| Done1[Done]
 
@@ -132,22 +132,22 @@ graph TB
     App[🖥️ Application Servers]
 
     subgraph "Database Cluster"
-        Master[(🗄️ Master DB<br/>WRITE)]
-        Slave1[(🗄️ Replica 1<br/>READ)]
-        Slave2[(🗄️ Replica 2<br/>READ)]
-        Slave3[(🗄️ Replica 3<br/>READ)]
+        Master[(🗄️ Master DB | WRITE)]
+        Slave1[(🗄️ Replica 1 | READ)]
+        Slave2[(🗄️ Replica 2 | READ)]
+        Slave3[(🗄️ Replica 3 | READ)]
 
         Master -.->|Async Replication| Slave1
         Master -.->|Async Replication| Slave2
         Master -.->|Async Replication| Slave3
     end
 
-    App -->|✍️ Write queries<br/>10%| Master
-    App -->|📖 Read queries<br/>90%| Slave1
-    App -->|📖 Read queries<br/>90%| Slave2
-    App -->|📖 Read queries<br/>90%| Slave3
+    App -->|✍️ Write queries | 10%| Master
+    App -->|📖 Read queries | 90%| Slave1
+    App -->|📖 Read queries | 90%| Slave2
+    App -->|📖 Read queries | 90%| Slave3
 
-    Note1[💡 Scales read traffic<br/>by 3x in this example]
+    Note1[💡 Scales read traffic | by 3x in this example]
 ```
 
 **Code Example:**
@@ -179,22 +179,22 @@ await db.query('SELECT * FROM users', false);    // Goes to replica
 
 ```mermaid
 graph TB
-    App[🖥️ Application with<br/>Shard Router]
+    App[🖥️ Application with | Shard Router]
 
     subgraph "Shard 1 (user_id % 4 = 0)"
-        S1[(🗄️ DB Shard 1<br/>Users: 0,4,8,12...)]
+        S1[(🗄️ DB Shard 1 | Users: 0,4,8,12...)]
     end
 
     subgraph "Shard 2 (user_id % 4 = 1)"
-        S2[(🗄️ DB Shard 2<br/>Users: 1,5,9,13...)]
+        S2[(🗄️ DB Shard 2 | Users: 1,5,9,13...)]
     end
 
     subgraph "Shard 3 (user_id % 4 = 2)"
-        S3[(🗄️ DB Shard 3<br/>Users: 2,6,10,14...)]
+        S3[(🗄️ DB Shard 3 | Users: 2,6,10,14...)]
     end
 
     subgraph "Shard 4 (user_id % 4 = 3)"
-        S4[(🗄️ DB Shard 4<br/>Users: 3,7,11,15...)]
+        S4[(🗄️ DB Shard 4 | Users: 3,7,11,15...)]
     end
 
     App -->|user_id=1| S2
@@ -248,15 +248,15 @@ const user4Posts = await router.getUserPosts(4);  // Goes to shard 0
 ```mermaid
 graph LR
     subgraph "Before (Single Table)"
-        Original[(Users Table<br/>-----------<br/>id<br/>name<br/>email<br/>password_hash<br/>profile_pic<br/>bio<br/>last_login)]
+        Original[(Users Table | ----------- | id | name | email | password_hash | profile_pic | bio | last_login)]
     end
 
     subgraph "After (Partitioned)"
-        Hot[(🔥 Hot Data<br/>users_core<br/>-----------<br/>id<br/>name<br/>email<br/>last_login)]
+        Hot[(🔥 Hot Data | users_core | ----------- | id | name | email | last_login)]
 
-        Cold[(❄️ Cold Data<br/>users_profile<br/>-----------<br/>id<br/>profile_pic<br/>bio)]
+        Cold[(❄️ Cold Data | users_profile | ----------- | id | profile_pic | bio)]
 
-        Security[(🔐 Secure Data<br/>users_auth<br/>-----------<br/>id<br/>password_hash)]
+        Security[(🔐 Secure Data | users_auth | ----------- | id | password_hash)]
     end
 
     Original -.->|Split| Hot
@@ -281,13 +281,13 @@ graph TB
     LB[⚖️ Load Balancer]
 
     subgraph "Stateless App Servers"
-        App1[🖥️ Server 1<br/>No session data]
-        App2[🖥️ Server 2<br/>No session data]
-        App3[🖥️ Server 3<br/>No session data]
+        App1[🖥️ Server 1 | No session data]
+        App2[🖥️ Server 2 | No session data]
+        App3[🖥️ Server 3 | No session data]
     end
 
     subgraph "Shared State"
-        Redis[(📦 Redis<br/>Session Store)]
+        Redis[(📦 Redis | Session Store)]
         DB[(🗄️ Database)]
     end
 
@@ -306,7 +306,7 @@ graph TB
     App2 --> DB
     App3 --> DB
 
-    Note1[💡 Any server can handle<br/>any request]
+    Note1[💡 Any server can handle | any request]
 ```
 
 **Bad (Stateful):**
@@ -354,10 +354,10 @@ graph TB
     Gateway[🚪 API Gateway]
 
     subgraph "Microservices (Independently Scalable)"
-        UserService[👤 User Service<br/>3 instances]
-        PostService[📝 Post Service<br/>10 instances<br/>High traffic!]
-        CommentService[💬 Comment Service<br/>2 instances]
-        NotificationService[🔔 Notification Service<br/>5 instances]
+        UserService[👤 User Service | 3 instances]
+        PostService[📝 Post Service | 10 instances | High traffic!]
+        CommentService[💬 Comment Service | 2 instances]
+        NotificationService[🔔 Notification Service | 5 instances]
     end
 
     User --> Gateway
@@ -371,7 +371,7 @@ graph TB
     PostService -.->|Event: New post| NotificationService
     CommentService -.->|Event: New comment| NotificationService
 
-    Note1[💡 Each service scales<br/>independently based on load]
+    Note1[💡 Each service scales | independently based on load]
 ```
 
 **Benefits:**
@@ -386,9 +386,9 @@ graph TB
 
 ```mermaid
 sequenceDiagram
-    participant Monitor as 📊 CloudWatch<br/>Metrics
-    participant ASG as ⚙️ Auto Scaling<br/>Group
-    participant ELB as ⚖️ Load<br/>Balancer
+    participant Monitor as 📊 CloudWatch | Metrics
+    participant ASG as ⚙️ Auto Scaling | Group
+    participant ELB as ⚖️ Load | Balancer
     participant Servers as 🖥️ Servers
 
     Note over Monitor: CPU > 70% for 5 min
@@ -398,7 +398,7 @@ sequenceDiagram
     ASG->>ELB: Register new instances
     ELB->>Servers: Distribute traffic
 
-    Note over Servers: 4 servers → 6 servers<br/>CPU drops to 40%
+    Note over Servers: 4 servers → 6 servers | CPU drops to 40%
 
     Note over Monitor: CPU < 30% for 10 min
 
@@ -406,7 +406,7 @@ sequenceDiagram
     ASG->>ASG: Terminate 2 instances
     ASG->>ELB: Deregister instances
 
-    Note over Servers: 6 servers → 4 servers<br/>CPU rises to 50%
+    Note over Servers: 6 servers → 4 servers | CPU rises to 50%
 ```
 
 **Auto-Scaling Configuration:**
@@ -440,20 +440,20 @@ ScaleInPolicy:
 graph TB
     User[👤 User Request]
 
-    L1[💻 Browser Cache<br/>100 MB<br/>Hit Ratio: 60%<br/>Latency: 0ms]
+    L1[💻 Browser Cache | 100 MB | Hit Ratio: 60% | Latency: 0ms]
 
-    L2[🏢 CDN Cache<br/>10 TB<br/>Hit Ratio: 30%<br/>Latency: 20ms]
+    L2[🏢 CDN Cache | 10 TB | Hit Ratio: 30% | Latency: 20ms]
 
-    L3[📦 Application Cache<br/>Redis 100 GB<br/>Hit Ratio: 8%<br/>Latency: 5ms]
+    L3[📦 Application Cache | Redis 100 GB | Hit Ratio: 8% | Latency: 5ms]
 
-    L4[🗄️ Database<br/>1 TB<br/>Hit Ratio: 2%<br/>Latency: 50ms]
+    L4[🗄️ Database | 1 TB | Hit Ratio: 2% | Latency: 50ms]
 
     User --> L1
     L1 -.->|MISS| L2
     L2 -.->|MISS| L3
     L3 -.->|MISS| L4
 
-    Note1[Total Hit Ratio: 98%<br/>Average Latency: 5ms]
+    Note1[Total Hit Ratio: 98% | Average Latency: 5ms]
 ```
 
 **Performance Impact:**
@@ -528,13 +528,13 @@ sequenceDiagram
     User->>API: Upload video
     API->>DB: Save video metadata
     API->>Queue: Enqueue transcode job
-    API-->>User: 202 Accepted<br/>"Processing..."
+    API-->>User: 202 Accepted | "Processing..."
 
     Note over User,API: User gets instant response!
 
     Worker->>Queue: Poll for jobs
     Queue-->>Worker: Transcode job
-    Worker->>Worker: Process video<br/>(5 minutes)
+    Worker->>Worker: Process video | (5 minutes)
     Worker->>DB: Update status: complete
     Worker->>Queue: Publish notification event
 
@@ -557,11 +557,11 @@ Background worker processes → User notified when done ✅
 ```mermaid
 graph LR
     Order[🛒 Order Service]
-    EventBus[📡 Event Bus<br/>Kafka/SNS]
-    Inventory[📦 Inventory<br/>Service]
-    Payment[💳 Payment<br/>Service]
-    Email[📧 Email<br/>Service]
-    Analytics[📊 Analytics<br/>Service]
+    EventBus[📡 Event Bus | Kafka/SNS]
+    Inventory[📦 Inventory | Service]
+    Payment[💳 Payment | Service]
+    Email[📧 Email | Service]
+    Analytics[📊 Analytics | Service]
 
     Order -->|OrderCreated event| EventBus
 
@@ -570,7 +570,7 @@ graph LR
     EventBus -->|Subscribe| Email
     EventBus -->|Subscribe| Analytics
 
-    Note1[💡 Loosely coupled<br/>Add new subscribers<br/>without changing<br/>Order Service]
+    Note1[💡 Loosely coupled | Add new subscribers | without changing | Order Service]
 ```
 
 ---
@@ -583,15 +583,15 @@ graph LR
 graph TB
     subgraph "Fanout on Write (For most users)"
         User1[👤 User posts tweet]
-        Write[Write to timeline cache<br/>of all followers]
-        Redis1[(📦 Redis<br/>Timeline Cache)]
+        Write[Write to timeline cache | of all followers]
+        Redis1[(📦 Redis | Timeline Cache)]
 
         User1 -->|Post tweet| Write
         Write -->|Pre-compute| Redis1
     end
 
     subgraph "Fanout on Read (For celebrities)"
-        Celebrity[⭐ Celebrity<br/>50M followers]
+        Celebrity[⭐ Celebrity | 50M followers]
         Post[Store tweet only]
         DB[(🗄️ Database)]
 
@@ -601,8 +601,8 @@ graph TB
 
     subgraph "Hybrid Approach"
         Reader[👤 User reads timeline]
-        Fetch1[Fetch from Redis<br/>Regular users]
-        Fetch2[Merge celebrity tweets<br/>on-the-fly]
+        Fetch1[Fetch from Redis | Regular users]
+        Fetch2[Merge celebrity tweets | on-the-fly]
         Display[Display combined timeline]
 
         Reader --> Fetch1
@@ -611,7 +611,7 @@ graph TB
         Fetch2 --> Display
     end
 
-    Note1[💡 Fanout-on-write for<br/>users with <1000 followers<br/>Fanout-on-read for celebrities]
+    Note1[💡 Fanout-on-write for | users with <1000 followers | Fanout-on-read for celebrities]
 ```
 
 **Numbers:**
@@ -649,7 +649,7 @@ graph TB
     end
 
     subgraph "Supporting Patterns"
-        Cache[Aggressive caching<br/>99% hit ratio]
+        Cache[Aggressive caching | 99% hit ratio]
         Queue[Queue checkout requests]
         Static[Pre-generate static pages]
         CDN[CDN for product images]
@@ -858,20 +858,20 @@ Solution: Any server can handle any request!
 ```mermaid
 graph TB
     subgraph "Preparation (Weeks Before)"
-        LoadTest[Load testing:<br/>Simulate 10x traffic]
-        AutoScale[Configure auto-scaling<br/>rules]
+        LoadTest[Load testing: | Simulate 10x traffic]
+        AutoScale[Configure auto-scaling | rules]
         Cache[Pre-warm caches]
         Static[Pre-generate pages]
     end
 
     subgraph "Infrastructure"
-        CDN[🌐 CDN<br/>Static assets]
-        LB[⚖️ Load Balancers<br/>Scale 2→20]
-        App[🖥️ App Servers<br/>Scale 50→500]
-        Queue[📬 Message Queue<br/>Buffer spike]
-        Cache2[📦 Redis Cluster<br/>Scale 10→100 nodes]
+        CDN[🌐 CDN | Static assets]
+        LB[⚖️ Load Balancers | Scale 2→20]
+        App[🖥️ App Servers | Scale 50→500]
+        Queue[📬 Message Queue | Buffer spike]
+        Cache2[📦 Redis Cluster | Scale 10→100 nodes]
         DBMaster[(🗄️ Master DB)]
-        DBReplica[(🗄️ Read Replicas<br/>Scale 5→20)]
+        DBReplica[(🗄️ Read Replicas | Scale 5→20)]
     end
 
     CDN --> LB

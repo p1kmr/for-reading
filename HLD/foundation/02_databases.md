@@ -17,15 +17,15 @@
 ```mermaid
 graph TB
     subgraph "SQL Databases (Relational)"
-        SQL[📊 SQL Database<br/><br/>Structure: Tables with rows/columns<br/>Schema: Fixed, predefined<br/>Relations: Foreign keys, JOINs<br/>ACID: Strong guarantees]
+        SQL[📊 SQL Database |  | Structure: Tables with rows/columns | Schema: Fixed, predefined | Relations: Foreign keys, JOINs | ACID: Strong guarantees]
 
-        SQLEx[Examples:<br/>- PostgreSQL<br/>- MySQL<br/>- Oracle<br/>- SQL Server]
+        SQLEx[Examples: | - PostgreSQL | - MySQL | - Oracle | - SQL Server]
     end
 
     subgraph "NoSQL Databases (Non-relational)"
-        NoSQL[📄 NoSQL Database<br/><br/>Structure: Documents/Key-Value/Graphs<br/>Schema: Flexible, dynamic<br/>Relations: Denormalized, embedded<br/>Consistency: Eventual (usually)]
+        NoSQL[📄 NoSQL Database |  | Structure: Documents/Key-Value/Graphs | Schema: Flexible, dynamic | Relations: Denormalized, embedded | Consistency: Eventual (usually)]
 
-        NoSQLEx[Examples:<br/>- MongoDB (Document)<br/>- Cassandra (Wide-column)<br/>- Redis (Key-value)<br/>- Neo4j (Graph)]
+        NoSQLEx[Examples: | - MongoDB (Document) | - Cassandra (Wide-column) | - Redis (Key-value) | - Neo4j (Graph)]
     end
 
     SQL --> SQLEx
@@ -153,15 +153,15 @@ LIMIT 20;
 graph TB
     NoSQL[NoSQL Databases]
 
-    NoSQL --> Doc[📄 Document Store<br/><br/>Structure: JSON documents<br/>Example: MongoDB]
-    NoSQL --> KV[🔑 Key-Value Store<br/><br/>Structure: Key → Value<br/>Example: Redis, DynamoDB]
-    NoSQL --> Wide[📊 Wide-Column Store<br/><br/>Structure: Rows with dynamic columns<br/>Example: Cassandra]
-    NoSQL --> Graph[🕸️ Graph Database<br/><br/>Structure: Nodes and edges<br/>Example: Neo4j]
+    NoSQL --> Doc[📄 Document Store |  | Structure: JSON documents | Example: MongoDB]
+    NoSQL --> KV[🔑 Key-Value Store |  | Structure: Key → Value | Example: Redis, DynamoDB]
+    NoSQL --> Wide[📊 Wide-Column Store |  | Structure: Rows with dynamic columns | Example: Cassandra]
+    NoSQL --> Graph[🕸️ Graph Database |  | Structure: Nodes and edges | Example: Neo4j]
 
-    Doc --> DocUse[Use: Content management,<br/>user profiles,<br/>product catalogs]
-    KV --> KVUse[Use: Caching,<br/>session storage,<br/>real-time data]
-    Wide --> WideUse[Use: Time-series data,<br/>IoT, analytics,<br/>high write throughput]
-    Graph --> GraphUse[Use: Social networks,<br/>recommendation engines,<br/>fraud detection]
+    Doc --> DocUse[Use: Content management, | user profiles, | product catalogs]
+    KV --> KVUse[Use: Caching, | session storage, | real-time data]
+    Wide --> WideUse[Use: Time-series data, | IoT, analytics, | high write throughput]
+    Graph --> GraphUse[Use: Social networks, | recommendation engines, | fraud detection]
 
     style Doc fill:#e8f5e9
     style KV fill:#fff3e0
@@ -332,21 +332,21 @@ RETURN path
 graph TB
     Start[Need to choose database?]
 
-    Start --> Relational{Do you have<br/>relational data?<br/>Users → Posts → Comments}
+    Start --> Relational{Do you have | relational data? | Users → Posts → Comments}
 
-    Relational -->|Yes| ACID{Need ACID<br/>transactions?<br/>Banking, orders}
+    Relational -->|Yes| ACID{Need ACID | transactions? | Banking, orders}
     Relational -->|No| Structure{What structure?}
 
-    ACID -->|Yes| SQL[✅ Use SQL<br/>PostgreSQL, MySQL]
-    ACID -->|No| Eventual{Can you tolerate<br/>eventual consistency?}
+    ACID -->|Yes| SQL[✅ Use SQL | PostgreSQL, MySQL]
+    ACID -->|No| Eventual{Can you tolerate | eventual consistency?}
 
-    Eventual -->|Yes| NoSQLChoice[Consider NoSQL<br/>for better scale]
+    Eventual -->|Yes| NoSQLChoice[Consider NoSQL | for better scale]
     Eventual -->|No| SQL
 
-    Structure -->|Documents/JSON| MongoDB[✅ MongoDB<br/>Document store]
-    Structure -->|Simple key-value| Redis[✅ Redis/DynamoDB<br/>Key-value]
-    Structure -->|Time-series| Cassandra[✅ Cassandra<br/>Wide-column]
-    Structure -->|Graph/relationships| Neo4j[✅ Neo4j<br/>Graph DB]
+    Structure -->|Documents/JSON| MongoDB[✅ MongoDB | Document store]
+    Structure -->|Simple key-value| Redis[✅ Redis/DynamoDB | Key-value]
+    Structure -->|Time-series| Cassandra[✅ Cassandra | Wide-column]
+    Structure -->|Graph/relationships| Neo4j[✅ Neo4j | Graph DB]
 
     style SQL fill:#c8e6c9
     style MongoDB fill:#c8e6c9
@@ -364,16 +364,16 @@ graph TB
 ```mermaid
 graph LR
     subgraph "Before"
-        Small[Small Server<br/>4 CPU, 16GB RAM<br/>$100/month]
+        Small[Small Server | 4 CPU, 16GB RAM | $100/month]
     end
 
     subgraph "After"
-        Large[Large Server<br/>32 CPU, 256GB RAM<br/>$1000/month]
+        Large[Large Server | 32 CPU, 256GB RAM | $1000/month]
     end
 
     Small -->|Upgrade| Large
 
-    Limit[Limit: Max ~1TB RAM<br/>Very expensive<br/>Single point of failure]
+    Limit[Limit: Max ~1TB RAM | Very expensive | Single point of failure]
 
     Large -.-> Limit
 
@@ -394,10 +394,10 @@ graph TB
     App[Application]
 
     subgraph "Read Replicas"
-        Master[(Master DB<br/>WRITES only)]
-        Replica1[(Replica 1<br/>READS)]
-        Replica2[(Replica 2<br/>READS)]
-        Replica3[(Replica 3<br/>READS)]
+        Master[(Master DB | WRITES only)]
+        Replica1[(Replica 1 | READS)]
+        Replica2[(Replica 2 | READS)]
+        Replica3[(Replica 3 | READS)]
     end
 
     App -->|Writes| Master
@@ -490,13 +490,13 @@ graph TB
 graph TB
     ACID[ACID Properties]
 
-    ACID --> A[Atomicity<br/>All or nothing<br/>Transaction succeeds completely<br/>or fails completely]
+    ACID --> A[Atomicity | All or nothing | Transaction succeeds completely | or fails completely]
 
-    ACID --> C[Consistency<br/>Data is valid<br/>Constraints enforced<br/>Foreign keys maintained]
+    ACID --> C[Consistency | Data is valid | Constraints enforced | Foreign keys maintained]
 
-    ACID --> I[Isolation<br/>Concurrent transactions<br/>don't interfere<br/>Serializable execution]
+    ACID --> I[Isolation | Concurrent transactions | don't interfere | Serializable execution]
 
-    ACID --> D[Durability<br/>Once committed<br/>data survives crashes<br/>Permanent storage]
+    ACID --> D[Durability | Once committed | data survives crashes | Permanent storage]
 
     style A fill:#e3f2fd
     style C fill:#e8f5e9
@@ -523,11 +523,11 @@ COMMIT;
 graph TB
     BASE[BASE Properties]
 
-    BASE --> BA[Basically Available<br/>System responds<br/>even during failures<br/>May return stale data]
+    BASE --> BA[Basically Available | System responds | even during failures | May return stale data]
 
-    BASE --> S[Soft state<br/>State may change<br/>without input<br/>Eventual consistency]
+    BASE --> S[Soft state | State may change | without input | Eventual consistency]
 
-    BASE --> E[Eventually consistent<br/>Data will be consistent<br/>eventually<br/>Not immediately]
+    BASE --> E[Eventually consistent | Data will be consistent | eventually | Not immediately]
 
     style BA fill:#e3f2fd
     style S fill:#e8f5e9
