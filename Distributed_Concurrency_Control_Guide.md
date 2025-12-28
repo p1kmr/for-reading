@@ -66,8 +66,8 @@ graph LR
     end
 
     subgraph "Multiple Servers - Threading Fails"
-        D[Server 1<br/>Thread 1] -.->|No Shared Memory| F[Lock Object?]
-        E[Server 2<br/>Thread 1] -.->|No Shared Memory| F
+        D[Server 1 Thread 1] -.->|No Shared Memory| F[Lock Object?]
+        E[Server 2 Thread 1] -.->|No Shared Memory| F
         F -.-> G[❌ CAN'T WORK]
     end
 
@@ -134,8 +134,8 @@ public class InventoryService {
 ```mermaid
 sequenceDiagram
     participant U1 as User 1
-    participant S1 as Server 1<br/>(Stock: 1)
-    participant S2 as Server 2<br/>(Stock: 1)
+    participant S1 as Server 1 (Stock: 1)
+    participant S2 as Server 2 (Stock: 1)
     participant U2 as User 2
 
     U1->>S1: Purchase last item
@@ -205,7 +205,7 @@ sequenceDiagram
     S1->>DB: Write balance: $40
     S2->>DB: Write balance: $50
 
-    Note over DB: ❌ Expected: -$10<br/>Got: $50<br/>Lost $60 transaction!
+    Note over DB: ❌ Expected: -$10 Got: $50 Lost $60 transaction!
 ```
 
 #### 2. **Lost Updates**
@@ -263,7 +263,7 @@ graph LR
 
     B --> F[All or nothing]
     C --> G[Valid state always]
-    D --> H[Concurrent transactions<br/>don't interfere]
+    D --> H[Concurrent transactions don't interfere]
     E --> I[Committed data persists]
 
     style D fill:#90EE90
@@ -278,8 +278,8 @@ graph TD
     A --> D[Repeatable Read]
     A --> E[Serializable]
 
-    B --> F[Lowest isolation<br/>Highest performance]
-    E --> G[Highest isolation<br/>Lowest performance]
+    B --> F[Lowest isolation Highest performance]
+    E --> G[Highest isolation Lowest performance]
 
     B --> H[❌ Dirty reads]
     C --> I[❌ Non-repeatable reads]
@@ -593,8 +593,8 @@ graph TD
     B -->|Low contention| C[Optimistic Locking]
     B -->|High contention| D[Pessimistic Locking]
 
-    C --> E[Better performance<br/>More retries on conflict]
-    D --> F[Guaranteed execution<br/>May cause waiting]
+    C --> E[Better performance More retries on conflict]
+    D --> F[Guaranteed execution May cause waiting]
 
     C --> G[Example: Blog posts]
     D --> H[Example: Ticket booking]
@@ -997,10 +997,10 @@ try {
 
 ```mermaid
 graph LR
-    A[Server 1<br/>Clock: 12:00:00] --> B[Redis<br/>Clock: 12:00:05]
-    C[Server 2<br/>Clock: 12:00:10] --> B
+    A[Server 1 Clock: 12:00:00] --> B[Redis Clock: 12:00:05]
+    C[Server 2 Clock: 12:00:10] --> B
 
-    D[Lock timeout calculations<br/>may differ!]
+    D[Lock timeout calculations may differ!]
 ```
 
 **Solution**: Use Redlock with majority consensus
@@ -1019,11 +1019,11 @@ graph TD
     A --> E[Database]
     A --> F[Consul]
 
-    B --> G[Fast, simple<br/>Requires careful setup]
-    C --> H[Strong consistency<br/>More complex]
-    D --> I[Kubernetes native<br/>Strongly consistent]
-    E --> J[Simple but slow<br/>Single point of failure]
-    F --> K[Service discovery + locks<br/>Good for microservices]
+    B --> G[Fast, simple Requires careful setup]
+    C --> H[Strong consistency More complex]
+    D --> I[Kubernetes native Strongly consistent]
+    E --> J[Simple but slow Single point of failure]
+    F --> K[Service discovery + locks Good for microservices]
 
     style B fill:#90EE90
     style C fill:#FFE4B5
@@ -1325,15 +1325,15 @@ graph TD
     A --> C[Service Instance 2]
     A --> D[Service Instance 3]
 
-    B --> E[Redis Cluster<br/>Distributed Locks]
+    B --> E[Redis Cluster Distributed Locks]
     C --> E
     D --> E
 
-    B --> F[Message Queue<br/>Kafka/RabbitMQ]
+    B --> F[Message Queue Kafka/RabbitMQ]
     C --> F
     D --> F
 
-    B --> G[Database Cluster<br/>Primary-Replica]
+    B --> G[Database Cluster Primary-Replica]
     C --> G
     D --> G
 
@@ -1540,7 +1540,7 @@ graph TB
     end
 
     subgraph "Distributed Lock"
-        H[Redis Cluster<br/>Redlock]
+        H[Redis Cluster Redlock]
     end
 
     subgraph "Message Queue"
@@ -1630,8 +1630,8 @@ graph TD
     A[Locking Strategies] --> B[Pessimistic Locking]
     A --> C[Optimistic Locking]
 
-    B --> D["Lock BEFORE reading<br/>(Assume conflict will happen)"]
-    C --> E["Read freely,<br/>check BEFORE writing<br/>(Assume conflict won't happen)"]
+    B --> D["Lock BEFORE reading (Assume conflict will happen)"]
+    C --> E["Read freely, check BEFORE writing (Assume conflict won't happen)"]
 
     D --> F[SELECT FOR UPDATE]
     E --> G[Version checking]
@@ -1688,7 +1688,7 @@ sequenceDiagram
     T1->>DB: Write 70
     T2->>DB: Write 60 (overwrites!)
 
-    Note over DB: ❌ Lost the $30 deduction!<br/>Should be $30, got $60
+    Note over DB: ❌ Lost the $30 deduction! Should be $30, got $60
 ```
 
 **Solutions:**
@@ -1744,7 +1744,7 @@ sequenceDiagram
     S2->>R: SET lock:item "server2" NX
     R->>S2: (null) - lock exists
 
-    Note over R: ❌ Lock held forever!<br/>Deadlock!
+    Note over R: ❌ Lock held forever! Deadlock!
 ```
 
 **With expiration:**
@@ -1784,13 +1784,13 @@ if (redis.set("lock", uuid, "NX", "PX", 10000).equals("OK")) {
 
 ```mermaid
 graph TD
-    A[CAP Theorem] --> B[Consistency<br/>All nodes see same data]
-    A --> C[Availability<br/>Always responds]
-    A --> D[Partition Tolerance<br/>Works despite network failures]
+    A[CAP Theorem] --> B[Consistency All nodes see same data]
+    A --> C[Availability Always responds]
+    A --> D[Partition Tolerance Works despite network failures]
 
-    E[Choose 2] --> F[CA: Traditional SQL<br/>Not partition tolerant]
-    E --> G[CP: MongoDB, HBase<br/>May be unavailable]
-    E --> H[AP: Cassandra, DynamoDB<br/>Eventual consistency]
+    E[Choose 2] --> F[CA: Traditional SQL Not partition tolerant]
+    E --> G[CP: MongoDB, HBase May be unavailable]
+    E --> H[AP: Cassandra, DynamoDB Eventual consistency]
 
     style F fill:#ff9999
     style G fill:#FFE4B5
@@ -1826,10 +1826,10 @@ Example: Social media likes/views
 
 ```mermaid
 graph LR
-    A[Isolation Levels] --> B[Read Uncommitted<br/>❌ Dirty reads]
-    A --> C[Read Committed<br/>❌ Non-repeatable]
-    A --> D[Repeatable Read<br/>❌ Phantom reads]
-    A --> E[Serializable<br/>✅ Full isolation]
+    A[Isolation Levels] --> B[Read Uncommitted ❌ Dirty reads]
+    A --> C[Read Committed ❌ Non-repeatable]
+    A --> D[Repeatable Read ❌ Phantom reads]
+    A --> E[Serializable ✅ Full isolation]
 
     B --> F[Highest Performance]
     E --> G[Lowest Performance]
@@ -1877,11 +1877,11 @@ graph LR
     A --> C[Server 2]
     A --> D[Server 3]
 
-    B --> E[Redis<br/>Counter]
+    B --> E[Redis Counter]
     C --> E
     D --> E
 
-    E --> F[Increment counter<br/>Check limit]
+    E --> F[Increment counter Check limit]
 ```
 
 **Implementation:**
@@ -1976,8 +1976,8 @@ sequenceDiagram
 
 ```mermaid
 graph TD
-    A[2PC Problems] --> B[Coordinator crashes<br/>between phases]
-    A --> C[Participant crashes<br/>after prepare]
+    A[2PC Problems] --> B[Coordinator crashes between phases]
+    A --> C[Participant crashes after prepare]
     A --> D[Network partition]
 
     B --> E[All participants blocked!]
@@ -2020,7 +2020,7 @@ sequenceDiagram
     S->>R: Check if abc123 exists
     R->>S: Found! paymentId: 789
 
-    S->>C: 200 OK {paymentId: 789}<br/>No duplicate processing!
+    S->>C: 200 OK {paymentId: 789} No duplicate processing!
 ```
 
 **Implementation:**
@@ -2063,9 +2063,9 @@ public Payment processPayment(
 
 ```mermaid
 graph TD
-    A[User Views] --> B[Server 1<br/>Local Buffer]
-    A --> C[Server 2<br/>Local Buffer]
-    A --> D[Server 3<br/>Local Buffer]
+    A[User Views] --> B[Server 1 Local Buffer]
+    A --> C[Server 2 Local Buffer]
+    A --> D[Server 3 Local Buffer]
 
     B -->|Batch every 10s| E[Redis]
     C -->|Batch every 10s| E
