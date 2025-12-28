@@ -1,0 +1,142 @@
+%% ========================================
+%% STEP 3: ADD ATTRIBUTES AND METHODS
+%% ========================================
+%% WHAT WE ADDED: Concrete details - data fields and operations
+%% WHY: Make entities implementable in code
+%% ========================================
+
+classDiagram
+    %% ========== USER ENTITY ==========
+    class User {
+        <<Entity>>
+        -String userId
+        -String name
+        -String email
+        -String phoneNumber
+        -String passwordHash
+        -Date createdAt
+        -Date updatedAt
+        +register()
+        +login()
+        +updateProfile()
+        +getBalance() List~Balance~
+        +addExpense()
+        +settleUp()
+    }
+
+    %% ========== GROUP ENTITY ==========
+    class Group {
+        <<Entity>>
+        -String groupId
+        -String name
+        -String description
+        -String createdBy
+        -Date createdAt
+        -Date updatedAt
+        +addMember(User)
+        +removeMember(User)
+        +getMembers() List~User~
+        +addExpense(Expense)
+        +getExpenses() List~Expense~
+        +getGroupBalance() List~Balance~
+    }
+
+    %% ========== EXPENSE ENTITY ==========
+    class Expense {
+        <<Entity>>
+        -String expenseId
+        -String description
+        -BigDecimal amount
+        -String paidBy
+        -String groupId
+        -SplitType splitType
+        -Date expenseDate
+        -Date createdAt
+        -Map~String, BigDecimal~ splits
+        +calculateSplits()
+        +updateExpense()
+        +deleteExpense()
+        +getParticipants() List~User~
+    }
+
+    %% ========== TRANSACTION ENTITY ==========
+    class Transaction {
+        <<Entity>>
+        -String transactionId
+        -String payerId
+        -String payeeId
+        -BigDecimal amount
+        -Date transactionDate
+        -String groupId
+        -TransactionStatus status
+        -String notes
+        +recordPayment()
+        +cancelTransaction()
+        +getTransactionDetails()
+    }
+
+    %% ========== ENUMS ==========
+    class SplitType {
+        <<Enumeration>>
+        EQUAL
+        EXACT
+        PERCENTAGE
+    }
+
+    class TransactionStatus {
+        <<Enumeration>>
+        PENDING
+        COMPLETED
+        CANCELLED
+    }
+
+    %% ========== VALUE OBJECT ==========
+    class Balance {
+        <<Value Object>>
+        -String userId
+        -BigDecimal amount
+        -BalanceType type
+        +getNetBalance() BigDecimal
+    }
+
+    class BalanceType {
+        <<Enumeration>>
+        OWE
+        OWED
+    }
+
+    %% ========== RELATIONSHIPS (from Step 2) ==========
+
+    User "member *" -- "*" Group : belongs to
+    Group "1" -- "0..*" Expense : contains
+    User "paidBy 1" -- "0..*" Expense : paid by
+    Expense "*" -- "participants *" User : split among
+    User "payer 1" -- "0..*" Transaction : sends
+    User "payee 1" -- "0..*" Transaction : receives
+
+    %% NEW: Relationships with Enums and Value Objects
+    Expense --> SplitType : uses
+    Transaction --> TransactionStatus : has
+    User ..> Balance : calculates
+    Balance --> BalanceType : has
+
+    %% ========== NOTES ==========
+    note for User "👤 USER ATTRIBUTES\n────────────────\n- userId: Unique identifier (UUID)\n- passwordHash: Hashed using bcrypt\n- createdAt/updatedAt: Audit fields\n────────────────\nMETHODS:\n- register(): Create new user\n- getBalance(): Calculate from expenses\n- settleUp(): Record payment"
+
+    note for Group "👥 GROUP ATTRIBUTES\n────────────────\n- groupId: Unique identifier\n- createdBy: User who created (admin)\n- name: e.g., 'Goa Trip 2025'\n────────────────\nMETHODS:\n- addMember(): Add user to group\n- getGroupBalance(): All balances in group"
+
+    note for Expense "💰 EXPENSE ATTRIBUTES\n────────────────\n- amount: Use BigDecimal (not double!)\n- splits: Map of userId → amount owed\n- splitType: EQUAL/EXACT/PERCENTAGE\n────────────────\nMETHODS:\n- calculateSplits(): Based on split type\n- Split calculation happens here!"
+
+    note for Transaction "💸 TRANSACTION ATTRIBUTES\n────────────────\n- payerId: Who is paying\n- payeeId: Who is receiving\n- status: PENDING/COMPLETED/CANCELLED\n- groupId: Optional (can be outside group)\n────────────────\nMETHODS:\n- recordPayment(): Update balances\n- Updates both payer and payee balances"
+
+    note for SplitType "📊 SPLIT TYPE ENUM\n────────────────\nEQUAL: Divide equally\n  Example: ₹3000 ÷ 3 = ₹1000 each\n\nEXACT: Specify exact amounts\n  Example: A=₹1200, B=₹1800\n\nPERCENTAGE: Specify percentages\n  Example: A=40%, B=60%"
+
+    note for Balance "💰 BALANCE VALUE OBJECT\n────────────────\nNot stored in DB!\nCalculated from expenses & transactions\n────────────────\ntype = OWE: You owe someone\ntype = OWED: Someone owes you\n────────────────\nImmutable (cannot change once created)"
+
+%% ========================================
+%% KEY ADDITIONS:
+%% 1. Attributes (data fields) with types
+%% 2. Methods (operations)
+%% 3. Enums for fixed values
+%% 4. Value Objects for calculated data
+%% ========================================

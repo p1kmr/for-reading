@@ -1,0 +1,148 @@
+%% ========================================
+%% SPLITWISE SYSTEM - USE CASE DIAGRAM
+%% ========================================
+%% This diagram shows all actors and their interactions with the system
+%% Read from LEFT to RIGHT: Actor → Use Cases
+%% ========================================
+
+graph TB
+    %% ========== ACTORS ==========
+    User["👤 User<br/>(Registered User)"]
+    GroupAdmin["👑 Group Admin<br/>(Group Creator)"]
+    System["🤖 System<br/>(Background Services)"]
+
+    %% ========== USER MANAGEMENT USE CASES ==========
+    subgraph "User Management"
+        UC1[Register Account]
+        UC2[Login/Logout]
+        UC3[Update Profile]
+        UC4[View Profile & Balance]
+    end
+
+    %% ========== GROUP MANAGEMENT USE CASES ==========
+    subgraph "Group Management"
+        UC5[Create Group]
+        UC6[Add Members to Group]
+        UC7[Remove Members from Group]
+        UC8[View Groups]
+        UC9[Leave Group]
+        UC10[Delete Group]
+    end
+
+    %% ========== EXPENSE MANAGEMENT USE CASES ==========
+    subgraph "Expense Management"
+        UC11[Add Expense]
+        UC12[Split Expense - EQUAL]
+        UC13[Split Expense - EXACT]
+        UC14[Split Expense - PERCENTAGE]
+        UC15[Edit Expense]
+        UC16[Delete Expense]
+        UC17[View Expense History]
+    end
+
+    %% ========== BALANCE MANAGEMENT USE CASES ==========
+    subgraph "Balance Management"
+        UC18[View Overall Balance]
+        UC19[View Individual Balances]
+        UC20[View Group Balances]
+        UC21[Calculate Net Balance]
+    end
+
+    %% ========== TRANSACTION/SETTLEMENT USE CASES ==========
+    subgraph "Settlement Management"
+        UC22[Record Payment]
+        UC23[Settle Up]
+        UC24[Partial Settlement]
+        UC25[View Transaction History]
+    end
+
+    %% ========== NOTIFICATION USE CASES ==========
+    subgraph "Notifications & Reporting"
+        UC26[Send Notifications]
+        UC27[View Activity Feed]
+        UC28[Generate Reports]
+        UC29[Export Data]
+    end
+
+    %% ========== CONNECTIONS: User → Use Cases ==========
+
+    %% User Management
+    User --> UC1
+    User --> UC2
+    User --> UC3
+    User --> UC4
+
+    %% Group Management (User can do basic operations)
+    User --> UC5
+    User --> UC8
+    User --> UC9
+
+    %% Group Admin specific operations
+    GroupAdmin --> UC6
+    GroupAdmin --> UC7
+    GroupAdmin --> UC10
+
+    %% Expense Management
+    User --> UC11
+    User --> UC15
+    User --> UC16
+    User --> UC17
+
+    %% Expense splits (included in Add Expense)
+    UC11 -.includes.-> UC12
+    UC11 -.includes.-> UC13
+    UC11 -.includes.-> UC14
+
+    %% Balance Management
+    User --> UC18
+    User --> UC19
+    User --> UC20
+
+    %% Settlement
+    User --> UC22
+    User --> UC23
+    User --> UC24
+    User --> UC25
+
+    %% Notifications
+    User --> UC27
+    User --> UC28
+    User --> UC29
+
+    %% System automatically handles these
+    System --> UC21
+    System --> UC26
+
+    %% ========== RELATIONSHIPS ==========
+
+    %% Calculate balance is triggered by expense/settlement
+    UC11 -.triggers.-> UC21
+    UC22 -.triggers.-> UC21
+
+    %% Notifications triggered by various actions
+    UC11 -.triggers.-> UC26
+    UC22 -.triggers.-> UC26
+    UC6 -.triggers.-> UC26
+
+    %% Settle Up includes Record Payment
+    UC23 -.includes.-> UC22
+
+    %% ========== NOTES ==========
+    Note1["📝 Note: User becomes GroupAdmin<br/>when they create a group<br/>──────────────<br/>Inheritance relationship"]
+    Note2["📝 Add Expense includes<br/>choosing split type<br/>──────────────<br/>EQUAL, EXACT, or PERCENTAGE"]
+    Note3["📝 System automatically<br/>calculates balances in real-time<br/>──────────────<br/>Background process"]
+
+    %% ========== STYLING ==========
+    classDef actorStyle fill:#ffcccc,stroke:#cc0000,stroke-width:3px,color:#000,font-weight:bold
+    classDef usecaseStyle fill:#cce5ff,stroke:#0066cc,stroke-width:2px,color:#000
+    classDef systemStyle fill:#ffffcc,stroke:#cccc00,stroke-width:2px,color:#000
+    classDef noteStyle fill:#e6ffe6,stroke:#00cc00,stroke-width:1px,color:#000,font-style:italic
+
+    class User,GroupAdmin actorStyle
+    class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11,UC12,UC13,UC14,UC15,UC16,UC17,UC18,UC19,UC20,UC22,UC23,UC24,UC25,UC27,UC28,UC29 usecaseStyle
+    class UC21,UC26,System systemStyle
+    class Note1,Note2,Note3 noteStyle
+
+%% ========================================
+%% END OF USE CASE DIAGRAM
+%% ========================================

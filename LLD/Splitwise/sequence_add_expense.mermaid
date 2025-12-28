@@ -1,0 +1,105 @@
+%% ========================================
+%% SEQUENCE DIAGRAM: ADD EXPENSE FLOW
+%% ========================================
+%% Shows complete flow when user adds an expense
+%% ========================================
+
+sequenceDiagram
+    actor Alice as Alice (User)
+    participant API as ExpenseController
+    participant ES as ExpenseService
+    participant GS as GroupService
+    participant US as UserService
+    participant SC as SplitCalculator
+    participant ER as ExpenseRepository
+    participant DB as MySQL Database
+    participant NS as NotificationService
+    participant Cache as Redis Cache
+
+    Note over Alice,Cache: Add Expense: "Hotel ₹6000" split EQUALLY among Alice, Bob, Charlie
+
+    %% Step 1: User initiates
+    Alice->>+API: POST /expenses<br/>{description: "Hotel",<br/>amount: 6000,<br/>paidBy: "alice_id",<br/>groupId: "goa_trip",<br/>splitType: "EQUAL",<br/>participants: ["alice", "bob", "charlie"]}
+
+    %% Step 2: Controller to Service
+    API->>+ES: addExpense(ExpenseDTO)
+    Note over ES: Validate and orchestrate
+
+    %% Step 3: Validate group
+    ES->>+GS: getGroupById("goa_trip")
+    GS->>+DB: SELECT * FROM groups WHERE group_id = ?
+    DB-->>-GS: Group{id: "goa_trip", name: "Goa Trip 2025"}
+    GS-->>-ES: Group found ✓
+
+    %% Step 4: Validate payer is member
+    ES->>+GS: isMember("goa_trip", "alice_id")
+    GS->>+DB: SELECT * FROM user_groups<br/>WHERE group_id = ? AND user_id = ?
+    DB-->>-GS: Record found
+    GS-->>-ES: true ✓
+
+    %% Step 5: Validate all participants are members
+    ES->>+GS: isMember("goa_trip", "bob_id")
+    GS->>+DB: Check membership
+    DB-->>-GS: Record found
+    GS-->>-ES: true ✓
+
+    ES->>+GS: isMember("goa_trip", "charlie_id")
+    GS->>+DB: Check membership
+    DB-->>-GS: Record found
+    GS-->>-ES: true ✓
+
+    Note over ES: All validations passed!
+
+    %% Step 6: Calculate splits
+    ES->>+SC: calculateEqualSplit(6000, ["alice", "bob", "charlie"])
+    Note over SC: 6000 ÷ 3 = 2000 each
+    SC-->>-ES: {"alice": 2000, "bob": 2000, "charlie": 2000}
+
+    %% Step 7: Validate splits sum to total
+    Note over ES: 2000 + 2000 + 2000 = 6000 ✓
+
+    %% Step 8: Create expense entity
+    Note over ES: Create Expense object
+
+    %% Step 9: Save to database
+    ES->>+ER: save(expense)
+    ER->>+DB: BEGIN TRANSACTION
+    DB-->>ER: Transaction started
+
+    ER->>DB: INSERT INTO expenses (expense_id, description,<br/>amount, paid_by, group_id, split_type, ...)<br/>VALUES (?, ?, ?, ?, ?, ?, ...)
+    DB-->>ER: Expense inserted
+
+    ER->>DB: INSERT INTO expense_splits<br/>(expense_id, user_id, amount)<br/>VALUES<br/>('exp_123', 'alice_id', 2000),<br/>('exp_123', 'bob_id', 2000),<br/>('exp_123', 'charlie_id', 2000)
+    DB-->>ER: Splits inserted
+
+    ER->>DB: COMMIT
+    DB-->>ER: Transaction committed
+    ER-->>-ES: Expense saved ✓
+
+    %% Step 10: Invalidate cache
+    ES->>+Cache: DEL group:goa_trip:balances
+    Cache-->>-ES: Cache invalidated
+
+    %% Step 11: Send notifications (async)
+    ES->>+NS: notifyExpenseAdded(expense)
+    Note over NS: Async processing
+    NS-->>-ES: Queued
+
+    par Parallel Notifications
+        NS->>Bob: Email: "Alice added expense 'Hotel ₹6000' in Goa Trip"
+        NS->>Charlie: Email: "Alice added expense 'Hotel ₹6000' in Goa Trip"
+    end
+
+    %% Step 12: Return response
+    ES-->>-API: Expense{id: "exp_123", amount: 6000, ...}
+    API-->>-Alice: 201 Created<br/>{expenseId: "exp_123",<br/>message: "Expense added successfully"}
+
+    Note over Alice,Cache: Balances updated:<br/>Bob owes Alice ₹2000<br/>Charlie owes Alice ₹2000
+
+%% ========================================
+%% KEY POINTS:
+%% - Multiple validations before saving
+%% - Transaction ensures atomicity
+%% - Cache invalidation for consistency
+%% - Async notifications for performance
+%% ========================================

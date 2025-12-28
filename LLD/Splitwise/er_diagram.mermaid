@@ -1,0 +1,96 @@
+%% ========================================
+%% DATABASE SCHEMA - ER DIAGRAM
+%% ========================================
+%% Entity-Relationship Diagram for Splitwise Database
+%% ========================================
+
+erDiagram
+    %% ========== ENTITIES ==========
+
+    USER {
+        varchar(36) user_id PK "UUID"
+        varchar(100) name "User's name"
+        varchar(100) email UK "Unique email"
+        varchar(15) phone_number "Phone number"
+        varchar(255) password_hash "Bcrypt hashed"
+        timestamp created_at "Account creation"
+        timestamp updated_at "Last update"
+    }
+
+    GROUP {
+        varchar(36) group_id PK "UUID"
+        varchar(100) name "Group name"
+        text description "Optional description"
+        varchar(36) created_by FK "User ID of creator"
+        timestamp created_at "Group creation"
+        timestamp updated_at "Last update"
+    }
+
+    USER_GROUP {
+        varchar(36) user_id PK,FK "User ID"
+        varchar(36) group_id PK,FK "Group ID"
+        timestamp joined_at "When user joined"
+    }
+
+    EXPENSE {
+        varchar(36) expense_id PK "UUID"
+        varchar(200) description "Expense description"
+        decimal(10,2) amount "Total amount"
+        varchar(36) paid_by FK "User who paid"
+        varchar(36) group_id FK "Group ID (optional)"
+        enum split_type "EQUAL/EXACT/PERCENTAGE"
+        date expense_date "When expense occurred"
+        timestamp created_at "When added to system"
+        timestamp updated_at "Last update"
+    }
+
+    EXPENSE_SPLIT {
+        varchar(36) expense_id PK,FK "Expense ID"
+        varchar(36) user_id PK,FK "Participant ID"
+        decimal(10,2) amount "User's share"
+    }
+
+    TRANSACTION {
+        varchar(36) transaction_id PK "UUID"
+        varchar(36) payer_id FK "Who paid"
+        varchar(36) payee_id FK "Who received"
+        decimal(10,2) amount "Payment amount"
+        varchar(36) group_id FK "Group ID (optional)"
+        enum status "PENDING/COMPLETED/CANCELLED"
+        text notes "Optional notes"
+        date transaction_date "When payment made"
+        timestamp created_at "When recorded"
+    }
+
+    %% ========== RELATIONSHIPS ==========
+
+    %% User to Group: Many-to-Many via USER_GROUP
+    USER ||--o{ USER_GROUP : "belongs to"
+    GROUP ||--o{ USER_GROUP : "has members"
+
+    %% Group to User: Creator relationship
+    USER ||--o{ GROUP : "creates"
+
+    %% Expense to User: Paid by
+    USER ||--o{ EXPENSE : "pays"
+
+    %% Expense to Group
+    GROUP ||--o{ EXPENSE : "contains"
+
+    %% Expense to Users: Split among (via EXPENSE_SPLIT)
+    EXPENSE ||--o{ EXPENSE_SPLIT : "split into"
+    USER ||--o{ EXPENSE_SPLIT : "owes"
+
+    %% Transaction relationships
+    USER ||--o{ TRANSACTION : "sends as payer"
+    USER ||--o{ TRANSACTION : "receives as payee"
+    GROUP ||--o{ TRANSACTION : "may include"
+
+%% ========================================
+%% NOTES:
+%% - PK = Primary Key
+%% - FK = Foreign Key
+%% - UK = Unique Key
+%% - USER_GROUP is join table for Many-to-Many
+%% - EXPENSE_SPLIT stores individual splits
+%% ========================================

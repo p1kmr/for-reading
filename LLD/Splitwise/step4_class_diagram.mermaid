@@ -1,0 +1,167 @@
+%% ========================================
+%% STEP 4: ADD SERVICE LAYER
+%% ========================================
+%% WHAT WE ADDED: Service classes for business logic
+%% WHY: Separate data (entities) from operations (services)
+%% ========================================
+
+classDiagram
+    %% ========== ENTITIES (from Step 3) ==========
+    class User {
+        <<Entity>>
+        -String userId
+        -String name
+        -String email
+        -String phoneNumber
+        -String passwordHash
+        -Date createdAt
+    }
+
+    class Group {
+        <<Entity>>
+        -String groupId
+        -String name
+        -String description
+        -String createdBy
+        -Date createdAt
+    }
+
+    class Expense {
+        <<Entity>>
+        -String expenseId
+        -String description
+        -BigDecimal amount
+        -String paidBy
+        -String groupId
+        -SplitType splitType
+        -Map~String, BigDecimal~ splits
+    }
+
+    class Transaction {
+        <<Entity>>
+        -String transactionId
+        -String payerId
+        -String payeeId
+        -BigDecimal amount
+        -TransactionStatus status
+    }
+
+    %% ========== NEW: SERVICE LAYER ==========
+
+    class UserService {
+        <<Service>>
+        -UserRepository userRepository
+        -PasswordEncoder passwordEncoder
+        +registerUser(UserDTO) User
+        +login(email, password) String
+        +updateProfile(userId, UserDTO) User
+        +getUserById(userId) User
+        +getUserBalance(userId) List~Balance~
+        +getUsersByGroup(groupId) List~User~
+    }
+
+    class GroupService {
+        <<Service>>
+        -GroupRepository groupRepository
+        -UserService userService
+        +createGroup(name, description, creatorId) Group
+        +addMember(groupId, userId) void
+        +removeMember(groupId, userId) void
+        +getGroupById(groupId) Group
+        +getGroupMembers(groupId) List~User~
+        +getGroupsByUser(userId) List~Group~
+        +deleteGroup(groupId, userId) void
+    }
+
+    class ExpenseService {
+        <<Service>>
+        -ExpenseRepository expenseRepository
+        -GroupService groupService
+        -UserService userService
+        -SplitCalculator splitCalculator
+        +addExpense(ExpenseDTO) Expense
+        +updateExpense(expenseId, ExpenseDTO) Expense
+        +deleteExpense(expenseId, userId) void
+        +getExpenseById(expenseId) Expense
+        +getExpensesByGroup(groupId) List~Expense~
+        +getExpensesByUser(userId) List~Expense~
+        +calculateSplits(expense) Map~String, BigDecimal~
+    }
+
+    class TransactionService {
+        <<Service>>
+        -TransactionRepository transactionRepository
+        -UserService userService
+        -BalanceService balanceService
+        +recordPayment(payerId, payeeId, amount, groupId) Transaction
+        +cancelTransaction(transactionId) void
+        +getTransactionById(transactionId) Transaction
+        +getTransactionsByUser(userId) List~Transaction~
+        +getTransactionsByGroup(groupId) List~Transaction~
+    }
+
+    class BalanceService {
+        <<Service>>
+        -ExpenseService expenseService
+        -TransactionService transactionService
+        +calculateUserBalance(userId) List~Balance~
+        +calculateGroupBalance(groupId) List~Balance~
+        +getBalanceBetweenUsers(userId1, userId2) BigDecimal
+        +simplifyDebts(groupId) List~Transaction~
+    }
+
+    %% ========== HELPER CLASSES ==========
+
+    class SplitCalculator {
+        <<Helper>>
+        +calculateEqualSplit(amount, participants) Map
+        +calculateExactSplit(amount, splits) Map
+        +calculatePercentageSplit(amount, percentages) Map
+        +validateSplits(amount, splits) boolean
+    }
+
+    class PasswordEncoder {
+        <<Utility>>
+        +encode(password) String
+        +matches(rawPassword, encodedPassword) boolean
+    }
+
+    %% ========== RELATIONSHIPS: Services to Entities ==========
+    UserService ..> User : manages
+    GroupService ..> Group : manages
+    ExpenseService ..> Expense : manages
+    TransactionService ..> Transaction : manages
+
+    %% ========== RELATIONSHIPS: Services to Services ==========
+    GroupService --> UserService : uses
+    ExpenseService --> GroupService : uses
+    ExpenseService --> UserService : uses
+    ExpenseService --> SplitCalculator : uses
+    TransactionService --> UserService : uses
+    TransactionService --> BalanceService : uses
+    BalanceService --> ExpenseService : uses
+    BalanceService --> TransactionService : uses
+
+    %% ========== RELATIONSHIPS: Services to Helpers ==========
+    UserService --> PasswordEncoder : uses
+
+    %% ========== NOTES ==========
+    note for UserService "👤 USER SERVICE\n────────────────\nBusiness logic for user operations:\n✅ Register new user\n✅ Authenticate (login)\n✅ Update profile\n✅ Get user details\n────────────────\n⚠️ Uses UserRepository (Step 5)\n────────────────\n🎯 Single Responsibility:\nOnly manages users"
+
+    note for GroupService "👥 GROUP SERVICE\n────────────────\nOrchestrates group operations:\n✅ Create/delete groups\n✅ Add/remove members\n✅ Validation: Is user admin?\n✅ Check: Balance = 0 before leaving\n────────────────\n⚠️ Depends on UserService\nto validate members exist"
+
+    note for ExpenseService "💰 EXPENSE SERVICE\n────────────────\nCore business logic:\n✅ Add/edit/delete expenses\n✅ Validate participants\n✅ Calculate splits\n✅ Update balances\n────────────────\n⚠️ Orchestrates multiple services\n────────────────\n🔥 Most complex service!"
+
+    note for TransactionService "💸 TRANSACTION SERVICE\n────────────────\nManages settlements:\n✅ Record payments\n✅ Update balances\n✅ Validate payment amounts\n✅ Notify users\n────────────────\n⚠️ Works with BalanceService\nto update balances"
+
+    note for BalanceService "💰 BALANCE SERVICE\n────────────────\nCalculates balances:\n✅ User's total balance\n✅ Group balances\n✅ Pairwise balances\n✅ Simplify debts algorithm\n────────────────\n⚠️ Read-only (no DB updates)\n────────────────\n🧮 Pure calculation service"
+
+    note for SplitCalculator "🧮 SPLIT CALCULATOR\n────────────────\nStrategy pattern (Step 6):\n• EQUAL: amount ÷ n\n• EXACT: use given amounts\n• PERCENTAGE: amount × %\n────────────────\n✅ Pure function (no side effects)\n✅ Easy to test\n✅ Reusable"
+
+%% ========================================
+%% KEY CONCEPTS:
+%% 1. Services contain business logic
+%% 2. Entities are just data holders
+%% 3. Services orchestrate multiple entities
+%% 4. Dependency Injection for services
+%% ========================================

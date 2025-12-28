@@ -1,0 +1,119 @@
+%% ========================================
+%% STEP 6: STRATEGY PATTERN FOR SPLIT TYPES
+%% ========================================
+%% WHAT WE ADDED: Strategy pattern for different split calculations
+%% WHY: Different algorithms for EQUAL, EXACT, PERCENTAGE splits
+%% ========================================
+
+classDiagram
+    %% ========== EXPENSE SERVICE (from Step 4) ==========
+    class ExpenseService {
+        <<Service>>
+        -ExpenseRepository expenseRepository
+        -SplitStrategy splitStrategy
+        +addExpense(ExpenseDTO) Expense
+        +setSplitStrategy(SplitStrategy) void
+    }
+
+    %% ========== STRATEGY INTERFACE ==========
+    class SplitStrategy {
+        <<Interface>>
+        +calculateSplit(amount, participants, details) Map~String, BigDecimal~
+        +validate(amount, details) boolean
+    }
+
+    %% ========== CONCRETE STRATEGIES ==========
+
+    class EqualSplitStrategy {
+        <<Strategy>>
+        +calculateSplit(amount, participants, details) Map
+        +validate(amount, details) boolean
+    }
+
+    class ExactSplitStrategy {
+        <<Strategy>>
+        +calculateSplit(amount, participants, details) Map
+        +validate(amount, details) boolean
+    }
+
+    class PercentageSplitStrategy {
+        <<Strategy>>
+        +calculateSplit(amount, participants, details) Map
+        +validate(amount, details) boolean
+    }
+
+    class SharesSplitStrategy {
+        <<Strategy>>
+        +calculateSplit(amount, participants, details) Map
+        +validate(amount, details) boolean
+    }
+
+    %% ========== FACTORY ==========
+    class SplitStrategyFactory {
+        <<Factory>>
+        -Map~SplitType, SplitStrategy~ strategies
+        +getStrategy(SplitType) SplitStrategy
+        +registerStrategy(SplitType, SplitStrategy) void
+    }
+
+    %% ========== CONTEXT ==========
+    class SplitContext {
+        <<Context>>
+        -SplitStrategy strategy
+        +setStrategy(SplitStrategy) void
+        +executeSplit(amount, participants, details) Map
+    }
+
+    %% ========== ENUM ==========
+    class SplitType {
+        <<Enumeration>>
+        EQUAL
+        EXACT
+        PERCENTAGE
+        SHARES
+    }
+
+    %% ========== RELATIONSHIPS ==========
+
+    %% ExpenseService uses Context
+    ExpenseService --> SplitContext : uses
+
+    %% Context uses Strategy
+    SplitContext --> SplitStrategy : uses
+
+    %% Strategy interface implemented by concrete strategies
+    SplitStrategy <|.. EqualSplitStrategy : implements
+    SplitStrategy <|.. ExactSplitStrategy : implements
+    SplitStrategy <|.. PercentageSplitStrategy : implements
+    SplitStrategy <|.. SharesSplitStrategy : implements
+
+    %% Factory creates strategies
+    SplitStrategyFactory --> SplitStrategy : creates
+    SplitStrategyFactory --> SplitType : maps from
+
+    %% ExpenseService uses Factory
+    ExpenseService --> SplitStrategyFactory : uses
+
+    %% ========== NOTES ==========
+
+    note for SplitStrategy "🎨 STRATEGY PATTERN\n────────────────\nDefines family of algorithms\nMakes them interchangeable\n────────────────\nWHY USE?\n✅ Add new split types easily\n✅ No if-else chains\n✅ Open/Closed Principle\n────────────────\nEach strategy = one algorithm"
+
+    note for EqualSplitStrategy "➗ EQUAL SPLIT\n────────────────\nAlgorithm:\namount ÷ n participants\n────────────────\nExample:\n₹3000 ÷ 3 = ₹1000 each\n────────────────\nEdge case:\n₹100 ÷ 3 = ₹33.33 each\nLast person gets ₹33.34\n(handles rounding)"
+
+    note for ExactSplitStrategy "💵 EXACT SPLIT\n────────────────\nAlgorithm:\nUse provided amounts\n────────────────\nExample:\nAlice: ₹1200\nBob: ₹1800\nTotal: ₹3000 ✓\n────────────────\nValidation:\nSum must equal amount!"
+
+    note for PercentageSplitStrategy "📊 PERCENTAGE SPLIT\n────────────────\nAlgorithm:\namount × (percentage ÷ 100)\n────────────────\nExample:\nAlice: 40% of ₹3000 = ₹1200\nBob: 60% of ₹3000 = ₹1800\n────────────────\nValidation:\nPercentages must sum to 100!"
+
+    note for SharesSplitStrategy "🎯 SHARES SPLIT\n────────────────\nAlgorithm:\namount × (shares ÷ total_shares)\n────────────────\nExample:\nAlice: 2 shares\nBob: 3 shares\nTotal: 5 shares\n\nAlice: ₹3000 × (2÷5) = ₹1200\nBob: ₹3000 × (3÷5) = ₹1800\n────────────────\nFuture enhancement!"
+
+    note for SplitStrategyFactory "🏭 FACTORY PATTERN\n────────────────\nCreates right strategy\nbased on SplitType\n────────────────\nMap:\nEQUAL → EqualSplitStrategy\nEXACT → ExactSplitStrategy\nPERCENTAGE → PercentageSplitStrategy\n────────────────\n✅ Centralized creation\n✅ Easy to extend"
+
+    note for SplitContext "🎯 CONTEXT CLASS\n────────────────\nHolds strategy reference\nDelegates to strategy\n────────────────\nUsage:\ncontext.setStrategy(equalStrategy)\nMap<String, BigDecimal> splits =\n  context.executeSplit(...)\n────────────────\n✅ Decouples client from strategies"
+
+%% ========================================
+%% DESIGN PATTERN: STRATEGY
+%% 1. Define interface (SplitStrategy)
+%% 2. Implement concrete strategies
+%% 3. Context uses strategy
+%% 4. Factory creates strategies
+%% ========================================
