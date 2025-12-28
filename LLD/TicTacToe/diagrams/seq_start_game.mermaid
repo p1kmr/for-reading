@@ -1,0 +1,27 @@
+sequenceDiagram
+    actor P1 as Player 1
+    actor P2 as Player 2
+    participant GS as GameService
+    participant Session as GameSession
+    participant G as Game
+    participant B as Board
+    participant V as MoveValidator
+    participant W as WinChecker
+
+    P1->>GS: startNewSession(player1, player2)
+    GS->>GS: validatePlayers()
+    GS->>Session: new GameSession(p1, p2)
+    Session->>Session: generate sessionId
+    GS->>Session: startNewGame()
+    Session->>G: new Game(player1, player2)
+    G->>B: new Board(3)
+    B->>B: createCells(3x3)
+    G->>V: new MoveValidator(board)
+    G->>W: new WinChecker(board)
+    G->>G: setStatus(IN_PROGRESS)
+    G->>G: setCurrentPlayer(player1)
+    G-->>Session: Game instance
+    Session-->>GS: GameSession
+    GS-->>P1: Session ready
+    GS->>B: display()
+    B-->>P1: Empty 3x3 board displayed

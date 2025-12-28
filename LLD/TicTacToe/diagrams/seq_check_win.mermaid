@@ -1,0 +1,52 @@
+sequenceDiagram
+    participant G as Game
+    participant W as WinChecker
+    participant B as Board
+    participant C as Cell
+
+    G->>W: checkWin(Symbol.X)
+    W->>W: Convert Symbol to CellState
+    W->>W: checkRows(CellState.X)
+    loop For each row (0-2)
+        W->>B: getAllCells()
+        B-->>W: Cell[][]
+        W->>C: getState() for row cells
+        C-->>W: CellState
+        W->>W: Check if all 3 match
+    end
+
+    alt No win in rows
+        W->>W: checkColumns(CellState.X)
+        loop For each column (0-2)
+            W->>C: getState() for column cells
+            C-->>W: CellState
+            W->>W: Check if all 3 match
+        end
+    end
+
+    alt No win in columns
+        W->>W: checkDiagonals(CellState.X)
+        W->>C: Check diagonal cells (0,0 1,1 2,2)
+        C-->>W: CellState values
+        W->>W: Check if all 3 match
+        W->>C: Check anti-diagonal (0,2 1,1 2,0)
+        C-->>W: CellState values
+        W->>W: Check if all 3 match
+    end
+
+    alt Win Found
+        W-->>G: true (Winner!)
+        G->>G: setStatus(PLAYER_X_WON)
+    else No Win
+        W-->>G: false (No winner yet)
+        G->>W: checkDraw()
+        W->>B: isFull()
+        B-->>W: full/not full
+        alt Board Full
+            W-->>G: true (Draw)
+            G->>G: setStatus(DRAW)
+        else Not Full
+            W-->>G: false
+            G->>G: switchPlayer()
+        end
+    end

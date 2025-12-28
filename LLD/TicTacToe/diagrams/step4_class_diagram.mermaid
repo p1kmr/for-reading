@@ -1,0 +1,110 @@
+classDiagram
+    class GameSession {
+        -List~Game~ games
+        -ScoreBoard scoreBoard
+        -Player player1
+        -Player player2
+        -int currentGameNumber
+        +GameSession(player1, player2)
+        +startNewGame() Game
+        +playGame(moves[][]) void
+        +getScoreBoard() ScoreBoard
+        +getCurrentGame() Game
+        +getTotalGamesPlayed() int
+    }
+
+    class ScoreBoard {
+        -Map~Player, Integer~ wins
+        -int draws
+        -int totalGames
+        +ScoreBoard()
+        +recordResult(result) void
+        +getWins(player) int
+        +getDraws() int
+        +getTotalGames() int
+        +display() void
+        +getWinRate(player) double
+    }
+
+    class GameResult {
+        -Player winner
+        -GameStatus finalStatus
+        -int moveCount
+        -LocalDateTime timestamp
+        +GameResult(status, winner, moveCount)
+        +getWinner() Player
+        +isDraw() boolean
+        +getTimestamp() LocalDateTime
+        +getMoveCount() int
+    }
+
+    class Game {
+        -Board board
+        -Player player1
+        -Player player2
+        -Player currentPlayer
+        -GameStatus status
+        -MoveValidator validator
+        -WinChecker winChecker
+        -int moveCount
+        +Game(player1, player2)
+        +start() void
+        +makeMove(row, col) boolean
+        +getGameResult() GameResult
+        +getMoveCount() int
+    }
+
+    class Board {
+        -Cell[][] cells
+        -int size
+        +Board(size)
+        +getCell(row, col) Cell
+        +placeSymbol(row, col, symbol) boolean
+        +isFull() boolean
+        +display() void
+        +reset() void
+    }
+
+    class Player {
+        -String name
+        -Symbol symbol
+        -UUID playerId
+        +Player(name, symbol)
+        +getName() String
+        +getSymbol() Symbol
+        +getPlayerId() UUID
+        +equals(obj) boolean
+    }
+
+    class GameStatus {
+        <<enumeration>>
+        NOT_STARTED
+        IN_PROGRESS
+        PLAYER_X_WON
+        PLAYER_O_WON
+        DRAW
+        +isGameOver() boolean
+        +getMessage() String
+    }
+
+    GameSession "1" o-- "2" Player : tracks
+    GameSession "1" *-- "1" ScoreBoard : owns
+    GameSession "1" o-- "*" Game : manages
+
+    ScoreBoard --> GameResult : records
+    Game --> GameResult : produces
+    Game "1" *-- "1" Board : owns
+    Game "1" o-- "2" Player : has
+    Game --> GameStatus : tracks
+
+    note for GameSession "LIFECYCLE MANAGER: Manages multiple games in one session.
+    Coordinates between games and scoreboard.
+    Ensures same players across all games"
+
+    note for ScoreBoard "DATA TRACKER: Accumulates results across games.
+    Maintains win/draw statistics.
+    Can calculate win rates and other metrics"
+
+    note for GameResult "VALUE OBJECT: Immutable record of a game outcome.
+    Captures who won, when, and how many moves.
+    Enables game history tracking"

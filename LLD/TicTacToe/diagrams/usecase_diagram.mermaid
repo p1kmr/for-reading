@@ -1,0 +1,51 @@
+graph TB
+    subgraph "Tic-Tac-Toe System"
+        UC1[Start New Game]
+        UC2[Make a Move]
+        UC3[Validate Move]
+        UC4[Check Win Condition]
+        UC5[Check Draw Condition]
+        UC6[View Board]
+        UC7[View Scoreboard]
+        UC8[Update Scoreboard]
+        UC9[Play Another Game]
+    end
+
+    Player1[👤 Player 1 - X]
+    Player2[👤 Player 2 - O]
+    System[🖥️ Game System]
+
+    Player1 --> UC1
+    Player2 --> UC1
+    Player1 --> UC2
+    Player2 --> UC2
+    Player1 --> UC6
+    Player2 --> UC6
+    Player1 --> UC7
+    Player2 --> UC7
+    Player1 --> UC9
+    Player2 --> UC9
+
+    UC2 --> UC3
+    UC3 --> UC4
+    UC4 --> UC5
+    UC4 --> UC8
+    UC5 --> UC8
+
+    System -.-> UC3
+    System -.-> UC4
+    System -.-> UC5
+    System -.-> UC8
+
+    style UC1 fill:#e1f5ff
+    style UC2 fill:#e1f5ff
+    style UC3 fill:#fff3e0
+    style UC4 fill:#fff3e0
+    style UC5 fill:#fff3e0
+    style UC6 fill:#e8f5e9
+    style UC7 fill:#e8f5e9
+    style UC8 fill:#f3e5f5
+    style UC9 fill:#e1f5ff
+    style Player1 fill:#fce4ec
+    style Player2 fill:#fce4ec
+    style System fill:#e0e0e0

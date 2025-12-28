@@ -1,0 +1,189 @@
+classDiagram
+    %% Enums
+    class CellState {
+        <<enumeration>>
+        EMPTY
+        X
+        O
+        +getDisplay() String
+    }
+
+    class Symbol {
+        <<enumeration>>
+        X
+        O
+        +toCellState() CellState
+    }
+
+    class GameStatus {
+        <<enumeration>>
+        NOT_STARTED
+        IN_PROGRESS
+        PLAYER_X_WON
+        PLAYER_O_WON
+        DRAW
+        +isGameOver() boolean
+        +getMessage() String
+    }
+
+    %% Core Domain Classes
+    class Cell {
+        -int row
+        -int column
+        -CellState state
+        +Cell(row, column)
+        +getState() CellState
+        +setState(state) void
+        +isEmpty() boolean
+    }
+
+    class Board {
+        -Cell[][] cells
+        -int size
+        +Board(size)
+        +getCell(row, col) Cell
+        +placeSymbol(row, col, symbol) boolean
+        +isFull() boolean
+        +display() void
+        +reset() void
+        +getAllCells() Cell[][]
+    }
+
+    class Player {
+        -String name
+        -Symbol symbol
+        -UUID playerId
+        +Player(name, symbol)
+        +getName() String
+        +getSymbol() Symbol
+        +equals(obj) boolean
+        +hashCode() int
+    }
+
+    %% Game Logic
+    class MoveValidator {
+        -Board board
+        +MoveValidator(board)
+        +isValidMove(row, col) boolean
+        +getValidationError(row, col) String
+    }
+
+    class WinChecker {
+        -Board board
+        -int winLength
+        +WinChecker(board)
+        +checkWin(symbol) boolean
+        +checkDraw() boolean
+    }
+
+    class Game {
+        -Board board
+        -Player player1
+        -Player player2
+        -Player currentPlayer
+        -GameStatus status
+        -MoveValidator validator
+        -WinChecker winChecker
+        -int moveCount
+        +Game(player1, player2)
+        +start() void
+        +makeMove(row, col) boolean
+        +getGameResult() GameResult
+        +getStatus() GameStatus
+    }
+
+    %% Session Management
+    class GameResult {
+        -Player winner
+        -GameStatus finalStatus
+        -int moveCount
+        -LocalDateTime timestamp
+        +GameResult(status, winner, moves)
+        +getWinner() Player
+        +isDraw() boolean
+    }
+
+    class ScoreBoard {
+        -Map~Player, Integer~ wins
+        -int draws
+        -int totalGames
+        +recordResult(result) void
+        +getWins(player) int
+        +display() void
+    }
+
+    class GameSession {
+        -List~Game~ games
+        -ScoreBoard scoreBoard
+        -Player player1
+        -Player player2
+        -String sessionId
+        +GameSession(p1, p2)
+        +startNewGame() Game
+        +playGame(moves) void
+        +getScoreBoard() ScoreBoard
+    }
+
+    %% Service Layer
+    class GameService {
+        <<interface>>
+        +startNewSession(p1, p2) GameSession
+        +playGame(session, moves) void
+        +saveScoreBoard(session) void
+    }
+
+    class GameServiceImpl {
+        -ScoreBoardRepository repository
+        +GameServiceImpl(repository)
+        +startNewSession(p1, p2) GameSession
+        +playGame(session, moves) void
+        +saveScoreBoard(session) void
+    }
+
+    %% Repository Layer
+    class ScoreBoardRepository {
+        <<interface>>
+        +save(scoreBoard, key) void
+        +load(key) ScoreBoard
+        +exists(key) boolean
+    }
+
+    class InMemoryScoreBoardRepository {
+        -Map~String, ScoreBoard~ storage
+        +save(scoreBoard, key) void
+        +load(key) ScoreBoard
+    }
+
+    class FileScoreBoardRepository {
+        -String baseDirectory
+        +save(scoreBoard, key) void
+        +load(key) ScoreBoard
+    }
+
+    %% INHERITANCE (Realization)
+    GameService <|.. GameServiceImpl
+    ScoreBoardRepository <|.. InMemoryScoreBoardRepository
+    ScoreBoardRepository <|.. FileScoreBoardRepository
+
+    %% COMPOSITION (owns-a, strong lifecycle)
+    Board "1" *-- "9" Cell
+    Game "1" *-- "1" Board
+    GameSession "1" *-- "1" ScoreBoard
+
+    %% AGGREGATION (has-a, weak lifecycle)
+    Game "1" o-- "2" Player
+    GameSession "1" o-- "*" Game
+    GameSession "1" o-- "2" Player
+
+    %% DEPENDENCY (uses)
+    GameServiceImpl --> ScoreBoardRepository
+    GameServiceImpl --> GameSession
+    Game --> MoveValidator
+    Game --> WinChecker
+    Game --> GameResult
+    Game --> GameStatus
+    MoveValidator --> Board
+    WinChecker --> Board
+    ScoreBoard --> GameResult
+    Cell --> CellState
+    Player --> Symbol

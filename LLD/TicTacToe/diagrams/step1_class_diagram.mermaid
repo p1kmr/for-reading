@@ -1,0 +1,42 @@
+classDiagram
+    class Cell {
+        -int row
+        -int column
+        -String value
+        +Cell(row, column)
+        +getValue() String
+        +setValue(value) void
+        +isEmpty() boolean
+        +getRow() int
+        +getColumn() int
+    }
+
+    class Board {
+        -Cell[][] cells
+        -int size
+        +Board(size)
+        +getCell(row, col) Cell
+        +isFull() boolean
+        +display() void
+    }
+
+    class Player {
+        -String name
+        -String symbol
+        +Player(name, symbol)
+        +getName() String
+        +getSymbol() String
+    }
+
+    Board "1" *-- "9" Cell : contains
+
+    note for Cell "Represents a single position on the board.
+    Each cell knows its position (row, column)
+    and what it contains (X, O, or empty)"
+
+    note for Board "Represents the 3x3 game board.
+    Contains 9 cells arranged in a 2D array.
+    Responsible for managing the grid structure"
+
+    note for Player "Represents a player in the game.
+    Each player has a name and a symbol (X or O)"

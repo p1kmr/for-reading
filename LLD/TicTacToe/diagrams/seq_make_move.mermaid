@@ -1,0 +1,31 @@
+sequenceDiagram
+    actor P as Current Player
+    participant G as Game
+    participant V as MoveValidator
+    participant B as Board
+    participant C as Cell
+    participant W as WinChecker
+
+    P->>G: makeMove(row, col)
+    G->>V: isValidMove(row, col)
+    V->>V: isInBounds(row, col)
+    V->>B: getCell(row, col)
+    B-->>V: Cell instance
+    V->>C: isEmpty()
+    C-->>V: true/false
+    V-->>G: valid/invalid
+
+    alt Move Invalid
+        G-->>P: return false (Invalid move)
+    else Move Valid
+        G->>G: moveCount++
+        G->>B: placeSymbol(row, col, symbol)
+        B->>B: getCell(row, col)
+        B->>C: setState(CellState.X or O)
+        B-->>G: success
+        G->>B: display()
+        B-->>P: Updated board
+        G->>W: checkWin(currentPlayer.symbol)
+        W-->>G: win/no-win
+        G-->>P: return true (Move accepted)
+    end

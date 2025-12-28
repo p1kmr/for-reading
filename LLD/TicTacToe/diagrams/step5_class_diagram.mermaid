@@ -1,0 +1,107 @@
+classDiagram
+    class GameService {
+        <<interface>>
+        +startNewSession(p1, p2) GameSession
+        +playGame(session, moves) void
+        +getScoreBoard(session) ScoreBoard
+        +saveScoreBoard(session) void
+        +loadScoreBoard(players) ScoreBoard
+    }
+
+    class GameServiceImpl {
+        -ScoreBoardRepository repository
+        +GameServiceImpl(repository)
+        +startNewSession(p1, p2) GameSession
+        +playGame(session, moves) void
+        +getScoreBoard(session) ScoreBoard
+        +saveScoreBoard(session) void
+        +loadScoreBoard(players) ScoreBoard
+        -validatePlayers(p1, p2) boolean
+    }
+
+    class ScoreBoardRepository {
+        <<interface>>
+        +save(scoreBoard, key) void
+        +load(key) ScoreBoard
+        +exists(key) boolean
+        +delete(key) void
+    }
+
+    class InMemoryScoreBoardRepository {
+        -Map~String, ScoreBoard~ storage
+        +save(scoreBoard, key) void
+        +load(key) ScoreBoard
+        +exists(key) boolean
+        +delete(key) void
+        +clear() void
+    }
+
+    class FileScoreBoardRepository {
+        -String baseDirectory
+        +FileScoreBoardRepository(dir)
+        +save(scoreBoard, key) void
+        +load(key) ScoreBoard
+        +exists(key) boolean
+        +delete(key) void
+        -serialize(scoreBoard) String
+        -deserialize(data) ScoreBoard
+    }
+
+    class GameSession {
+        -List~Game~ games
+        -ScoreBoard scoreBoard
+        -Player player1
+        -Player player2
+        -String sessionId
+        +GameSession(p1, p2)
+        +startNewGame() Game
+        +playGame(moves) void
+        +getScoreBoard() ScoreBoard
+        +getSessionId() String
+    }
+
+    class ScoreBoard {
+        -Map~Player, Integer~ wins
+        -int draws
+        -int totalGames
+        +recordResult(result) void
+        +getWins(player) int
+        +getDraws() int
+        +getTotalGames() int
+        +display() void
+    }
+
+    class Player {
+        -String name
+        -Symbol symbol
+        -UUID playerId
+        +Player(name, symbol)
+        +getName() String
+        +getSymbol() Symbol
+        +getPlayerId() UUID
+    }
+
+    GameService <|.. GameServiceImpl : implements
+    ScoreBoardRepository <|.. InMemoryScoreBoardRepository : implements
+    ScoreBoardRepository <|.. FileScoreBoardRepository : implements
+
+    GameServiceImpl --> ScoreBoardRepository : uses
+    GameServiceImpl --> GameSession : manages
+    GameSession --> ScoreBoard : has
+    GameSession --> Player : tracks
+
+    note for GameService "INTERFACE: Defines contract for game business logic.
+    Allows different implementations (e.g., with AI, network).
+    Clients depend on interface, not implementation"
+
+    note for ScoreBoardRepository "INTERFACE: Abstracts data persistence.
+    Implementations can use memory, files, or database.
+    Follows Dependency Inversion Principle"
+
+    note for GameServiceImpl "IMPLEMENTATION: Coordinates game flow and persistence.
+    Delegates storage to repository.
+    Contains business rules and validation"
+
+    note for InMemoryScoreBoardRepository "IMPLEMENTATION: Stores in memory using HashMap.
+    Fast but data lost on restart.
+    Good for testing and simple scenarios"
