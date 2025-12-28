@@ -16,22 +16,24 @@
 
 ```mermaid
 graph LR
-    subgraph "Without Cache"
-        App1[App] -->|100ms| DB1[(Database on Disk<br/>SSD)]
+    subgraph Without_Cache[Without Cache]
+        App1[App] -->|100ms| DB1[(Database on Disk)]
     end
 
-    subgraph "With Cache"
-        App2[App] -->|1ms| Cache[Redis Cache<br/>RAM]
-        Cache -.Cache miss<br/>100ms.-> DB2[(Database)]
+    subgraph With_Cache[With Cache]
+        App2[App] -->|1ms| Cache[Redis Cache]
+        Cache -.->|Cache miss 100ms| DB2[(Database)]
     end
 
-    Speed[Speed Improvement:<br/>100ms → 1ms<br/>100x faster! 🚀]
+    Speed[100x faster! 🚀]
 
     App2 -.-> Speed
 
     style Cache fill:#ffccbc,stroke:#ff5722,stroke-width:3px
     style Speed fill:#c8e6c9
 ```
+
+> **Speed Improvement**: 100ms → 1ms = 100x faster!
 
 **Access Times**:
 - **RAM (cache)**: 0.1 - 1ms
@@ -47,24 +49,22 @@ graph TB
     User[👤 User]
     App[🖥️ Application Server]
 
-    subgraph "Multi-Level Caching"
-        L1[Level 1: In-Memory Cache<br/>Application RAM<br/>Fastest: 0.01ms<br/>Size: 1-10 GB]
-
-        L2[Level 2: Redis/Memcached<br/>Dedicated cache server<br/>Fast: 1ms<br/>Size: 100+ GB]
-
-        L3[Level 3: CDN<br/>Edge cache globally<br/>Medium: 10-50ms<br/>Size: Unlimited]
+    subgraph Multi_Level_Caching[Multi-Level Caching]
+        L1[L1: In-Memory Cache]
+        L2[L2: Redis/Memcached]
+        L3[L3: CDN]
     end
 
-    DB[(🗄️ Database<br/>Source of Truth<br/>Slow: 100ms)]
+    DB[(🗄️ Database)]
 
     User --> App
     App --> L1
-    L1 -.Miss.-> L2
-    L2 -.Miss.-> L3
-    L3 -.Miss.-> DB
+    L1 -.->|Miss| L2
+    L2 -.->|Miss| L3
+    L3 -.->|Miss| DB
 
-    DB -.Write back.-> L2
-    L2 -.Warm up.-> L1
+    DB -.->|Write back| L2
+    L2 -.->|Warm up| L1
 
     style L1 fill:#e3f2fd
     style L2 fill:#ffccbc,stroke:#ff5722,stroke-width:3px
@@ -72,30 +72,48 @@ graph TB
     style DB fill:#c8e6c9
 ```
 
+**Cache Levels:**
+| Level | Type | Speed | Size |
+|-------|------|-------|------|
+| L1 | In-Memory (App RAM) | 0.01ms | 1-10 GB |
+| L2 | Redis/Memcached | 1ms | 100+ GB |
+| L3 | CDN (Edge) | 10-50ms | Unlimited |
+| DB | Source of Truth | 100ms | - |
+
 ---
 
 ## Redis vs Memcached
 
 ```mermaid
-graph TB
-    subgraph "Redis ⭐ RECOMMENDED"
-        Redis[🔴 Redis<br/><br/>Data Structures:<br/>- Strings<br/>- Lists<br/>- Sets<br/>- Sorted Sets<br/>- Hashes<br/>- Bitmaps<br/><br/>Features:<br/>- Persistence (RDB, AOF)<br/>- Replication<br/>- Pub/Sub<br/>- Transactions<br/>- Lua scripts]
-
-        RedisUse[Use Cases:<br/>- Complex caching<br/>- Session storage<br/>- Real-time leaderboards<br/>- Rate limiting<br/>- Message queues]
+graph LR
+    subgraph Redis_Section[Redis ⭐ RECOMMENDED]
+        Redis[🔴 Redis]
+        RedisFeatures[Rich Data Structures + Persistence]
+        RedisUse[Complex Caching & Sessions]
     end
 
-    subgraph "Memcached"
-        Memcached[⚡ Memcached<br/><br/>Data Structure:<br/>- Simple key-value only<br/><br/>Features:<br/>- Multi-threaded<br/>- Simple & fast<br/>- No persistence<br/>- No replication]
-
-        MemUse[Use Cases:<br/>- Simple caching only<br/>- Stateless caching<br/>- When don't need<br/>  persistence]
+    subgraph Memcached_Section[Memcached]
+        Memcached[⚡ Memcached]
+        MemFeatures[Simple Key-Value Only]
+        MemUse[Simple Fast Caching]
     end
 
-    Redis --> RedisUse
-    Memcached --> MemUse
+    Redis --> RedisFeatures --> RedisUse
+    Memcached --> MemFeatures --> MemUse
 
     style Redis fill:#ffccbc,stroke:#ff5722,stroke-width:3px
     style Memcached fill:#e3f2fd
 ```
+
+**Redis Features:**
+- Data Structures: Strings, Lists, Sets, Sorted Sets, Hashes, Bitmaps
+- Persistence (RDB, AOF), Replication, Pub/Sub, Transactions, Lua scripts
+- Use Cases: Complex caching, Session storage, Real-time leaderboards, Rate limiting, Message queues
+
+**Memcached Features:**
+- Data Structure: Simple key-value only
+- Multi-threaded, Simple & fast, No persistence, No replication
+- Use Cases: Simple caching only, Stateless caching
 
 ### Detailed Comparison
 
@@ -278,7 +296,7 @@ sequenceDiagram
         Cache-->>App: Return data
     end
 
-    Note over Cache: Cache is responsible for<br/>loading data on miss<br/>(not application)
+    Note over Cache: Cache loads data on miss - not application
 ```
 
 **How it works**:
@@ -299,23 +317,28 @@ Cache itself loads data from database on miss (app doesn't know about database).
 graph TB
     Pattern[Choose Caching Pattern]
 
-    Pattern --> ReadHeavy{Read-heavy or<br/>Write-heavy?}
+    Pattern --> ReadHeavy{Read-heavy or Write-heavy?}
 
-    ReadHeavy -->|Read-heavy| CacheAside[✅ Cache-Aside<br/>Simple, efficient<br/>Instagram, YouTube]
+    ReadHeavy -->|Read-heavy| CacheAside[Cache-Aside]
+    ReadHeavy -->|Write-heavy| WritePattern{Can tolerate data loss?}
+    ReadHeavy -->|Balanced| ReadThrough[Read-Through]
 
-    ReadHeavy -->|Write-heavy| WritePattern{Can tolerate<br/>data loss?}
-
-    WritePattern -->|No| WriteThrough[✅ Write-Through<br/>Slower writes<br/>Banking]
-
-    WritePattern -->|Yes| WriteBehind[✅ Write-Behind<br/>Fast writes<br/>Analytics, view counts]
-
-    ReadHeavy -->|Balanced| ReadThrough[✅ Read-Through<br/>Transparent caching<br/>Content management]
+    WritePattern -->|No| WriteThrough[Write-Through]
+    WritePattern -->|Yes| WriteBehind[Write-Behind]
 
     style CacheAside fill:#c8e6c9
     style WriteThrough fill:#c8e6c9
     style WriteBehind fill:#c8e6c9
     style ReadThrough fill:#c8e6c9
 ```
+
+**Pattern Selection Guide:**
+| Pattern | Best For | Example |
+|---------|----------|---------|
+| Cache-Aside | Read-heavy, Simple | Instagram, YouTube |
+| Write-Through | Write-heavy, No data loss | Banking |
+| Write-Behind | Write-heavy, Tolerate loss | Analytics, view counts |
+| Read-Through | Balanced, Transparent | Content management |
 
 ---
 
@@ -402,14 +425,11 @@ await cache.set(`user:${userId}`, data, { EX: 300 });
 
 ```mermaid
 graph LR
-    subgraph "Good Candidates for Caching"
-        Hot[🔥 Hot Data<br/>Accessed frequently<br/>User profiles,<br/>popular posts]
-
-        Expensive[💰 Expensive to Compute<br/>Complex calculations,<br/>aggregations,<br/>ML model results]
-
-        Static[📄 Static/Rarely Changes<br/>Configuration,<br/>product catalogs,<br/>CDN content]
-
-        Slow[🐢 Slow to Fetch<br/>External API calls,<br/>database JOINs]
+    subgraph Good_Candidates[Good Candidates for Caching]
+        Hot[🔥 Hot Data]
+        Expensive[💰 Expensive to Compute]
+        Static[📄 Static Content]
+        Slow[🐢 Slow to Fetch]
     end
 
     Hot --> Cache[✅ CACHE]
@@ -420,18 +440,21 @@ graph LR
     style Cache fill:#c8e6c9,stroke:#4caf50,stroke-width:3px
 ```
 
+**Good Cache Candidates:**
+- 🔥 **Hot Data**: Accessed frequently (user profiles, popular posts)
+- 💰 **Expensive to Compute**: Complex calculations, aggregations, ML results
+- 📄 **Static Content**: Configuration, product catalogs, CDN content
+- 🐢 **Slow to Fetch**: External API calls, database JOINs
+
 ### Don't Cache This ❌
 
 ```mermaid
 graph LR
-    subgraph "Bad Candidates for Caching"
-        Unique[🔹 Unique Data<br/>Accessed once,<br/>one-time tokens,<br/>temporary data]
-
-        Realtime[⚡ Real-time Required<br/>Stock prices,<br/>live scores,<br/>auction bids]
-
-        Large[📦 Too Large<br/>Videos (GB),<br/>large files<br/>(use CDN instead)]
-
-        Cold[❄️ Rarely Accessed<br/>Historical archives,<br/>old user data]
+    subgraph Bad_Candidates[Bad Candidates for Caching]
+        Unique[🔹 Unique Data]
+        Realtime[⚡ Real-time Required]
+        Large[📦 Too Large]
+        Cold[❄️ Rarely Accessed]
     end
 
     Unique --> NoCache[❌ DON'T CACHE]
@@ -441,6 +464,12 @@ graph LR
 
     style NoCache fill:#ffccbc,stroke:#f44336,stroke-width:3px
 ```
+
+**Bad Cache Candidates:**
+- 🔹 **Unique Data**: Accessed once, one-time tokens, temporary data
+- ⚡ **Real-time Required**: Stock prices, live scores, auction bids
+- 📦 **Too Large**: Videos (GB), large files (use CDN instead)
+- ❄️ **Rarely Accessed**: Historical archives, old user data
 
 ---
 
