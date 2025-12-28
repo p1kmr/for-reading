@@ -20,14 +20,14 @@
 graph TB
     subgraph "Monitoring (Known unknowns)"
         M1[📊 Track predefined metrics]
-        M2[❓ Answer: | "Is the system healthy?"]
-        M3[🎯 Example: | CPU > 80%? Alert!]
+        M2[❓ Answer:<br/>"Is the system healthy?"]
+        M3[🎯 Example:<br/>CPU > 80%? Alert!]
     end
 
     subgraph "Observability (Unknown unknowns)"
         O1[🔍 Understand system internals]
-        O2[❓ Answer: | "Why did this happen?"]
-        O3[🎯 Example: | Debug: Why is checkout slow | for users in France?]
+        O2[❓ Answer:<br/>"Why did this happen?"]
+        O3[🎯 Example:<br/>Debug: Why is checkout slow<br/>for users in France?]
     end
 
     Note1[Monitoring: Checks known issues]
@@ -58,17 +58,17 @@ graph TB
 graph TB
     Observability[🔭 Observability]
 
-    Observability --> Metrics[📊 Metrics | ────── | Numbers over time | CPU, latency, errors]
+    Observability --> Metrics[📊 Metrics<br/>──────<br/>Numbers over time<br/>CPU, latency, errors]
 
-    Observability --> Logs[📝 Logs | ────── | Timestamped events | Error messages, requests]
+    Observability --> Logs[📝 Logs<br/>──────<br/>Timestamped events<br/>Error messages, requests]
 
-    Observability --> Traces[🔗 Traces | ────── | Request journey | Service A → B → C]
+    Observability --> Traces[🔗 Traces<br/>──────<br/>Request journey<br/>Service A → B → C]
 
-    Metrics --> Example1[CPU: 78% | Latency: 250ms | Error rate: 0.5%]
+    Metrics --> Example1[CPU: 78%<br/>Latency: 250ms<br/>Error rate: 0.5%]
 
-    Logs --> Example2[2024-01-15 10:23:45 | ERROR: DB timeout | user_id=123]
+    Logs --> Example2[2024-01-15 10:23:45<br/>ERROR: DB timeout<br/>user_id=123]
 
-    Traces --> Example3[Request ABC123: | Gateway 50ms | → Auth 20ms | → DB 180ms]
+    Traces --> Example3[Request ABC123:<br/>Gateway 50ms<br/>→ Auth 20ms<br/>→ DB 180ms]
 ```
 
 ---
@@ -84,19 +84,19 @@ graph TB
 ```mermaid
 graph TB
     subgraph "Metric Types"
-        Counter[📈 Counter | ────── | Only increases | Example: Total requests]
+        Counter[📈 Counter<br/>──────<br/>Only increases<br/>Example: Total requests]
 
-        Gauge[📊 Gauge | ────── | Can go up/down | Example: CPU usage]
+        Gauge[📊 Gauge<br/>──────<br/>Can go up/down<br/>Example: CPU usage]
 
-        Histogram[📉 Histogram | ────── | Distribution of values | Example: Request latency]
+        Histogram[📉 Histogram<br/>──────<br/>Distribution of values<br/>Example: Request latency]
 
-        Summary[📋 Summary | ────── | Percentiles | Example: P95, P99 latency]
+        Summary[📋 Summary<br/>──────<br/>Percentiles<br/>Example: P95, P99 latency]
     end
 
-    Counter --> C_Ex[Total HTTP requests: | 1000 → 1050 → 1200]
-    Gauge --> G_Ex[Memory usage: | 50% → 75% → 60%]
-    Histogram --> H_Ex[Response times: | 10ms, 50ms, 200ms, 15ms...]
-    Summary --> S_Ex[P95 latency: 180ms | P99 latency: 350ms]
+    Counter --> C_Ex[Total HTTP requests:<br/>1000 → 1050 → 1200]
+    Gauge --> G_Ex[Memory usage:<br/>50% → 75% → 60%]
+    Histogram --> H_Ex[Response times:<br/>10ms, 50ms, 200ms, 15ms...]
+    Summary --> S_Ex[P95 latency: 180ms<br/>P99 latency: 350ms]
 ```
 
 ### Golden Signals (Google SRE)
@@ -104,16 +104,16 @@ graph TB
 ```mermaid
 graph LR
     subgraph "The Four Golden Signals"
-        Latency[⏱️ Latency | How long? | ────── | P50: 100ms | P95: 250ms | P99: 500ms]
+        Latency[⏱️ Latency<br/>How long?<br/>──────<br/>P50: 100ms<br/>P95: 250ms<br/>P99: 500ms]
 
-        Traffic[🚦 Traffic | How much? | ────── | 1000 req/sec | 10K concurrent users]
+        Traffic[🚦 Traffic<br/>How much?<br/>──────<br/>1000 req/sec<br/>10K concurrent users]
 
-        Errors[❌ Errors | How many failures? | ────── | Error rate: 0.5% | 5xx errors: 50/sec]
+        Errors[❌ Errors<br/>How many failures?<br/>──────<br/>Error rate: 0.5%<br/>5xx errors: 50/sec]
 
-        Saturation[📊 Saturation | How full? | ────── | CPU: 75% | Memory: 60% | Disk: 85%]
+        Saturation[📊 Saturation<br/>How full?<br/>──────<br/>CPU: 75%<br/>Memory: 60%<br/>Disk: 85%]
     end
 
-    Note[💡 Monitor these 4 | to understand | system health]
+    Note[💡 Monitor these 4<br/>to understand<br/>system health]
 ```
 
 ### Implementation (Prometheus)
@@ -225,17 +225,17 @@ graph TB
 ```mermaid
 graph TB
     subgraph "Log Levels (Least to Most Severe)"
-        Trace[🔍 TRACE | Very detailed | Example: "Entering function X"]
+        Trace[🔍 TRACE<br/>Very detailed<br/>Example: "Entering function X"]
 
-        Debug[🐛 DEBUG | Debug info | Example: "SQL query: SELECT..."]
+        Debug[🐛 DEBUG<br/>Debug info<br/>Example: "SQL query: SELECT..."]
 
-        Info[ℹ️ INFO | Normal events | Example: "User logged in"]
+        Info[ℹ️ INFO<br/>Normal events<br/>Example: "User logged in"]
 
-        Warn[⚠️ WARN | Potential issues | Example: "API slow (500ms)"]
+        Warn[⚠️ WARN<br/>Potential issues<br/>Example: "API slow (500ms)"]
 
-        Error[❌ ERROR | Errors | Example: "DB connection failed"]
+        Error[❌ ERROR<br/>Errors<br/>Example: "DB connection failed"]
 
-        Fatal[💥 FATAL | System crash | Example: "Out of memory"]
+        Fatal[💥 FATAL<br/>System crash<br/>Example: "Out of memory"]
     end
 
     Trace --> Debug
@@ -244,8 +244,8 @@ graph TB
     Warn --> Error
     Error --> Fatal
 
-    Note1[Production: | Usually INFO or higher]
-    Note2[Development: | DEBUG or TRACE]
+    Note1[Production:<br/>Usually INFO or higher]
+    Note2[Development:<br/>DEBUG or TRACE]
 ```
 
 ### Structured Logging
@@ -371,9 +371,9 @@ app.use((err, req, res, next) => {
 ```mermaid
 graph TB
     subgraph "Application Servers"
-        App1[🖥️ Server 1 | logs → file]
-        App2[🖥️ Server 2 | logs → file]
-        App3[🖥️ Server 3 | logs → file]
+        App1[🖥️ Server 1<br/>logs → file]
+        App2[🖥️ Server 2<br/>logs → file]
+        App3[🖥️ Server 3<br/>logs → file]
     end
 
     subgraph "Log Shipping"
@@ -383,15 +383,15 @@ graph TB
     end
 
     subgraph "Log Processing"
-        Logstash[⚙️ Logstash | Parse, filter, enrich]
+        Logstash[⚙️ Logstash<br/>Parse, filter, enrich]
     end
 
     subgraph "Storage & Search"
-        Elasticsearch[🔍 Elasticsearch | Index & search]
+        Elasticsearch[🔍 Elasticsearch<br/>Index & search]
     end
 
     subgraph "Visualization"
-        Kibana[📊 Kibana | Dashboards & queries]
+        Kibana[📊 Kibana<br/>Dashboards & queries]
     end
 
     App1 --> Filebeat1
@@ -424,24 +424,24 @@ sequenceDiagram
     participant Inventory as Inventory Service
     participant DB as Database
 
-    User->>Gateway: POST /checkout | ⏱️ Total: 850ms
+    User->>Gateway: POST /checkout<br/>⏱️ Total: 850ms
 
-    Gateway->>Auth: Verify token | ⏱️ 50ms
+    Gateway->>Auth: Verify token<br/>⏱️ 50ms
     Auth-->>Gateway: ✅ Valid
 
-    Gateway->>Order: Create order | ⏱️ 500ms
-    Order->>Payment: Process payment | ⏱️ 200ms
+    Gateway->>Order: Create order<br/>⏱️ 500ms
+    Order->>Payment: Process payment<br/>⏱️ 200ms
     Payment-->>Order: ✅ Success
 
-    Order->>Inventory: Reserve items | ⏱️ 250ms
-    Inventory->>DB: UPDATE stock | ⏱️ 180ms
+    Order->>Inventory: Reserve items<br/>⏱️ 250ms
+    Inventory->>DB: UPDATE stock<br/>⏱️ 180ms
     DB-->>Inventory: ✅ Done
     Inventory-->>Order: ✅ Reserved
 
     Order-->>Gateway: ✅ Order created
     Gateway-->>User: 200 OK
 
-    Note over User,DB: Without tracing: "Checkout is slow (850ms)" | With tracing: "Inventory service → DB query is slow (180ms)"
+    Note over User,DB: Without tracing: "Checkout is slow (850ms)"<br/>With tracing: "Inventory service → DB query is slow (180ms)"
 ```
 
 ### Trace Structure
@@ -451,17 +451,17 @@ graph LR
     subgraph "Trace (Single request journey)"
         Trace[🔗 Trace ID: ABC123]
 
-        Span1[📍 Span: Gateway | Duration: 850ms | Parent: null]
+        Span1[📍 Span: Gateway<br/>Duration: 850ms<br/>Parent: null]
 
-        Span2[📍 Span: Auth | Duration: 50ms | Parent: Gateway]
+        Span2[📍 Span: Auth<br/>Duration: 50ms<br/>Parent: Gateway]
 
-        Span3[📍 Span: Order | Duration: 500ms | Parent: Gateway]
+        Span3[📍 Span: Order<br/>Duration: 500ms<br/>Parent: Gateway]
 
-        Span4[📍 Span: Payment | Duration: 200ms | Parent: Order]
+        Span4[📍 Span: Payment<br/>Duration: 200ms<br/>Parent: Order]
 
-        Span5[📍 Span: Inventory | Duration: 250ms | Parent: Order]
+        Span5[📍 Span: Inventory<br/>Duration: 250ms<br/>Parent: Order]
 
-        Span6[📍 Span: DB Query | Duration: 180ms | Parent: Inventory]
+        Span6[📍 Span: DB Query<br/>Duration: 180ms<br/>Parent: Inventory]
     end
 
     Trace --> Span1
@@ -558,20 +558,20 @@ sequenceDiagram
     participant Service2 as Service B
     participant Service3 as Service C
 
-    Note over Service1: Generate trace context: | trace-id: ABC123 | span-id: XYZ789
+    Note over Service1: Generate trace context:<br/>trace-id: ABC123<br/>span-id: XYZ789
 
-    Service1->>Service2: HTTP Request | Headers: | trace-id: ABC123 | parent-span-id: XYZ789
+    Service1->>Service2: HTTP Request<br/>Headers:<br/>trace-id: ABC123<br/>parent-span-id: XYZ789
 
-    Note over Service2: Extract trace context | Create child span | span-id: DEF456
+    Note over Service2: Extract trace context<br/>Create child span<br/>span-id: DEF456
 
-    Service2->>Service3: HTTP Request | Headers: | trace-id: ABC123 | parent-span-id: DEF456
+    Service2->>Service3: HTTP Request<br/>Headers:<br/>trace-id: ABC123<br/>parent-span-id: DEF456
 
-    Note over Service3: Extract trace context | Create child span | span-id: GHI789
+    Note over Service3: Extract trace context<br/>Create child span<br/>span-id: GHI789
 
     Service3-->>Service2: Response
     Service2-->>Service1: Response
 
-    Note over Service1,Service3: All spans linked by trace-id: ABC123 | Parent-child relationships preserved
+    Note over Service1,Service3: All spans linked by trace-id: ABC123<br/>Parent-child relationships preserved
 ```
 
 ---
@@ -584,15 +584,15 @@ sequenceDiagram
 graph TB
     Metric[📊 Metric]
 
-    Condition{Threshold | crossed?}
+    Condition{Threshold<br/>crossed?}
 
     Severity{How bad?}
 
-    Critical[🔴 Critical | Page on-call engineer | Example: Site down]
+    Critical[🔴 Critical<br/>Page on-call engineer<br/>Example: Site down]
 
-    Warning[🟡 Warning | Email/Slack notification | Example: High CPU (80%)]
+    Warning[🟡 Warning<br/>Email/Slack notification<br/>Example: High CPU (80%)]
 
-    Info[🟢 Info | Log only | Example: Deployment]
+    Info[🟢 Info<br/>Log only<br/>Example: Deployment]
 
     Metric --> Condition
     Condition -->|Yes| Severity
@@ -654,7 +654,7 @@ groups:
 
 ```mermaid
 graph TB
-    Problem[😵 Alert Fatigue | Too many alerts]
+    Problem[😵 Alert Fatigue<br/>Too many alerts]
 
     Causes[Causes]
     Solutions[Solutions]
@@ -662,14 +662,14 @@ graph TB
     Problem --> Causes
     Problem --> Solutions
 
-    Causes --> C1[❌ Low thresholds | Alert on 60% CPU]
-    Causes --> C2[❌ No deduplication | Same alert 100x]
-    Causes --> C3[❌ Not actionable | "Something is slow"]
+    Causes --> C1[❌ Low thresholds<br/>Alert on 60% CPU]
+    Causes --> C2[❌ No deduplication<br/>Same alert 100x]
+    Causes --> C3[❌ Not actionable<br/>"Something is slow"]
 
-    Solutions --> S1[✅ Tune thresholds | Alert on 85% CPU]
-    Solutions --> S2[✅ Group alerts | 1 alert for 100 servers]
-    Solutions --> S3[✅ Add context | "Payment API P95: 2s | Runbook: https://..."]
-    Solutions --> S4[✅ Alert on SLOs | Not raw metrics]
+    Solutions --> S1[✅ Tune thresholds<br/>Alert on 85% CPU]
+    Solutions --> S2[✅ Group alerts<br/>1 alert for 100 servers]
+    Solutions --> S3[✅ Add context<br/>"Payment API P95: 2s<br/>Runbook: https://..."]
+    Solutions --> S4[✅ Alert on SLOs<br/>Not raw metrics]
 ```
 
 ---
@@ -681,33 +681,33 @@ graph TB
 ```mermaid
 graph TB
     subgraph "Metrics"
-        Prometheus[Prometheus | ────── | Time-series DB | Pull-based]
+        Prometheus[Prometheus<br/>──────<br/>Time-series DB<br/>Pull-based]
 
-        Grafana[Grafana | ────── | Visualization | Dashboards]
+        Grafana[Grafana<br/>──────<br/>Visualization<br/>Dashboards]
 
-        Datadog[Datadog | ────── | All-in-one | Commercial]
+        Datadog[Datadog<br/>──────<br/>All-in-one<br/>Commercial]
     end
 
     subgraph "Logging"
-        ELK[ELK Stack | ────── | Elasticsearch | Logstash | Kibana]
+        ELK[ELK Stack<br/>──────<br/>Elasticsearch<br/>Logstash<br/>Kibana]
 
-        Loki[Loki | ────── | Like Prometheus | for logs]
+        Loki[Loki<br/>──────<br/>Like Prometheus<br/>for logs]
 
-        Splunk[Splunk | ────── | Enterprise | logging]
+        Splunk[Splunk<br/>──────<br/>Enterprise<br/>logging]
     end
 
     subgraph "Tracing"
-        Jaeger[Jaeger | ────── | Distributed tracing | Open source]
+        Jaeger[Jaeger<br/>──────<br/>Distributed tracing<br/>Open source]
 
-        Zipkin[Zipkin | ────── | Tracing | Twitter]
+        Zipkin[Zipkin<br/>──────<br/>Tracing<br/>Twitter]
 
-        Lightstep[Lightstep | ────── | Tracing | Commercial]
+        Lightstep[Lightstep<br/>──────<br/>Tracing<br/>Commercial]
     end
 
     subgraph "All-in-One"
-        NewRelic[New Relic | ────── | APM platform | Commercial]
+        NewRelic[New Relic<br/>──────<br/>APM platform<br/>Commercial]
 
-        Dynatrace[Dynatrace | ────── | Full stack | Commercial]
+        Dynatrace[Dynatrace<br/>──────<br/>Full stack<br/>Commercial]
     end
 ```
 
@@ -720,21 +720,21 @@ graph LR
     end
 
     subgraph "Collection"
-        Prom[Prometheus | Metrics]
-        Filebeat[Filebeat | Logs]
-        OTel[OpenTelemetry | Traces]
+        Prom[Prometheus<br/>Metrics]
+        Filebeat[Filebeat<br/>Logs]
+        OTel[OpenTelemetry<br/>Traces]
     end
 
     subgraph "Storage"
-        PromDB[(Prometheus | TSDB)]
+        PromDB[(Prometheus<br/>TSDB)]
         ES[(Elasticsearch)]
         Jaeger[(Jaeger)]
     end
 
     subgraph "Visualization"
-        Grafana[Grafana | Metrics dashboard]
-        Kibana[Kibana | Log search]
-        JaegerUI[Jaeger UI | Trace viewer]
+        Grafana[Grafana<br/>Metrics dashboard]
+        Kibana[Kibana<br/>Log search]
+        JaegerUI[Jaeger UI<br/>Trace viewer]
     end
 
     App -->|/metrics| Prom

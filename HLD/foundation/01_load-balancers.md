@@ -94,13 +94,13 @@ graph TB
         User4[👤 User 4]
     end
 
-    LB[⚖️ Load Balancer |  | Health Checks ❤️ | Traffic Distribution | SSL Termination]
+    LB[⚖️ Load Balancer<br/><br/>Health Checks ❤️<br/>Traffic Distribution<br/>SSL Termination]
 
     subgraph "Backend Servers"
-        Server1[🖥️ Server 1 | Status: Healthy ✅]
-        Server2[🖥️ Server 2 | Status: Healthy ✅]
-        Server3[🖥️ Server 3 | Status: DOWN ❌]
-        Server4[🖥️ Server 4 | Status: Healthy ✅]
+        Server1[🖥️ Server 1<br/>Status: Healthy ✅]
+        Server2[🖥️ Server 2<br/>Status: Healthy ✅]
+        Server3[🖥️ Server 3<br/>Status: DOWN ❌]
+        Server4[🖥️ Server 4<br/>Status: Healthy ✅]
     end
 
     User1 --> LB
@@ -367,17 +367,17 @@ graph TB
     Client[Client]
 
     subgraph "Layer 7 Load Balancer"
-        L7[🔍 Inspects full HTTP request |  | Sees: | - URL: /api/users | - Headers: User-Agent, Auth | - Cookies: session_id | - Body: JSON data]
+        L7[🔍 Inspects full HTTP request<br/><br/>Sees:<br/>- URL: /api/users<br/>- Headers: User-Agent, Auth<br/>- Cookies: session_id<br/>- Body: JSON data]
     end
 
     subgraph "Layer 4 Load Balancer"
-        L4[⚡ Inspects TCP/IP packet |  | Sees: | - Source IP: 192.168.1.10 | - Dest IP: 192.168.1.100 | - Port: 80 | - Protocol: TCP]
+        L4[⚡ Inspects TCP/IP packet<br/><br/>Sees:<br/>- Source IP: 192.168.1.10<br/>- Dest IP: 192.168.1.100<br/>- Port: 80<br/>- Protocol: TCP]
     end
 
     subgraph "Routing Decisions"
-        L7Route[Layer 7 Routing: | /api → API Server | /images → CDN | /blog → Blog Server]
+        L7Route[Layer 7 Routing:<br/>/api → API Server<br/>/images → CDN<br/>/blog → Blog Server]
 
-        L4Route[Layer 4 Routing: | Round robin to any server | OR | IP hash to sticky server]
+        L4Route[Layer 4 Routing:<br/>Round robin to any server<br/>OR<br/>IP hash to sticky server]
     end
 
     Client --> L7

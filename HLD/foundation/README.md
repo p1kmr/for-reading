@@ -91,12 +91,12 @@ Result: Ready for system design interviews!
 ```mermaid
 graph LR
     Start[Start Here] --> LB[01. Load Balancers]
-    LB --> DB[02. Databases | SQL vs NoSQL]
-    DB --> Cache[03. Caching | Redis]
-    Cache --> Queue[04. Message Queues | Kafka]
-    Queue --> API[05. API Design | REST]
-    API --> Scale[07. Scalability | Sharding]
-    Scale --> Practice[Practice: | Design Instagram]
+    LB --> DB[02. Databases<br/>SQL vs NoSQL]
+    DB --> Cache[03. Caching<br/>Redis]
+    Cache --> Queue[04. Message Queues<br/>Kafka]
+    Queue --> API[05. API Design<br/>REST]
+    API --> Scale[07. Scalability<br/>Sharding]
+    Scale --> Practice[Practice:<br/>Design Instagram]
 
     style Start fill:#c8e6c9
     style Practice fill:#c8e6c9
@@ -113,8 +113,8 @@ graph LR
 graph TB
     Start[Start Here]
 
-    Start --> Frontend[Frontend: | CDN, Caching]
-    Start --> Backend[Backend: | Load Balancers, | Databases]
+    Start --> Frontend[Frontend:<br/>CDN, Caching]
+    Start --> Backend[Backend:<br/>Load Balancers,<br/>Databases]
 
     Frontend --> CDN[06. CDN]
     Frontend --> Auth[11. Authentication]
@@ -129,7 +129,7 @@ graph TB
     DB --> Integration
     Queue --> Integration
 
-    Integration --> Practice[Practice: | Design Twitter]
+    Integration --> Practice[Practice:<br/>Design Twitter]
 
     style Start fill:#c8e6c9
     style Practice fill:#c8e6c9
@@ -148,9 +148,9 @@ graph TB
     Week2[Week 2: Advanced Topics]
     Week3[Week 3: Practice]
 
-    Week1 --> Core1[Load Balancers | Databases | Caching]
+    Week1 --> Core1[Load Balancers<br/>Databases<br/>Caching]
 
-    Week2 --> Adv1[Scalability | CAP Theorem | Microservices]
+    Week2 --> Adv1[Scalability<br/>CAP Theorem<br/>Microservices]
 
     Week3 --> Practice1[Design Instagram]
     Week3 --> Practice2[Design Twitter]
@@ -206,23 +206,23 @@ Phase 4: Advanced Concepts
 graph TB
     Need[What do you need?]
 
-    Need --> Distribute{Distribute | traffic?}
-    Need --> Store{Store | data?}
-    Need --> Fast{Make it | faster?}
-    Need --> Async{Async | processing?}
-    Need --> Global{Global | users?}
+    Need --> Distribute{Distribute<br/>traffic?}
+    Need --> Store{Store<br/>data?}
+    Need --> Fast{Make it<br/>faster?}
+    Need --> Async{Async<br/>processing?}
+    Need --> Global{Global<br/>users?}
 
-    Distribute --> LB[✅ Load Balancer | Nginx, HAProxy]
+    Distribute --> LB[✅ Load Balancer<br/>Nginx, HAProxy]
 
-    Store --> Relational{Relational | data?}
-    Relational -->|Yes| SQL[✅ SQL Database | PostgreSQL]
-    Relational -->|No| NoSQL[✅ NoSQL | MongoDB, Cassandra]
+    Store --> Relational{Relational<br/>data?}
+    Relational -->|Yes| SQL[✅ SQL Database<br/>PostgreSQL]
+    Relational -->|No| NoSQL[✅ NoSQL<br/>MongoDB, Cassandra]
 
-    Fast --> Cache[✅ Caching | Redis]
+    Fast --> Cache[✅ Caching<br/>Redis]
 
-    Async --> Queue[✅ Message Queue | Kafka, RabbitMQ]
+    Async --> Queue[✅ Message Queue<br/>Kafka, RabbitMQ]
 
-    Global --> CDN[✅ CDN | CloudFront]
+    Global --> CDN[✅ CDN<br/>CloudFront]
 
     style LB fill:#c8e6c9
     style SQL fill:#c8e6c9

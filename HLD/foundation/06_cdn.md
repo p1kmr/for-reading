@@ -67,7 +67,7 @@ sequenceDiagram
         Origin-->>Edge: 200 OK + Image
         Edge->>Edge: Store in cache (TTL: 1 hour)
         Edge-->>User: 200 OK + Image
-        Note over Edge,User: 🐢 First time: 320ms | 💨 Next time: 20ms
+        Note over Edge,User: 🐢 First time: 320ms<br/>💨 Next time: 20ms
     end
 ```
 
@@ -76,7 +76,7 @@ sequenceDiagram
 ```mermaid
 graph TB
     subgraph "🌍 Global CDN Network"
-        Origin[🖥️ Origin Server | USA - California]
+        Origin[🖥️ Origin Server<br/>USA - California]
 
         subgraph "North America"
             Edge1[🏢 Edge NYC]
@@ -123,16 +123,16 @@ graph TB
 
     subgraph "CDN Layer"
         DNS[🌐 CDN DNS]
-        POP1[📍 POP 1 | New York]
-        POP2[📍 POP 2 | London]
-        POP3[📍 POP 3 | Mumbai]
+        POP1[📍 POP 1<br/>New York]
+        POP2[📍 POP 2<br/>London]
+        POP3[📍 POP 3<br/>Mumbai]
     end
 
     subgraph "Origin Layer"
         LB[⚖️ Load Balancer]
         Web1[🖥️ Web Server 1]
         Web2[🖥️ Web Server 2]
-        Storage[(☁️ Object Storage | S3/Azure Blob)]
+        Storage[(☁️ Object Storage<br/>S3/Azure Blob)]
     end
 
     Browser -->|1. Resolve| DNS
@@ -208,11 +208,11 @@ graph LR
     end
 
     subgraph "Origin Shield"
-        OS[🛡️ Shield | Single Cache Layer]
+        OS[🛡️ Shield<br/>Single Cache Layer]
     end
 
     subgraph "Origin"
-        O[🖥️ Origin | Servers]
+        O[🖥️ Origin<br/>Servers]
     end
 
     U1 --> E1
@@ -227,7 +227,7 @@ graph LR
 
     OS -->|MISS| O
 
-    Note[💡 Shield reduces | origin requests | by 90%]
+    Note[💡 Shield reduces<br/>origin requests<br/>by 90%]
 ```
 
 ---
@@ -338,7 +338,7 @@ sequenceDiagram
     CI->>Origin: Update files
     CI->>CDN: Invalidate /styles.css
 
-    Note over CDN: Clear cache for | /styles.css
+    Note over CDN: Clear cache for<br/>/styles.css
 
     CDN-->>CI: Invalidation complete
 
@@ -355,17 +355,17 @@ sequenceDiagram
 graph TB
     Request[HTTP Request]
 
-    Request --> Strategy{Cache Key | Strategy}
+    Request --> Strategy{Cache Key<br/>Strategy}
 
-    Strategy -->|Simple| Simple[URL Only | example.com/logo.png]
-    Strategy -->|Query String| Query[URL + Query | example.com/image.jpg?v=2]
-    Strategy -->|Headers| Headers[URL + Headers | Accept-Language: en]
-    Strategy -->|Custom| Custom[URL + Device + Country | example.com/page | + Mobile + US]
+    Strategy -->|Simple| Simple[URL Only<br/>example.com/logo.png]
+    Strategy -->|Query String| Query[URL + Query<br/>example.com/image.jpg?v=2]
+    Strategy -->|Headers| Headers[URL + Headers<br/>Accept-Language: en]
+    Strategy -->|Custom| Custom[URL + Device + Country<br/>example.com/page<br/>+ Mobile + US]
 
-    Simple --> Cache1[(Cache | 1 version)]
-    Query --> Cache2[(Cache | Multiple versions | per query param)]
-    Headers --> Cache3[(Cache | Per language/encoding)]
-    Custom --> Cache4[(Cache | Per user segment)]
+    Simple --> Cache1[(Cache<br/>1 version)]
+    Query --> Cache2[(Cache<br/>Multiple versions<br/>per query param)]
+    Headers --> Cache3[(Cache<br/>Per language/encoding)]
+    Custom --> Cache4[(Cache<br/>Per user segment)]
 ```
 
 ### 4. TTL (Time To Live) Strategy
@@ -373,13 +373,13 @@ graph TB
 ```mermaid
 graph LR
     subgraph "Content Types by TTL"
-        Static[📷 Static Assets | images, fonts, CSS, JS | TTL: 1 year]
-        SemiStatic[📄 Semi-Static | HTML pages, API responses | TTL: 1 hour - 1 day]
-        Dynamic[⚡ Dynamic | User feeds, real-time data | TTL: 1-5 minutes]
-        NoCache[🚫 No Cache | User profiles, checkout | TTL: 0 (private)]
+        Static[📷 Static Assets<br/>images, fonts, CSS, JS<br/>TTL: 1 year]
+        SemiStatic[📄 Semi-Static<br/>HTML pages, API responses<br/>TTL: 1 hour - 1 day]
+        Dynamic[⚡ Dynamic<br/>User feeds, real-time data<br/>TTL: 1-5 minutes]
+        NoCache[🚫 No Cache<br/>User profiles, checkout<br/>TTL: 0 (private)]
     end
 
-    Static -.->|Update via| Versioning[Version in filename | style.v2.css]
+    Static -.->|Update via| Versioning[Version in filename<br/>style.v2.css]
     SemiStatic -.->|Update via| Invalidation[CDN Invalidation API]
     Dynamic -.->|Update via| ShortTTL[Short TTL + Revalidation]
     NoCache -.->|Update via| DirectOrigin[Always fetch from origin]
@@ -394,22 +394,22 @@ graph LR
 ```mermaid
 graph TB
     subgraph "✅ Great for CDN"
-        UC1[📷 Images & Videos | 95% cache hit rate]
-        UC2[📝 Static Files | CSS, JS, Fonts]
-        UC3[🎵 Media Streaming | Audio, Video]
-        UC4[📦 Software Downloads | Large files]
-        UC5[🌐 Static Websites | Blogs, docs]
+        UC1[📷 Images & Videos<br/>95% cache hit rate]
+        UC2[📝 Static Files<br/>CSS, JS, Fonts]
+        UC3[🎵 Media Streaming<br/>Audio, Video]
+        UC4[📦 Software Downloads<br/>Large files]
+        UC5[🌐 Static Websites<br/>Blogs, docs]
     end
 
     subgraph "⚠️ Consider Carefully"
-        UC6[🔄 API Responses | If cacheable]
-        UC7[📄 Dynamic Pages | If personalized]
+        UC6[🔄 API Responses<br/>If cacheable]
+        UC7[📄 Dynamic Pages<br/>If personalized]
     end
 
     subgraph "❌ Not Suitable"
-        UC8[🔐 User-specific Data | Profiles, dashboards]
-        UC9[💰 Transactions | Payments, checkouts]
-        UC10[🔄 Real-time Updates | Chat, live scores]
+        UC8[🔐 User-specific Data<br/>Profiles, dashboards]
+        UC9[💰 Transactions<br/>Payments, checkouts]
+        UC10[🔄 Real-time Updates<br/>Chat, live scores]
     end
 ```
 
@@ -437,21 +437,21 @@ graph TB
         DNS[🌐 Netflix DNS]
 
         subgraph "Open Connect (Netflix CDN)"
-            ISP_Cache[🏢 ISP Cache | Inside User's ISP]
-            Regional[🏭 Regional Cache | Tokyo Data Center]
+            ISP_Cache[🏢 ISP Cache<br/>Inside User's ISP]
+            Regional[🏭 Regional Cache<br/>Tokyo Data Center]
         end
 
-        Origin[🖥️ Netflix Origin | AWS S3]
+        Origin[🖥️ Netflix Origin<br/>AWS S3]
     end
 
     User -->|1. Request movie| DNS
     DNS -->|2. Route to closest| ISP_Cache
 
-    ISP_Cache -->|Cache HIT | 99% of time| User
-    ISP_Cache -.->|Cache MISS | 1% of time| Regional
+    ISP_Cache -->|Cache HIT<br/>99% of time| User
+    ISP_Cache -.->|Cache MISS<br/>1% of time| Regional
     Regional -.->|Rare MISS| Origin
 
-    Note1[💡 Open Connect | serves 95% of traffic | from ISP-level caches]
+    Note1[💡 Open Connect<br/>serves 95% of traffic<br/>from ISP-level caches]
 ```
 
 **Netflix Numbers:**
@@ -465,8 +465,8 @@ graph TB
 ```mermaid
 sequenceDiagram
     participant User as 👤 User (India)
-    participant CDN as 🌐 CloudFront | (Mumbai Edge)
-    participant S3 as ☁️ S3 | (us-west-2)
+    participant CDN as 🌐 CloudFront<br/>(Mumbai Edge)
+    participant S3 as ☁️ S3<br/>(us-west-2)
 
     User->>CDN: GET /images/post123.jpg
 
@@ -498,20 +498,20 @@ sequenceDiagram
 ```mermaid
 graph TB
     subgraph "Static Content (CDN)"
-        Images[📷 Product Images | TTL: 1 year]
-        CSS[🎨 CSS/JS | TTL: 1 week]
-        Thumbnails[🖼️ Thumbnails | TTL: 1 month]
+        Images[📷 Product Images<br/>TTL: 1 year]
+        CSS[🎨 CSS/JS<br/>TTL: 1 week]
+        Thumbnails[🖼️ Thumbnails<br/>TTL: 1 month]
     end
 
     subgraph "Semi-Static (CDN + Short TTL)"
-        ProductPages[📄 Product Pages | TTL: 5 minutes]
-        CategoryPages[📋 Category Lists | TTL: 10 minutes]
+        ProductPages[📄 Product Pages<br/>TTL: 5 minutes]
+        CategoryPages[📋 Category Lists<br/>TTL: 10 minutes]
     end
 
     subgraph "Dynamic (No CDN)"
-        Cart[🛒 Shopping Cart | User-specific]
-        Checkout[💳 Checkout | Private]
-        Profile[👤 User Profile | Private]
+        Cart[🛒 Shopping Cart<br/>User-specific]
+        Checkout[💳 Checkout<br/>Private]
+        Profile[👤 User Profile<br/>Private]
     end
 
     CDN[🌐 CDN Edge] -.->|Cache| Images
@@ -582,7 +582,7 @@ sequenceDiagram
     CDN->>CDN: Cache file.jpg
     CDN-->>User: Return file.jpg
 
-    Note over CDN: Future requests | served from cache
+    Note over CDN: Future requests<br/>served from cache
 ```
 
 **Push CDN Flow:**
@@ -658,9 +658,9 @@ Cache-Control: max-age=3600, stale-while-revalidate=86400
 ```mermaid
 graph LR
     User[👤 User]
-    Browser[💻 Browser Cache | 100 MB | Private]
-    Edge[🏢 CDN Edge | 10 TB | Shared]
-    Origin[🖥️ Origin | 100 TB | Source]
+    Browser[💻 Browser Cache<br/>100 MB<br/>Private]
+    Edge[🏢 CDN Edge<br/>10 TB<br/>Shared]
+    Origin[🖥️ Origin<br/>100 TB<br/>Source]
 
     User -->|1. Check| Browser
     Browser -.->|MISS| Edge
@@ -690,27 +690,27 @@ Cache-Control: public, max-age=86400, s-maxage=604800
 ```mermaid
 graph TB
     subgraph "Users"
-        U1[👤 Users | 100M concurrent]
+        U1[👤 Users<br/>100M concurrent]
     end
 
     subgraph "Edge Layer (200+ locations)"
-        E1[📍 Edge NYC | 50 TB SSD]
-        E2[📍 Edge London | 50 TB SSD]
-        E3[📍 Edge Mumbai | 50 TB SSD]
+        E1[📍 Edge NYC<br/>50 TB SSD]
+        E2[📍 Edge London<br/>50 TB SSD]
+        E3[📍 Edge Mumbai<br/>50 TB SSD]
     end
 
     subgraph "Regional Layer (20 locations)"
-        R1[🏭 Regional NA | 500 TB Storage]
-        R2[🏭 Regional EU | 500 TB Storage]
-        R3[🏭 Regional Asia | 500 TB Storage]
+        R1[🏭 Regional NA<br/>500 TB Storage]
+        R2[🏭 Regional EU<br/>500 TB Storage]
+        R3[🏭 Regional Asia<br/>500 TB Storage]
     end
 
     subgraph "Origin Shield"
-        OS[🛡️ Shield | 2 PB Cache]
+        OS[🛡️ Shield<br/>2 PB Cache]
     end
 
     subgraph "Origin"
-        S3[☁️ S3 | 100 PB Storage]
+        S3[☁️ S3<br/>100 PB Storage]
     end
 
     U1 --> E1

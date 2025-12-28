@@ -21,12 +21,12 @@ graph LR
     User[👤 User]
 
     subgraph "Authentication (Who are you?)"
-        Auth[🔐 Verify Identity | Username + Password]
+        Auth[🔐 Verify Identity<br/>Username + Password]
         Verify[Check credentials]
     end
 
     subgraph "Authorization (What can you do?)"
-        Authz[🔒 Check Permissions | Roles & Access Control]
+        Authz[🔒 Check Permissions<br/>Roles & Access Control]
         Permission[Grant/Deny access]
     end
 
@@ -67,40 +67,40 @@ Authorization: Check your boarding pass (verify you can board this specific flig
 sequenceDiagram
     participant Client as 👤 Client
     participant Server as 🖥️ Server
-    participant SessionStore as 📦 Session Store | (Redis/Memory)
+    participant SessionStore as 📦 Session Store<br/>(Redis/Memory)
     participant DB as 🗄️ Database
 
     Note over Client,DB: 1. Login
 
-    Client->>Server: POST /login | {email, password}
+    Client->>Server: POST /login<br/>{email, password}
     Server->>DB: Verify credentials
     DB-->>Server: ✅ User found
 
-    Server->>Server: Generate session ID: | "abc123def456"
+    Server->>Server: Generate session ID:<br/>"abc123def456"
 
-    Server->>SessionStore: Store session: | {sessionId: "abc123", | userId: 789, | expiry: ...}
+    Server->>SessionStore: Store session:<br/>{sessionId: "abc123",<br/>userId: 789,<br/>expiry: ...}
 
-    Server-->>Client: Set-Cookie: | sessionId=abc123; HttpOnly
+    Server-->>Client: Set-Cookie:<br/>sessionId=abc123; HttpOnly
 
     Note over Client,DB: 2. Authenticated Request
 
-    Client->>Server: GET /api/profile | Cookie: sessionId=abc123
+    Client->>Server: GET /api/profile<br/>Cookie: sessionId=abc123
 
-    Server->>SessionStore: Get session data | for "abc123"
+    Server->>SessionStore: Get session data<br/>for "abc123"
     SessionStore-->>Server: {userId: 789, ...}
 
-    Server->>DB: Get user data | for userId=789
+    Server->>DB: Get user data<br/>for userId=789
     DB-->>Server: User profile
 
-    Server-->>Client: 200 OK | User profile data
+    Server-->>Client: 200 OK<br/>User profile data
 
     Note over Client,DB: 3. Logout
 
-    Client->>Server: POST /logout | Cookie: sessionId=abc123
+    Client->>Server: POST /logout<br/>Cookie: sessionId=abc123
 
-    Server->>SessionStore: Delete session | "abc123"
+    Server->>SessionStore: Delete session<br/>"abc123"
 
-    Server-->>Client: Set-Cookie: | sessionId=; Max-Age=0 | (Clear cookie)
+    Server-->>Client: Set-Cookie:<br/>sessionId=; Max-Age=0<br/>(Clear cookie)
 ```
 
 ### Implementation
@@ -177,15 +177,15 @@ app.post('/api/logout', (req, res) => {
 ```mermaid
 graph TB
     subgraph "✅ Advantages"
-        Pro1[🔒 Server-side control | Can revoke anytime]
-        Pro2[📊 Track active sessions | See who's logged in]
-        Pro3[🛡️ More secure | Session ID is meaningless]
+        Pro1[🔒 Server-side control<br/>Can revoke anytime]
+        Pro2[📊 Track active sessions<br/>See who's logged in]
+        Pro3[🛡️ More secure<br/>Session ID is meaningless]
     end
 
     subgraph "❌ Disadvantages"
-        Con1[💾 Server memory required | Stores all sessions]
-        Con2[⚖️ Doesn't scale easily | Sticky sessions needed]
-        Con3[🌐 CORS issues | Cookie-based]
+        Con1[💾 Server memory required<br/>Stores all sessions]
+        Con2[⚖️ Doesn't scale easily<br/>Sticky sessions needed]
+        Con3[🌐 CORS issues<br/>Cookie-based]
     end
 ```
 
@@ -203,32 +203,32 @@ sequenceDiagram
 
     Note over Client,DB: 1. Login
 
-    Client->>Server: POST /login | {email, password}
+    Client->>Server: POST /login<br/>{email, password}
     Server->>DB: Verify credentials
     DB-->>Server: ✅ User found (id: 789)
 
-    Server->>Server: Generate JWT: | Header + Payload + Signature
+    Server->>Server: Generate JWT:<br/>Header + Payload + Signature
 
-    Note over Server: JWT Payload: | { |   userId: 789, |   role: "user", |   exp: 1234567890 | }
+    Note over Server: JWT Payload:<br/>{<br/>  userId: 789,<br/>  role: "user",<br/>  exp: 1234567890<br/>}
 
-    Server-->>Client: 200 OK | {token: "eyJhbGci..."}
+    Server-->>Client: 200 OK<br/>{token: "eyJhbGci..."}
 
     Note over Client,DB: 2. Authenticated Request
 
-    Client->>Server: GET /api/profile | Authorization: Bearer eyJhbGci...
+    Client->>Server: GET /api/profile<br/>Authorization: Bearer eyJhbGci...
 
-    Server->>Server: Verify JWT signature | Decode payload
+    Server->>Server: Verify JWT signature<br/>Decode payload
 
-    Note over Server: No database lookup! | User info in token
+    Note over Server: No database lookup!<br/>User info in token
 
     Server->>DB: Optional: Get fresh data
     DB-->>Server: User profile
 
-    Server-->>Client: 200 OK | User profile data
+    Server-->>Client: 200 OK<br/>User profile data
 
     Note over Client,DB: 3. Logout
 
-    Note over Client: Client deletes token | (Server-side revocation | requires blacklist)
+    Note over Client: Client deletes token<br/>(Server-side revocation<br/>requires blacklist)
 ```
 
 ### JWT Structure
@@ -236,20 +236,20 @@ sequenceDiagram
 ```mermaid
 graph LR
     subgraph "JWT Token Structure"
-        Header[Header | ────── | { |  "alg": "HS256", |  "typ": "JWT" | }]
+        Header[Header<br/>──────<br/>{<br/> "alg": "HS256",<br/> "typ": "JWT"<br/>}]
 
-        Payload[Payload | ────── | { |  "userId": 789, |  "role": "admin", |  "exp": 1680451200 | }]
+        Payload[Payload<br/>──────<br/>{<br/> "userId": 789,<br/> "role": "admin",<br/> "exp": 1680451200<br/>}]
 
-        Signature[Signature | ────── | HMACSHA256( |   base64(header) + |   "." + |   base64(payload), |   secret | )]
+        Signature[Signature<br/>──────<br/>HMACSHA256(<br/>  base64(header) +<br/>  "." +<br/>  base64(payload),<br/>  secret<br/>)]
     end
 
-    JWT[eyJhbGci.... | BASE64 ENCODED]
+    JWT[eyJhbGci....<br/>BASE64 ENCODED]
 
     Header --> JWT
     Payload --> JWT
     Signature --> JWT
 
-    JWT --> Final[Final Token: | eyJhbGci.eyJ1c2VySWQi.SflKxwRJ]
+    JWT --> Final[Final Token:<br/>eyJhbGci.eyJ1c2VySWQi.SflKxwRJ]
 ```
 
 ### Implementation
@@ -366,27 +366,27 @@ app.post('/api/refresh', requireAuth, (req, res) => {
 ```mermaid
 sequenceDiagram
     participant User as 👤 User
-    participant App as 🌐 Your App | (Client)
-    participant Auth as 🔐 Google | (Auth Server)
-    participant API as 📊 Google API | (Resource Server)
+    participant App as 🌐 Your App<br/>(Client)
+    participant Auth as 🔐 Google<br/>(Auth Server)
+    participant API as 📊 Google API<br/>(Resource Server)
 
     User->>App: Click "Login with Google"
 
-    App->>Auth: Redirect to Google login | with client_id & redirect_uri
+    App->>Auth: Redirect to Google login<br/>with client_id & redirect_uri
 
     User->>Auth: Login with Google credentials
 
-    Auth->>User: Show consent screen: | "App wants access to | your email and profile"
+    Auth->>User: Show consent screen:<br/>"App wants access to<br/>your email and profile"
 
     User->>Auth: Click "Allow"
 
-    Auth->>App: Redirect back with | authorization code
+    Auth->>App: Redirect back with<br/>authorization code
 
-    App->>Auth: Exchange code for access token | POST /token | {code, client_id, client_secret}
+    App->>Auth: Exchange code for access token<br/>POST /token<br/>{code, client_id, client_secret}
 
     Auth-->>App: Access token + refresh token
 
-    App->>API: Request user data | GET /userinfo | Authorization: Bearer <access_token>
+    App->>API: Request user data<br/>GET /userinfo<br/>Authorization: Bearer <access_token>
 
     API-->>App: User profile data
 
@@ -399,18 +399,18 @@ sequenceDiagram
 graph TB
     OAuth[OAuth 2.0 Flows]
 
-    OAuth --> AuthCode[Authorization Code | ────── | For web apps | Most secure]
+    OAuth --> AuthCode[Authorization Code<br/>──────<br/>For web apps<br/>Most secure]
 
-    OAuth --> Implicit[Implicit | ────── | For SPAs | ⚠️ Deprecated]
+    OAuth --> Implicit[Implicit<br/>──────<br/>For SPAs<br/>⚠️ Deprecated]
 
-    OAuth --> ClientCreds[Client Credentials | ────── | For server-to-server | No user involved]
+    OAuth --> ClientCreds[Client Credentials<br/>──────<br/>For server-to-server<br/>No user involved]
 
-    OAuth --> Password[Resource Owner | Password Credentials | ────── | For trusted apps | ⚠️ Not recommended]
+    OAuth --> Password[Resource Owner<br/>Password Credentials<br/>──────<br/>For trusted apps<br/>⚠️ Not recommended]
 
-    AuthCode --> Ex1[Example: Google | login on website]
-    Implicit --> Ex2[Example: Old | JavaScript apps]
-    ClientCreds --> Ex3[Example: Microservice | calling API]
-    Password --> Ex4[Example: Mobile app | by same company]
+    AuthCode --> Ex1[Example: Google<br/>login on website]
+    Implicit --> Ex2[Example: Old<br/>JavaScript apps]
+    ClientCreds --> Ex3[Example: Microservice<br/>calling API]
+    Password --> Ex4[Example: Mobile app<br/>by same company]
 ```
 
 ### Implementation (Authorization Code Flow)
@@ -540,9 +540,9 @@ app.get('/api/userinfo', (req, res) => {
 ```mermaid
 sequenceDiagram
     participant User as 👤 User
-    participant App1 as 📱 App 1 | (Gmail)
-    participant SSO as 🔐 SSO Provider | (Google)
-    participant App2 as 📊 App 2 | (YouTube)
+    participant App1 as 📱 App 1<br/>(Gmail)
+    participant SSO as 🔐 SSO Provider<br/>(Google)
+    participant App2 as 📊 App 2<br/>(YouTube)
 
     Note over User,App2: Login to Gmail
 
@@ -627,31 +627,31 @@ app.get('/auth/google/callback',
 ```mermaid
 graph TB
     subgraph "🔒 Password Security"
-        P1[✅ Hash passwords | bcrypt, Argon2]
-        P2[✅ Salt each password | Unique per user]
-        P3[✅ Minimum length | 8+ characters]
+        P1[✅ Hash passwords<br/>bcrypt, Argon2]
+        P2[✅ Salt each password<br/>Unique per user]
+        P3[✅ Minimum length<br/>8+ characters]
         P4[❌ Never store plaintext]
     end
 
     subgraph "🛡️ Token Security"
-        T1[✅ Short expiry | 15-60 minutes]
+        T1[✅ Short expiry<br/>15-60 minutes]
         T2[✅ Use HTTPS only]
-        T3[✅ HttpOnly cookies | Prevent XSS]
-        T4[✅ Refresh tokens | Longer-lived]
+        T3[✅ HttpOnly cookies<br/>Prevent XSS]
+        T4[✅ Refresh tokens<br/>Longer-lived]
     end
 
     subgraph "🔐 Session Security"
-        S1[✅ Secure flag | HTTPS only]
-        S2[✅ SameSite attribute | CSRF protection]
-        S3[✅ Session timeout | Auto-logout]
-        S4[✅ Regenerate on login | Prevent fixation]
+        S1[✅ Secure flag<br/>HTTPS only]
+        S2[✅ SameSite attribute<br/>CSRF protection]
+        S3[✅ Session timeout<br/>Auto-logout]
+        S4[✅ Regenerate on login<br/>Prevent fixation]
     end
 
     subgraph "🚨 Attack Prevention"
-        A1[✅ Rate limiting | Brute force protection]
-        A2[✅ 2FA/MFA | Extra security layer]
-        A3[✅ CSRF tokens | Cross-site protection]
-        A4[✅ Input validation | SQL injection prevention]
+        A1[✅ Rate limiting<br/>Brute force protection]
+        A2[✅ 2FA/MFA<br/>Extra security layer]
+        A3[✅ CSRF tokens<br/>Cross-site protection]
+        A4[✅ Input validation<br/>SQL injection prevention]
     end
 ```
 

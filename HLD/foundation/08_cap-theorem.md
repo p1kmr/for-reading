@@ -23,17 +23,17 @@ Think of it like choosing a hotel: You can have it **cheap**, **good quality**, 
 
 ```mermaid
 graph TB
-    CAP[CAP Theorem: | Pick ANY 2]
+    CAP[CAP Theorem:<br/>Pick ANY 2]
 
-    CAP --> CP[CP Systems | Consistency + | Partition Tolerance]
-    CAP --> AP[AP Systems | Availability + | Partition Tolerance]
-    CAP --> CA[CA Systems | Consistency + | Availability]
+    CAP --> CP[CP Systems<br/>Consistency +<br/>Partition Tolerance]
+    CAP --> AP[AP Systems<br/>Availability +<br/>Partition Tolerance]
+    CAP --> CA[CA Systems<br/>Consistency +<br/>Availability]
 
-    CP --> CP_Ex[MongoDB, HBase | Redis, Zookeeper]
-    AP --> AP_Ex[Cassandra, DynamoDB | Riak, CouchDB]
-    CA --> CA_Ex[PostgreSQL, MySQL | Single-node systems]
+    CP --> CP_Ex[MongoDB, HBase<br/>Redis, Zookeeper]
+    AP --> AP_Ex[Cassandra, DynamoDB<br/>Riak, CouchDB]
+    CA --> CA_Ex[PostgreSQL, MySQL<br/>Single-node systems]
 
-    CA -.->|❌ Not practical | in distributed | systems| Note1[Networks always | have partitions!]
+    CA -.->|❌ Not practical<br/>in distributed<br/>systems| Note1[Networks always<br/>have partitions!]
 
     style CP fill:#ffe6e6
     style AP fill:#e6f3ff
@@ -81,7 +81,7 @@ sequenceDiagram
     Node3-->>Node1: ACK
     Node1-->>Client: Write successful
 
-    Note over Client,Node3: ✅ Strong Consistency: | All nodes now have balance = $100
+    Note over Client,Node3: ✅ Strong Consistency:<br/>All nodes now have balance = $100
 
     Client->>Node2: Read: balance = ?
     Node2-->>Client: balance = $100 ✅
@@ -123,9 +123,9 @@ graph TB
     Client[👤 Client]
 
     subgraph "Database Cluster"
-        Node1[🖥️ Node 1 | ✅ UP]
-        Node2[🖥️ Node 2 | ❌ DOWN]
-        Node3[🖥️ Node 3 | ✅ UP]
+        Node1[🖥️ Node 1<br/>✅ UP]
+        Node2[🖥️ Node 2<br/>❌ DOWN]
+        Node3[🖥️ Node 3<br/>✅ UP]
     end
 
     Client -->|Request| Node1
@@ -135,7 +135,7 @@ graph TB
     Node1 -->|Response ✅| Client
     Node3 -->|Response ✅| Client
 
-    Note1[💡 System remains available | even with Node 2 down]
+    Note1[💡 System remains available<br/>even with Node 2 down]
 ```
 
 **Example:**
@@ -166,16 +166,16 @@ async function getProduct(productId) {
 ```mermaid
 graph TB
     subgraph "Data Center 1 (USA)"
-        Node1[🖥️ Node 1 | balance = $100]
-        Node2[🖥️ Node 2 | balance = $100]
+        Node1[🖥️ Node 1<br/>balance = $100]
+        Node2[🖥️ Node 2<br/>balance = $100]
     end
 
     subgraph "Data Center 2 (Europe)"
-        Node3[🖥️ Node 3 | balance = $100]
-        Node4[🖥️ Node 4 | balance = $100]
+        Node3[🖥️ Node 3<br/>balance = $100]
+        Node4[🖥️ Node 4<br/>balance = $100]
     end
 
-    Node1 <-.->|❌ Network partition! | Can't communicate| Node3
+    Node1 <-.->|❌ Network partition!<br/>Can't communicate| Node3
     Node1 <-.->|❌| Node4
     Node2 <-.->|❌| Node3
     Node2 <-.->|❌| Node4
@@ -183,7 +183,7 @@ graph TB
     Client1[👤 Client USA] --> Node1
     Client2[👤 Client EU] --> Node3
 
-    Note1[💡 Both partitions | continue operating | independently]
+    Note1[💡 Both partitions<br/>continue operating<br/>independently]
 ```
 
 **What happens during partition:**
@@ -215,9 +215,9 @@ When partition heals:
 ```mermaid
 graph TB
     subgraph "The CAP Triangle"
-        C[🎯 Consistency | All nodes see same data]
-        A[🎯 Availability | Always respond]
-        P[🎯 Partition Tolerance | Work during network failures]
+        C[🎯 Consistency<br/>All nodes see same data]
+        A[🎯 Availability<br/>Always respond]
+        P[🎯 Partition Tolerance<br/>Work during network failures]
 
         C ---|Choose 2| A
         A ---|of| P
@@ -225,9 +225,9 @@ graph TB
     end
 
     subgraph "Your Choices"
-        CP[CP: Sacrifice Availability | ❌ Service unavailable | during partitions]
-        AP[AP: Sacrifice Consistency | ❌ Show stale data | during partitions]
-        CA[CA: No Partition Tolerance | ❌ Not practical | Networks always partition!]
+        CP[CP: Sacrifice Availability<br/>❌ Service unavailable<br/>during partitions]
+        AP[AP: Sacrifice Consistency<br/>❌ Show stale data<br/>during partitions]
+        CA[CA: No Partition Tolerance<br/>❌ Not practical<br/>Networks always partition!]
     end
 
     C --> CP
@@ -254,9 +254,9 @@ sequenceDiagram
     USA->>USA: Try to sync with EU...
     USA--xEU: Can't reach!
 
-    USA-->>Client: ❌ Error: Cannot guarantee consistency | "Service temporarily unavailable"
+    USA-->>Client: ❌ Error: Cannot guarantee consistency<br/>"Service temporarily unavailable"
 
-    Note over Client,EU: System prefers being DOWN | over showing wrong data
+    Note over Client,EU: System prefers being DOWN<br/>over showing wrong data
 ```
 
 **Use cases:**
@@ -287,8 +287,8 @@ await db.collection('accounts').updateOne(
 ```mermaid
 sequenceDiagram
     participant Client as 👤 Client
-    participant USA as 🖥️ USA Node | balance=$100
-    participant EU as 🖥️ EU Node | balance=$100
+    participant USA as 🖥️ USA Node<br/>balance=$100
+    participant EU as 🖥️ EU Node<br/>balance=$100
 
     Note over USA,EU: ❌ Network partition!
 
@@ -297,12 +297,12 @@ sequenceDiagram
     USA--xEU: Can't reach EU
     USA-->>Client: ✅ Success (USA: $50, EU: $100)
 
-    Note over USA,EU: Temporary inconsistency! | Will sync when partition heals
+    Note over USA,EU: Temporary inconsistency!<br/>Will sync when partition heals
 
     Client->>EU: Read: balance = ?
     EU-->>Client: balance = $100 (stale! ⚠️)
 
-    Note over Client,EU: System prefers being AVAILABLE | over showing consistent data
+    Note over Client,EU: System prefers being AVAILABLE<br/>over showing consistent data
 ```
 
 **Use cases:**
@@ -330,9 +330,9 @@ await cassandra.execute(
 graph LR
     subgraph "CP System (MongoDB)"
         CP_Write[Write Request]
-        CP_Check{Can reach | majority?}
-        CP_Success[✅ Write Success | All nodes consistent]
-        CP_Fail[❌ Write Failed | Service unavailable]
+        CP_Check{Can reach<br/>majority?}
+        CP_Success[✅ Write Success<br/>All nodes consistent]
+        CP_Fail[❌ Write Failed<br/>Service unavailable]
 
         CP_Write --> CP_Check
         CP_Check -->|Yes| CP_Success
@@ -342,14 +342,14 @@ graph LR
     subgraph "AP System (Cassandra)"
         AP_Write[Write Request]
         AP_Try[Write to available nodes]
-        AP_Success[✅ Write Success | Eventually consistent]
+        AP_Success[✅ Write Success<br/>Eventually consistent]
 
         AP_Write --> AP_Try
         AP_Try --> AP_Success
     end
 
-    Note1[CP: Fail fast, | maintain consistency]
-    Note2[AP: Always available, | eventual consistency]
+    Note1[CP: Fail fast,<br/>maintain consistency]
+    Note2[AP: Always available,<br/>eventual consistency]
 ```
 
 ---
@@ -361,28 +361,28 @@ graph LR
 ```mermaid
 graph TB
     subgraph "CP Systems (Favor Consistency)"
-        CP1[🗄️ MongoDB | Majority writes]
-        CP2[🔧 Redis Cluster | Synchronous replication]
-        CP3[🔐 Zookeeper | Leader election]
-        CP4[⚙️ etcd | Distributed config]
-        CP5[🗃️ HBase | Strong consistency]
+        CP1[🗄️ MongoDB<br/>Majority writes]
+        CP2[🔧 Redis Cluster<br/>Synchronous replication]
+        CP3[🔐 Zookeeper<br/>Leader election]
+        CP4[⚙️ etcd<br/>Distributed config]
+        CP5[🗃️ HBase<br/>Strong consistency]
     end
 
     subgraph "AP Systems (Favor Availability)"
-        AP1[🗄️ Cassandra | Quorum reads/writes]
-        AP2[🌐 DynamoDB | Eventual consistency]
-        AP3[📦 Riak | Vector clocks]
-        AP4[📝 CouchDB | Multi-master]
-        AP5[🌍 DNS | Global distribution]
+        AP1[🗄️ Cassandra<br/>Quorum reads/writes]
+        AP2[🌐 DynamoDB<br/>Eventual consistency]
+        AP3[📦 Riak<br/>Vector clocks]
+        AP4[📝 CouchDB<br/>Multi-master]
+        AP5[🌍 DNS<br/>Global distribution]
     end
 
     subgraph "CA Systems (Single Node)"
-        CA1[🐘 PostgreSQL | Single instance]
-        CA2[🐬 MySQL | Single instance]
-        CA3[📊 SQLite | Embedded]
+        CA1[🐘 PostgreSQL<br/>Single instance]
+        CA2[🐬 MySQL<br/>Single instance]
+        CA3[📊 SQLite<br/>Embedded]
     end
 
-    Note1[❌ CA not practical | in distributed systems]
+    Note1[❌ CA not practical<br/>in distributed systems]
 ```
 
 ### Detailed Examples
@@ -415,7 +415,7 @@ sequenceDiagram
         Client->>Primary: Write request
         Primary--xSecondary1: Can't reach majority!
         Primary-->>Client: ❌ Error: No majority
-        Note over Client: Availability sacrificed | for consistency ✅
+        Note over Client: Availability sacrificed<br/>for consistency ✅
     end
 ```
 
@@ -424,11 +424,11 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant Client as 👤 Client
-    participant Node1 as 🖥️ Node 1 | USA
-    participant Node2 as 🖥️ Node 2 | USA
-    participant Node3 as 🖥️ Node 3 | Europe
+    participant Node1 as 🖥️ Node 1<br/>USA
+    participant Node2 as 🖥️ Node 2<br/>USA
+    participant Node3 as 🖥️ Node 3<br/>Europe
 
-    Client->>Node1: Write: balance = 100 | (consistency=ONE)
+    Client->>Node1: Write: balance = 100<br/>(consistency=ONE)
 
     Node1->>Node1: Write locally
     Node1-->>Client: ✅ Success (fast!)
@@ -446,7 +446,7 @@ sequenceDiagram
         Client->>Node3: Read: balance = ?
         Node3-->>Client: balance = 100 (stale!)
 
-        Note over Client,Node3: Availability maintained ✅ | Consistency sacrificed
+        Note over Client,Node3: Availability maintained ✅<br/>Consistency sacrificed
     end
 ```
 
@@ -455,7 +455,7 @@ sequenceDiagram
 ```mermaid
 graph TB
     Client[👤 Client]
-    PG[🐘 PostgreSQL | Single Instance]
+    PG[🐘 PostgreSQL<br/>Single Instance]
 
     Client -->|Read/Write| PG
 
@@ -463,7 +463,7 @@ graph TB
     PG -->|✅ Available| Note2[Always responds]
     PG -->|❌ No Partition Tolerance| Note3[Single point of failure]
 
-    Down[⚠️ If server crashes: | Entire system DOWN]
+    Down[⚠️ If server crashes:<br/>Entire system DOWN]
 ```
 
 ---
@@ -479,7 +479,7 @@ CAP Theorem is incomplete! **PACELC** extends it:
 
 ```mermaid
 graph TD
-    Start{Network | Partition?}
+    Start{Network<br/>Partition?}
 
     Start -->|Yes| P[During Partition]
     Start -->|No| E[Normal Operation]
@@ -489,8 +489,8 @@ graph TD
     PA -->|Consistency| PC_Choice[Reject requests]
 
     E --> EL{Choose:}
-    EL -->|Low Latency| EL_Choice[Async replication | Eventual consistency]
-    EL -->|Consistency| EC_Choice[Sync replication | Higher latency]
+    EL -->|Low Latency| EL_Choice[Async replication<br/>Eventual consistency]
+    EL -->|Consistency| EC_Choice[Sync replication<br/>Higher latency]
 ```
 
 ### PACELC Classification
@@ -540,16 +540,16 @@ const result = await dynamodb.getItem({
 graph TD
     Start[Choose Database]
 
-    Start --> Q1{Need strong | consistency?}
+    Start --> Q1{Need strong<br/>consistency?}
 
-    Q1 -->|Yes| Q2{Financial | transactions?}
-    Q1 -->|No| AP1[✅ AP System | Cassandra, DynamoDB]
+    Q1 -->|Yes| Q2{Financial<br/>transactions?}
+    Q1 -->|No| AP1[✅ AP System<br/>Cassandra, DynamoDB]
 
-    Q2 -->|Yes| CP1[✅ CP System | PostgreSQL + Replication]
-    Q2 -->|No| Q3{Global | distribution?}
+    Q2 -->|Yes| CP1[✅ CP System<br/>PostgreSQL + Replication]
+    Q2 -->|No| Q3{Global<br/>distribution?}
 
-    Q3 -->|Yes| CP2[✅ MongoDB | with majority writes]
-    Q3 -->|No| CA1[✅ Single PostgreSQL | with backups]
+    Q3 -->|Yes| CP2[✅ MongoDB<br/>with majority writes]
+    Q3 -->|No| CA1[✅ Single PostgreSQL<br/>with backups]
 ```
 
 ### Use Case Guide
@@ -557,21 +557,21 @@ graph TD
 ```mermaid
 graph TB
     subgraph "CP: Strong Consistency Required"
-        UC_CP1[💰 Banking & Payments | Never show wrong balance]
-        UC_CP2[📦 Inventory Management | Prevent overselling]
-        UC_CP3[🎟️ Ticket Booking | No double booking]
-        UC_CP4[🔐 Authentication | Consistent user state]
+        UC_CP1[💰 Banking & Payments<br/>Never show wrong balance]
+        UC_CP2[📦 Inventory Management<br/>Prevent overselling]
+        UC_CP3[🎟️ Ticket Booking<br/>No double booking]
+        UC_CP4[🔐 Authentication<br/>Consistent user state]
     end
 
     subgraph "AP: High Availability Required"
-        UC_AP1[📱 Social Media Feeds | Stale data OK]
-        UC_AP2[🛒 Shopping Carts | Eventual consistency OK]
-        UC_AP3[👍 Likes & Reactions | Approximate counts OK]
-        UC_AP4[📊 Analytics | Eventual accuracy OK]
+        UC_AP1[📱 Social Media Feeds<br/>Stale data OK]
+        UC_AP2[🛒 Shopping Carts<br/>Eventual consistency OK]
+        UC_AP3[👍 Likes & Reactions<br/>Approximate counts OK]
+        UC_AP4[📊 Analytics<br/>Eventual accuracy OK]
     end
 
-    CP_Choice[Choose CP | MongoDB, PostgreSQL]
-    AP_Choice[Choose AP | Cassandra, DynamoDB]
+    CP_Choice[Choose CP<br/>MongoDB, PostgreSQL]
+    AP_Choice[Choose AP<br/>Cassandra, DynamoDB]
 
     UC_CP1 --> CP_Choice
     UC_CP2 --> CP_Choice
@@ -588,15 +588,15 @@ graph TB
 
 ```mermaid
 graph LR
-    Eventual[Eventual | Consistency] --> Session[Session | Consistency] --> Bounded[Bounded | Staleness] --> Strong[Strong | Consistency]
+    Eventual[Eventual<br/>Consistency] --> Session[Session<br/>Consistency] --> Bounded[Bounded<br/>Staleness] --> Strong[Strong<br/>Consistency]
 
-    Eventual -.->|Fastest | Most Available| Note1
-    Strong -.->|Slowest | Most Consistent| Note2
+    Eventual -.->|Fastest<br/>Most Available| Note1
+    Strong -.->|Slowest<br/>Most Consistent| Note2
 
     Example1[DynamoDB default] --> Eventual
     Example2[Azure Cosmos DB] --> Session
-    Example3[Cosmos DB | custom] --> Bounded
-    Example4[PostgreSQL | MongoDB majority] --> Strong
+    Example3[Cosmos DB<br/>custom] --> Bounded
+    Example4[PostgreSQL<br/>MongoDB majority] --> Strong
 ```
 
 **Consistency Level Details:**
@@ -837,8 +837,8 @@ async function writeData(key, value) {
 
 ```mermaid
 sequenceDiagram
-    participant USA as 🖥️ USA Node | balance=$50
-    participant EU as 🖥️ EU Node | balance=$100
+    participant USA as 🖥️ USA Node<br/>balance=$50
+    participant EU as 🖥️ EU Node<br/>balance=$100
 
     Note over USA,EU: Network partition heals!
 
@@ -887,16 +887,16 @@ CAP only describes behavior during network partitions. But systems must make tra
 graph TB
     Start[Distributed System]
 
-    Start --> Partition{Network | Partition?}
+    Start --> Partition{Network<br/>Partition?}
 
     Partition -->|Yes| P_Trade{CAP Trade-off}
-    Partition -->|No| E_Trade{Normal Operation | Trade-off}
+    Partition -->|No| E_Trade{Normal Operation<br/>Trade-off}
 
-    P_Trade -->|PA| PA[Favor Availability | Accept stale data]
-    P_Trade -->|PC| PC[Favor Consistency | Reject requests]
+    P_Trade -->|PA| PA[Favor Availability<br/>Accept stale data]
+    P_Trade -->|PC| PC[Favor Consistency<br/>Reject requests]
 
-    E_Trade -->|EL| EL[Favor Low Latency | Async replication | Eventually consistent]
-    E_Trade -->|EC| EC[Favor Consistency | Sync replication | Higher latency]
+    E_Trade -->|EL| EL[Favor Low Latency<br/>Async replication<br/>Eventually consistent]
+    E_Trade -->|EC| EC[Favor Consistency<br/>Sync replication<br/>Higher latency]
 ```
 
 **Examples:**
